@@ -105,6 +105,17 @@ so a generously privileged agent account is fine.
 Pick where jobs actually run: simplest is an existing reachable node (`agpc.local`) or a fresh VM
 via clusterintent if convenient — implementer's choice; do not block on cagent integration.
 
+**Decision (2026-08-07): use a fresh VM, with a manual handoff boundary.**
+
+- The job runner will be a fresh VM, not an existing node. The implementer's scope for this step
+  ends at *creating the VM*; everything after that boundary is done manually by the user:
+  - initial SSH setup (keys, access) — user does this by hand;
+  - Claude login on the VM — the VM uses a **dedicated Claude account**, separate from the
+    account used on this Mac (agstudio), and the user logs in manually.
+- So the automated part of Step 5 is: create the VM, then stop and hand off. Resume automated
+  work (installing git/uv/Claude Code CLI/agautolab, systemd units, credentials in
+  `~/.agautolab/.local/`) only after the user confirms SSH access and Claude login are done.
+
 - Install: git, uv/python, Claude Code CLI, agautolab checkout, credentials in `~/.agautolab/.local/`.
 - Install the systemd unit for `autolab loop` (one unit per job, templated `autolab@<job>.service`).
 - Job repos are cloned from / pushed to the agstudio gitea; each iteration commits, push at least
