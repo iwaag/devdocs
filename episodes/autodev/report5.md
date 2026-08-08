@@ -1,58 +1,54 @@
-# autodev — Step 5 report: dev node setup (agautolab1 VM)
+# Step 5 report — dev node setup (agautolab1)
 
-Status: **complete** (VM created, manual handoff done, runtime provisioned and
-verified end to end including a real headless claude run on the dedicated
-account).
+Date: 2026-08-07. Outcome: **completed**. The job-runner VM is fully provisioned;
+`autolab loop` can now run real jobs under systemd with a logged-in Claude Code CLI.
 
-## VM creation and manual handoff
+## What was set up
 
-Per the plan's 2026-08-07 decision the runner is a fresh VM with a manual
-boundary. The QEMU creation path was implemented in pj-clusterintent first
-(`devdocs/vision/vm/report.md` there), planned as `devdocs/vision/vm/ex1/plan.md`,
-and the VM was created and hand-configured by the user: `agautolab1` on
-aghub-pve (Ubuntu 24.04.4, 4 vCPU / 8 GB RAM / 31 GB root). The user did the
-initial SSH setup (`eiji@agautolab1.local`, `~/.ssh/ansible_key`) and the
-Claude login with the dedicated account, per the handoff boundary.
+VM: `agautolab1.local` = Proxmox VM 109 on `aghub.local` (Ubuntu 24.04.4,
+4 vCPU / 8 GB RAM / 31 GB disk). Per the plan's handoff boundary, the user did the
+initial SSH setup and the Claude login; everything else was automated over SSH as `eiji`.
 
-## Automated provisioning (this step's agent work)
+- SSH access with `~/.ssh/ansible_key` confirmed.
+- `uv` 0.12.2 in user space (`~/.local/bin`).
+- agautolab pushed to gitea (`autodev/agautolab`) and cloned to `~/agautolab` on the VM;
+  `uv run pytest -q` → 23 passed.
+- Gitea token in `~/.agautolab/.local/gitea/` (mode 600) + git credential store;
+  push/clone from the VM verified.
+- systemd user unit `autolab@.service` installed to `~/.config/systemd/user/`,
+  `loginctl enable-linger` on (Linger=yes). Added
+  `Environment=PATH=%h/.local/bin:%h/.local/node/bin:/usr/local/bin:/usr/bin:/bin`
+  to the unit (systemd user units don't include `~/.local/bin` by default, and the
+  claude adapter shells out to `claude`).
+- Claude Code CLI 2.1.224 installed via npm (`@anthropic-ai/claude-code`) under a
+  user-space Node 22 (`~/.local/node`), with `~/.local/bin/claude` symlinked to it
+  and `~/.local/node/bin` on the login PATH.
+- User logged in with the dedicated Claude account. Headless smoke test:
+  `claude -p "Reply with exactly: OK" --output-format json` → `"result":"OK"`,
+  7.3 s wall, model claude-sonnet-5, no permission denials.
 
-- `uv` 0.12.2 installed userspace; no root was needed for anything
-  (`loginctl enable-linger` succeeded without sudo; Linger=yes).
-- agautolab pushed to the agstudio gitea as `autodev/agautolab` and cloned to
-  `~/agautolab` on the VM over HTTP. Gitea token stored at
-  `~/.agautolab/.local/gitea/autolab-agent.token` (mode 600) and wired via
-  `git credential.helper store`, so clones/pushes need no token-in-URL.
-- Test suite on the VM: `uv run pytest -q` → **23 passed**.
-- systemd user unit `autolab@.service` installed to `~/.config/systemd/user/`
-  (template from `devenv/systemd/`), `daemon-reload` done, instance not yet
-  enabled — starting a job loop is Step 6.
-- Claude Code CLI 2.1.224: the official installer's `claude install`
-  self-setup step **hung reproducibly** (100% CPU busy-loop, 10+ min, twice)
-  on this VM. Workaround: the downloaded binary
-  (`~/.claude/downloads/claude-2.1.224-linux-x64`) IS the CLI; the user
-  placed it directly as `~/.local/bin/claude`. Version check OK.
+## Incident: Claude CLI busy-loop (the bulk of this step's time)
 
-## Verification
+The official installer hung twice at the self-setup stage with 100 % CPU. Root cause:
+the VM was created with Proxmox's default CPU type `kvm64` ("Common KVM processor"),
+which has **no AVX/AVX2**; the bun-compiled native `claude` binary busy-loops instead
+of crashing on that CPU. Every avenue that ultimately executes the native binary
+(installer, direct binary placement, and the npm 2.x package — which is only a wrapper
+vendoring the same ELF) spun identically. Network was ruled out early (9.5 MB/s).
 
-`claude -p` one-shot on the VM (headless, dedicated account):
-`"Reply with exactly: OK"` → `OK`, cost $0.057, models haiku-4.5 + sonnet-5
-in the usage map. This validates the full Step 6 execution chain: SSH →
-claude headless with JSON output → gitea reachable from the VM (API 200,
-clone/push verified during setup).
+Fix (root on aghub, run by the user): `qm set 109 --cpu host` then a full
+`qm shutdown` / `qm start`. After that the VM exposes the host CPU (Intel N350, AVX2)
+and `claude --version` returns instantly. The npm install was kept.
 
-## Notes / follow-ups
+Registered as WorkflowEpisode `701ad4e6-00c0-4cc0-b367-1e55d2548927`
+("Claude Code CLI busy-loop on new Proxmox VM (kvm64 CPU without AVX2)", candidate,
+painful). Main follow-up candidate recorded there: clusterintent's `create_qemu.yml`
+sets no `--cpu`, so every future guest running modern toolchains will hit this again
+unless `cpu: host` becomes the default.
 
-- **node/npm are not installed** on the VM. If Step 6's Othello job uses npm
-  gates, install Node first (userspace via nvm is fine) or pick gates that
-  run under uv/python + playwright.
-- The claude-installer hang is worth remembering for future nodes: skip
-  `claude install` and place the downloaded binary manually. (Candidate ENT
-  item if it recurs on the next node.)
-- Auto-updates: the manually-placed binary won't self-update cleanly; pin and
-  update by re-download when needed.
-- sudo on the VM requires a password, so anything needing root stays a manual
-  user step by design.
+## Ready for Step 6
 
-Also reported in `pj-agdev/devdocs/episodes/agautolab/begin/report.md`.
-clusterintent-side work (QEMU creation path) is reported in its own repo
-(`devdocs/vision/vm/`).
+Job repos can be cloned from / pushed to agstudio's gitea from the VM; the claude
+adapter has a working, authenticated CLI on the service PATH; `autolab@<job>.service`
+is installable per job. Next: create `autodev/othello-web` and start the first
+full-auto run.
