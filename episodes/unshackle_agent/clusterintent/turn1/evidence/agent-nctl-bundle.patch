@@ -1,0 +1,87 @@
+diff --git a/docs/state-bundle.md b/docs/state-bundle.md
+index 89f6f4a..ee81b8a 100644
+--- a/docs/state-bundle.md
++++ b/docs/state-bundle.md
+@@ -8,8 +8,7 @@ format (`nctl desired export`, the canonical batch document `desired apply
+ -f` accepts); actual state is observed, not declared, so its `--json`
+ envelope already is its file representation.
+ 
+-Bundling is a documented composition, not an `nctl bundle` command: the
+-composer runs the read commands (four required views, plus optional detail), writes `manifest.json` from their
++`nctl bundle` runs the read views (four required views, plus optional detail), writes `manifest.json` from their
+ envelope headers, zips, and uploads. (If chronic manifest mistakes make this
+ painful, that is the Easier Next Time signal to promote it to a command —
+ record the pain, don't improvise a second format.)
+@@ -78,6 +77,16 @@ uv run --project nctl nctl actual --json --detail > "$DIR/actual_detail.json"
+ uv run --project nctl nctl upload "$DIR" --zip --ttl 2h
+ ```
+ 
++The same operation is available directly as:
++
++```bash
++uv run --project nctl nctl bundle --ttl 2h
++uv run --project nctl nctl bundle --detail --json
++```
++
++The command prints one presigned download URL; `--json` returns the
++`nctl.bundle.v1` envelope.
++
+ `nctl upload` prints one presigned download URL; quote it and its expiry
+ exactly. Rules:
+ 
+diff --git a/src/nctl_core/cli/main.py b/src/nctl_core/cli/main.py
+index 8b39c15..36e8731 100644
+--- a/src/nctl_core/cli/main.py
++++ b/src/nctl_core/cli/main.py
+@@ -15,6 +15,7 @@ import typer
+ from pydantic import ValidationError
+ 
+ from nctl_core.actual_render import build_actual, render_actual_text
++from nctl_core.bundle import build_bundle, render_bundle_text
+ from nctl_core.agent import (
+     AGENT_ABORT_SCHEMA, AGENT_RUN_SCHEMA, AGENT_SEND_SCHEMA, AGENT_SESSIONS_SCHEMA, AGENT_STATUS_SCHEMA,
+     AgentError, attach_agent, build_agent_abort, build_agent_run, build_agent_send, build_agent_sessions, build_agent_status,
+@@ -175,6 +176,31 @@ def upload(
+     raise typer.Exit(EXIT_OK if envelope.ok else EXIT_FAILURE)
+ 
+ 
++BundleDetailOption = Annotated[bool, typer.Option("--detail", help="Include raw nodeutils facts in actual_detail.json.")]
++BundleJsonOption = Annotated[bool, typer.Option("--json", help="Print the nctl.bundle.v1 envelope as JSON.")]
++
++
++@app.command()
++def bundle(
++    config: ConfigOption = None,
++    detail: BundleDetailOption = False,
++    ttl: UploadTtlOption = None,
++    json_output: BundleJsonOption = False,
++) -> None:
++    """Collect the complete cluster state and print one time-limited download URL."""
++    cfg = _load_config(config)
++    try:
++        store = make_store(cfg)
++    except ConfigError as exc:
++        typer.echo(f"error: {exc}", err=True)
++        raise typer.Exit(EXIT_USAGE)
++    envelope = build_bundle(cfg, detail=detail, ttl=ttl, store=store)
++    emit(envelope, json_output, render_bundle_text)
++    if any(error.code == "invalid_ttl" for error in envelope.errors):
++        raise typer.Exit(EXIT_USAGE)
++    raise typer.Exit(EXIT_OK if envelope.ok else EXIT_FAILURE)
++
++
+ AgentHostArgument = Annotated[str, typer.Argument(help="Exact DesiredNode slug.")]
+ AgentStatusJsonOption = Annotated[bool, typer.Option("--json", help="Print the nctl.agent.status.v1 envelope as JSON.")]
+ AgentSessionOption = Annotated[Optional[str], typer.Option("--session", help="Existing OpenCode session ID to resume.")]
+diff --git a/tests/test_cli_surface.py b/tests/test_cli_surface.py
+index 93f31b4..4e9a206 100644
+--- a/tests/test_cli_surface.py
++++ b/tests/test_cli_surface.py
+@@ -31,6 +31,7 @@ RETAINED_COMMANDS = {
+     "agent",
+     "workflow-episode",
+     "upload",
++    "bundle",
+ }
+ 
+ 

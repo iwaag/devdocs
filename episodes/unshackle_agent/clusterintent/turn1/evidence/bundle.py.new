@@ -1,0 +1,135 @@
+"""Compose the cluster's read-only state views into one downloadable ZIP."""
+
+from __future__ import annotations
+
+import json
+import subprocess
+import tempfile
+from datetime import datetime, timezone
+from pathlib import Path
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from nctl_core.actual_render import build_actual
+from nctl_core.config import Config
+from nctl_core.desired_export import build_desired_export, document_to_yaml
+from nctl_core.drift_render import build_drift
+from nctl_core.output import Envelope, EnvelopeError
+from nctl_core.relations_render import build_relations
+from nctl_core.upload import ObjectStore, UploadData, UploadError, run_upload
+
+BUNDLE_SCHEMA = "nctl.bundle.v1"
+
+
+class BundleContent(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    path: str
+    schema_name: str = Field(alias="schema")
+    generated_at: datetime
+
+
+class BundleData(BaseModel):
+    download: UploadData | None = None
+    contents: list[BundleContent] = Field(default_factory=list)
+
+
+def _git_sha(cfg: Config) -> str:
+    result = subprocess.run(
+        ["git", "-C", str(cfg.repo_root()), "rev-parse", "HEAD"],
+        capture_output=True,
+        text=True,
+        timeout=10,
+        check=True,
+    )
+    return result.stdout.strip()
+
+
+def _write_json(path: Path, envelope: Envelope) -> BundleContent:
+    path.write_text(envelope.to_json() + "\n")
+    return BundleContent(path=path.name, schema=envelope.schema_name, generated_at=envelope.generated_at)
+
+
+def _error_view(name: str, envelope: Envelope) -> EnvelopeError:
+    return EnvelopeError(
+        code="view_failed",
+        message=f"{name} view failed: " + "; ".join(error.message for error in envelope.errors),
+        detail={"view": name, "errors": [error.model_dump() for error in envelope.errors]},
+    )
+
+
+def run_bundle(
+    cfg: Config,
+    *,
+    detail: bool = False,
+    ttl: str | None = None,
+    store: ObjectStore | None = None,
+    now: datetime | None = None,
+) -> tuple[BundleData, list[EnvelopeError]]:
+    """Collect the canonical views, write a manifest, and upload one ZIP."""
+    views = [
+        ("desired.yaml", build_desired_export(cfg)),
+        ("drift.json", build_drift(cfg)),
+        ("actual.json", build_actual(cfg)),
+        ("relations.json", build_relations(cfg)),
+    ]
+    if detail:
+        views.append(("actual_detail.json", build_actual(cfg, detail=True)))
+
+    errors = [_error_view(name, envelope) for name, envelope in views if not envelope.ok]
+    if errors:
+        return BundleData(), errors
+
+    moment = now or datetime.now(timezone.utc)
+    with tempfile.TemporaryDirectory(prefix="nctl-state-") as tmp:
+        directory = Path(tmp)
+        contents: list[BundleContent] = []
+        for name, envelope in views:
+            path = directory / name
+            if name == "desired.yaml":
+                path.write_text(document_to_yaml(envelope.data.document))
+                contents.append(BundleContent(path=name, schema="nctl.desired.export.v1", generated_at=envelope.generated_at))
+            else:
+                contents.append(_write_json(path, envelope))
+
+        manifest = {
+            "schema": BUNDLE_SCHEMA,
+            "generated_at": moment.isoformat(),
+            "nctl_git_sha": _git_sha(cfg),
+            "contents": [content.model_dump(mode="json", by_alias=True) for content in contents],
+        }
+        (directory / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+        contents.insert(0, BundleContent(path="manifest.json", schema=BUNDLE_SCHEMA, generated_at=moment))
+        upload = run_upload(cfg, [directory / name for name in ["manifest.json", *[content.path for content in contents[1:]]]], zip_requested=True, ttl=ttl, store=store, now=moment)
+
+    return BundleData(download=upload, contents=contents), []
+
+
+def build_bundle(
+    cfg: Config,
+    *,
+    detail: bool = False,
+    ttl: str | None = None,
+    store: ObjectStore | None = None,
+    now: datetime | None = None,
+) -> Envelope[BundleData]:
+    try:
+        data, errors = run_bundle(cfg, detail=detail, ttl=ttl, store=store, now=now)
+        return Envelope.build(BUNDLE_SCHEMA, data, errors)
+    except UploadError as exc:
+        return Envelope.build(BUNDLE_SCHEMA, BundleData(), [EnvelopeError(code=exc.code, message=str(exc), detail=exc.detail)])
+    except Exception as exc:  # storage, git, and source failures are CLI errors
+        return Envelope.build(BUNDLE_SCHEMA, BundleData(), [EnvelopeError(code="bundle_failed", message=f"{type(exc).__name__}: {exc}")])
+
+
+def render_bundle_text(envelope: Envelope[BundleData]) -> str:
+    if not envelope.ok:
+        return "\n".join(f"error [{error.code}]: {error.message}" for error in envelope.errors)
+    download = envelope.data.download
+    assert download is not None
+    expires = download.expires_at.strftime("%Y-%m-%d %H:%M:%S %Z") if download.expires_at else "?"
+    return "\n".join([
+        f"state bundle ({len(envelope.data.contents)} files, {download.size_bytes} bytes)",
+        f"download URL (valid until {expires}, {download.ttl_minutes} min):",
+        download.url,
+    ])

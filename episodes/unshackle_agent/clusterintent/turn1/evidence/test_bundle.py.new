@@ -1,0 +1,71 @@
+import json
+import zipfile
+from datetime import datetime, timezone
+from pathlib import Path
+
+from nctl_core.bundle import BUNDLE_SCHEMA, build_bundle
+from nctl_core.config import Config
+
+
+CONFIG_BODY = """
+[nautobot]
+url = "http://localhost:8000"
+
+[inventory]
+dumps_dir = "/var/lib/nodeutils"
+
+[ansible]
+playbook_dir = "ansible_agdev"
+inventory = "inventories/generated/hosts_intent.yml"
+
+[storage]
+endpoint = "http://storage.local:9000"
+bucket = "nctl-outbox"
+access_key = "nctl"
+"""
+
+
+class Store:
+    def __init__(self):
+        self.body = b""
+
+    def put_file(self, key: str, path: Path) -> None:
+        self.body = path.read_bytes()
+
+    def presign_get(self, key: str, ttl) -> str:
+        return "http://storage.local/download"
+
+
+def test_bundle_contains_manifest_and_views(monkeypatch, tmp_path):
+    cfg_path = tmp_path / "nctl.toml"
+    cfg_path.write_text(CONFIG_BODY)
+    cfg = Config.load(cfg_path)
+    store = Store()
+
+    class FakeEnvelope:
+        def __init__(self, schema, data):
+            self.schema_name = schema
+            self.generated_at = datetime(2026, 8, 10, tzinfo=timezone.utc)
+            self.ok = True
+            self.data = data
+
+        def to_json(self):
+            return json.dumps({"schema": self.schema_name, "generated_at": self.generated_at.isoformat(), "ok": True, "data": self.data})
+
+    monkeypatch.setattr("nctl_core.bundle.build_desired_export", lambda cfg: FakeEnvelope("nctl.desired.export.v1", type("D", (), {"document": {"dry_run": False, "operations": []}})()))
+    monkeypatch.setattr("nctl_core.bundle.document_to_yaml", lambda document: "dry_run: false\noperations: []\n")
+    monkeypatch.setattr("nctl_core.bundle.build_drift", lambda cfg: FakeEnvelope("nctl.drift.v1", {}))
+    monkeypatch.setattr("nctl_core.bundle.build_actual", lambda cfg, detail=False: FakeEnvelope("nctl.actual.v2", {}))
+    monkeypatch.setattr("nctl_core.bundle.build_relations", lambda cfg: FakeEnvelope("nctl.relations.v1", {}))
+    monkeypatch.setattr("nctl_core.bundle._git_sha", lambda cfg: "abc123")
+
+    envelope = build_bundle(cfg, store=store, now=datetime(2026, 8, 10, tzinfo=timezone.utc))
+
+    assert envelope.ok
+    assert envelope.schema_name == BUNDLE_SCHEMA
+    archive_path = tmp_path / "state.zip"
+    archive_path.write_bytes(store.body)
+    with zipfile.ZipFile(archive_path) as archive:
+        assert sorted(archive.namelist()) == ["actual.json", "desired.yaml", "drift.json", "manifest.json", "relations.json"]
+        manifest = json.loads(archive.read("manifest.json"))
+        assert manifest["schema"] == BUNDLE_SCHEMA
