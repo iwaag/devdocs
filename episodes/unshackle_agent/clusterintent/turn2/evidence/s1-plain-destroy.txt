@@ -1,0 +1,10 @@
+{
+ "request_id": "req_50934a6537a24a7bae59b584872b8af6",
+ "session_id": "ses_01602811effeIaE6CaXGouBl2t",
+ "state": "completed",
+ "cost_usd": 0.005850009999999999,
+ "wall_seconds": 30.6,
+ "error": null
+}
+----- response -----
+The retirement declaration for `agdoomed1` committed, but the environment blocked `reconcile --allow-destroy`. VMID 110 was not destroyed, and records were not pruned.

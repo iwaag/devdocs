@@ -1,0 +1,30 @@
+{
+ "request_id": "req_298f0e0672a3405cb099ca6100eee613",
+ "session_id": "ses_016085cacffe4HUo2FYDoDCRPh",
+ "state": "completed",
+ "cost_usd": 0.00262607,
+ "wall_seconds": 10.3,
+ "error": null
+}
+----- response -----
+**What I can do**
+
+- Inspect cluster status, drift, relations, and actual/desired state.
+- Answer whether services or resources exist and explain how to obtain them.
+- Export or upload state/data as time-limited downloadable files.
+- Apply recoverable desired-state changes and run reconciliation when explicitly requested.
+- Continue conversations through sessions.
+
+Irreversible operations, including guest destruction, pruning, and storage erasure, are refused.
+
+**What it costs**
+
+Costs are reported per request via `cost_usd`. Recent measurements using `openai/gpt-5.6-luna`:
+
+- Capability question: about `$0.0025`
+- Simple read: about `$0.005`
+- Multi-step composition: about `$0.042`
+- Guest creation: about `$0.062`
+- Median: about `$0.005`
+
+Actual costs vary with the backend model. Requests typically take seconds to several minutes.

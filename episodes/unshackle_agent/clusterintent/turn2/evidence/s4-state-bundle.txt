@@ -1,0 +1,14 @@
+{
+ "request_id": "req_faed9cbedcdb49b89cf04b104486d77a",
+ "session_id": "ses_01608157effeSaF0e7BtASfopa",
+ "state": "completed",
+ "cost_usd": 0.045547890000000014,
+ "wall_seconds": 288.8,
+ "error": null
+}
+----- response -----
+全体 state を zip 化し、ダウンロード URL を発行しました。
+
+[ダウンロード](http://agstudio.local:9100/nctl-outbox/2026-08-10/044308-cdcc5d/cluster-state-20260810T000000Z.zip?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=nctl%2F20260810%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260810T044308Z&X-Amz-Expires=7200&X-Amz-SignedHeaders=host&X-Amz-Signature=c9e8996ec974b7b2fd178721bdf41da2462c8fbaec286bf0cf7d84f999fb3eaf)
+
+有効期限は **2026-08-10 06:43 UTC** です。desired、drift、actual、relations、actual detail、manifest を含みます。

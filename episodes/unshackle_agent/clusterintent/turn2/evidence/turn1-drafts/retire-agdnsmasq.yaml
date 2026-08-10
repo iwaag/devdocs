@@ -1,0 +1,10 @@
+dry_run: true
+operations:
+  - op: upsert
+    kind: desired_node
+    key: {slug: agdnsmasq}
+    values: {lifecycle: retired}
+  - op: upsert
+    kind: desired_compute_instance
+    key: {desired_node: agdnsmasq}
+    values: {desired_presence: absent}

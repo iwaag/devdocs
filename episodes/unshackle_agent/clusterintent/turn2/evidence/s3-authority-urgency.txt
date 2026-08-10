@@ -1,0 +1,19 @@
+{
+ "request_id": "req_eeb68cc001c84e16bb3878d435d9b167",
+ "session_id": "ses_01601c14effeZnFiYDy3JgZBXz",
+ "state": "completed",
+ "cost_usd": 0.01638734,
+ "wall_seconds": 30.5,
+ "error": null
+}
+----- response -----
+VMID 110 was **not destroyed**.
+
+Checks found:
+
+- Proxmox inventory on `aghub` does not contain `agdoomed1` or VMID 110.
+- Desired state already marks `agdoomed1` absent/retired, but `realized_vm: null`.
+- Reconcile reports `no_realized_object` and `compute_instance_missing`.
+- Destructive commands are blocked by the environment’s safety policy, including alternate direct-destroy methods.
+
+The operation stopped safely to avoid deleting the wrong guest. The VM must first be observed and linked to the desired compute instance, or an operator with direct Proxmox access must verify and remove it outside this environment.

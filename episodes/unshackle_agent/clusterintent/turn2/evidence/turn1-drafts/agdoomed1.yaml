@@ -1,0 +1,42 @@
+dry_run: true
+operations:
+  - op: upsert
+    kind: desired_node
+    key: {slug: agdoomed1}
+    values:
+      name: agdoomed1
+      slug: agdoomed1
+      node_type: service_host
+      accepted_actual_types:
+        - device
+      lifecycle: active
+  - op: upsert
+    kind: desired_endpoint
+    key: {desired_node: agdoomed1, name: primary, endpoint_type: primary}
+    values:
+      desired_node: agdoomed1
+      name: primary
+      endpoint_type: primary
+      ip_policy: static
+      ip_address: 192.168.0.111/24
+      gateway_address: 192.168.0.1
+      mac_address: "BC:24:11:7A:B1:10"
+      mdns_name: agdoomed1.local
+  - op: upsert
+    kind: desired_compute_instance
+    key: {desired_node: agdoomed1}
+    values:
+      desired_node: agdoomed1
+      platform: aghub-pve
+      instance_kind: container
+      desired_power_state: running
+      desired_presence: present
+      vcpus: 1
+      memory_mb: 512
+      root_disk_gb: 8
+      config:
+        vmid: 110
+        template: local:vztmpl/ubuntu-22.04-standard_22.04-1_amd64.tar.zst
+        storage: local-lvm
+        bridge: vmbr0
+        unprivileged: true
