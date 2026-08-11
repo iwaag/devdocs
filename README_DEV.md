@@ -36,5 +36,6 @@ Run from `pj-clusterintent/ansible_agdev`:
 
 - **Update autolab nodes**:
   ```bash
-  ansible-playbook -i inventories/agautolab.yml playbooks/agent/setup_autolab_node.yml
-  ``
+  uv run --project ../nctl nctl render production --out inventories/generated
+  ansible-playbook -i inventories/generated/production.yml playbooks/agent/setup_autolab_node.yml --limit agautolab1
+  ```

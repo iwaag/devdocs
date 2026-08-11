@@ -1,0 +1,4 @@
+agent setingの実装は一部共通化してパッケージ化できるだろうか？
+agdevworldは言語が違うから仕方ないとして、agforgeとagautolabはどうだろう。
+pythonパッケージ化できるだろうか？
+例えば今後gemini cliを加えようってなったら、パッケージを更新して、agforgeでもagautolabでも少ない実装コストで追加可能って状態にできるだろうか？
