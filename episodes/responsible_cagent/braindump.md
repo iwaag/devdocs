@@ -1,0 +1,17 @@
+自動作業のトラブルに依存サービスが期待通りに動いていないなど、デバイスやサービス関連のトラブルが体感30-40%ぐらいある。
+clusterの管理を改めて強化したい。
+
+# phase 1
+pj-cluster/pj-agdevの依存サービスとin-systemサービスを洗い出し、cluster intent管理に適切に組み込む。作業は全てOmni Agentが行い、cagentを通さない。
+
+- redis はノード内のPCの別の場所に大きなdocker composeファイルで手動起動しているはずだから、これはして然るべき方法で常駐サービス化。昔の遺物を使い回して手抜きしていただけなので、以前のやりかたに固執しないこと。
+- nautobotなどはプロジェクト内にdocker composeがある。手動でupして起動している。重要な割に自動復帰も自動起動もなくcluster intentへの登録もない。
+- agdevworldやagforge、agautolabなど、このプロジェクト自身のサービスはcluster intentで管理されているものとそうでないものがあるはず。それらは明確化して方針を決めて管理する。
+
+# phase 2
+cagentに関して新設した以下の方針を強化するため、それぞれのin-system agentのワークフローでなんらかの形でcagentに報告が届く経路が存在するかチェックし、なければ用意する。
+- In-System workflow shold be designed so that cagent receive a report when cagent's explanation of the cluster found invalid.
+
+とはいえ事前のクラスターチェックなどを徹底しすぎるとワークフローが肥大化しかねないリスクもあるので、まずは起動しているはずのサービスがアクセスできない場合はそれを発見したin-systemエージェントもしくは呼び出し元のin-systemエージェントが報告する、ぐらいの経路を作って様子をみる。
+
+cagentにそれらの報告が届いた場合どうするかも決めて実装。とりあえず記録だけさせて蓄積するか、その場ですぐに対処させるかなど決めて動作チェックしてみる。
