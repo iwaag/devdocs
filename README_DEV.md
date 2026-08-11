@@ -1,3 +1,7 @@
+# Rule
+
+- Don't expose local pc/cluster info in non-ignored files.
+
 # Adopted Deveopment Style
 
 Standard AG Style
