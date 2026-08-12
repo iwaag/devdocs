@@ -1,10 +1,13 @@
 # zulip_channel_topic — episode report
 
-Date: 2026-08-12. Status: **reconciled**. Agent-to-agent forge requests now
-run in public Zulip channels the Developer can browse and search, instead of
-invisible DMs. Both intended senders — the Omni Agent from the
-devworld-assistant account, then the assistant service itself — got the same
-result the DM entrance gives.
+Date: 2026-08-12. Status: **reconciled** (as amended by Step 5). Agent-to-agent
+forge requests now run as public `create-*` **topics in `#FreeForge`** the
+Developer can browse and search, instead of invisible DMs. Both intended
+senders — the Omni Agent from the devworld-assistant account, then the
+assistant service itself — got the same result the DM entrance gives.
+Steps 1–4 first built this as channel-per-request; Step 5 (`report5.md`)
+pivoted to topic-per-request after the Developer clarified the desire and the
+multi-agent filtering concern behind it.
 
 ## What the desire asked, and what it got
 
@@ -19,15 +22,17 @@ result the DM entrance gives.
 
 ## The workflow as it now runs
 
-1. `POST /api/freeforge/requests {"desire": …}` (or the same three Zulip
-   calls by hand): open `create-*` channel (principals: Forge 13,
-   Developer 8, sender), announce in `#FreeForge`, post the desire to topic
-   `request`.
-2. agforge's listener accepts messages in unresolved `create-*` topics (plus
-   DMs as before), feeds the topic narrow as context to the same
-   `agent_run.run_request` pipeline, acks, replies in-topic.
-3. `POST /api/freeforge/resolve` marks the topic `✔`; late chatter in a
-   resolved topic costs nothing. The channel is never archived.
+1. `POST /api/freeforge/requests {"desire": …}` (or one Zulip send by hand):
+   post the desire as a fresh `create-YYYYMMDD-HHMMSS-<id>` **topic** in the
+   standing `#FreeForge` channel (participants: Forge 13, Devworld
+   Assistant 10, Developer 8). The topic list is its own index.
+2. agforge's listener accepts channel messages whose topic starts with
+   `create-` — channel-agnostic, so future shared channels need no listener
+   change — plus DMs as before, feeds the topic narrow as context to the
+   same `agent_run.run_request` pipeline, acks, replies in-topic.
+3. `POST /api/freeforge/resolve` marks the topic `✔ create-…`, which stops
+   matching the prefix, so late chatter there costs nothing. Channels are
+   never archived.
 
 ## What it took
 
@@ -42,19 +47,21 @@ result the DM entrance gives.
 - **Step 4** (`report4.md`): Omni-as-assistant walkthrough, then
   `assistant/zulip.mjs` + `/api/freeforge/` endpoints; two live runs ~$0.072
   each; suite 37/37.
+- **Step 5** (`report5.md`): pivot from channel-per-request to
+  topic-per-request on the Developer's clarification; one live run $0.104;
+  channel creation code deleted, API shape unchanged.
 
 ## Debt and seeds
 
-- **pyagag must be pushed before pj-agdev**: `agforge/pyproject.toml`
-  temporarily points `pyagag` at the sibling checkout (editable). After the
-  pyagag push, restore the git source and re-run `uv lock`. The TEMP comment
-  marks the spot. Pushes are the Developer's.
+- ~~pyagag must be pushed before pj-agdev~~ **Cleared 2026-08-12**: the
+  Developer pushed pyagag (`4088bd2e`); `agforge/pyproject.toml` is back on
+  the git source, `uv lock` re-run, 71/71 tests pass, and the listener was
+  restarted on the pinned install.
 - The `:8092` string telephone still exists alongside the chat route — same
   deliberate two-entrance interim as zulip_receive; retiring it is its own
   episode.
-- Nothing prunes or reuses `create-*` channels; the braindump said unique
-  names are enough. If channel count ever becomes a nuisance, that is the
-  evidence for a follow-up, not before.
+- Nothing prunes `create-*` topics; unique names are enough and resolved
+  topics are inert. The three Step-1/4 channels stay as evidence.
 - Every unresolved-topic message costs a run ("thanks" included) — still the
   open cost question from zulip_receive, still waiting on real usage.
 - cagent and the autolab agents still listen on DMs only; `accept` on
@@ -63,7 +70,7 @@ result the DM entrance gives.
 ## Records
 
 - In-system agent runs: forge agent, `sonnet` profile (Claude Code +
-  `anthropic/claude-sonnet-5`), three live channel runs, $0.072–0.124,
+  `anthropic/claude-sonnet-5`), four live channel/topic runs, $0.072–0.124,
   22–29 s, each leaving its usual run record.
 - Omni Agent: Claude Code harness, `claude-fable-5`.
 - Deus Ex Machina notes: did the Step-1 spike and the Step-4-1 send-side
