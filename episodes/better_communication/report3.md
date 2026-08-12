@@ -5,7 +5,7 @@ one human owner, six agent identities, and the two planned channels.
 
 ## Organization and identities
 
-- Human owner: `Developer` (`developer@agstudio.local`), role 100 (owner).
+- Human owner: `Developer`, role 100 (owner). The local-only email is omitted.
   Its randomly generated password and API credential are local-only mode-0600
   files.
 - Generic bots: `Omni Agent`, `Devworld Assistant`, `Autolab Agstudio`,

@@ -1,7 +1,7 @@
 # better_communication — Step 2 report: Zulip deployment
 
 Date: 2026-08-12. Status: **complete**. Zulip 12.2 is running as an
-independent Compose stack on agstudio and the LAN login page is reachable over
+independent Compose stack on the local workstation and the LAN login page is reachable over
 self-signed TLS.
 
 ## Deployment
@@ -11,8 +11,8 @@ self-signed TLS.
   `pj-agdev/.local/zulip-selfhost/` directory.
 - Deployed image `ghcr.io/zulip/zulip-server:12.2-0` with the official
   PostgreSQL 14, Redis, RabbitMQ, and memcached services. All dependency ports
-  remain internal; only HTTP 8380 and HTTPS 8543 are published, and SMTP is not
-  published.
+  remain internal; only the two ports recorded in the ignored local environment
+  memo are published, and SMTP is not published.
 - Persistent application, PostgreSQL, RabbitMQ, and Redis data use named
   volumes. Compose secrets are randomly generated in an ignored mode-0600
   `.env` file.
@@ -28,8 +28,8 @@ self-signed TLS.
   four dependencies healthy.
 - Restarted the complete Zulip Compose stack, waited for all health checks,
   and confirmed the HTTPS endpoint still answered.
-- After creation of the minimal Step 3 realm, a real Chromium run loaded
-  `https://agstudio.local:8543/login/`, found the username input, and captured
+- After creation of the minimal Step 3 realm, a real Chromium run loaded the
+  LAN login URL, found the username input, and captured
   a 1280x800 screenshot in the ignored deployment evidence directory. A
   separate LAN-name `curl -k` returned HTTP 200 and title `Log in | Zulip`.
 - The live generated settings were inspected without displaying secrets and
