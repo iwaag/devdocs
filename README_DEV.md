@@ -15,6 +15,14 @@ devpolicy/terms.md ... Read only when you need to check terminologies
 
 - Responds to requests for explaining/observing/changing desired state and/or actual state of the cluster.
 - In-System workflow shold be designed so that cagent receive a report when cagent's explanation of the cluster found invalid.
+- That report path exists since `devdocs/episodes/better_communication/zulip_cagent_receive`:
+  a DM to the **Cagent bot** in Zulip, or `POST /window` on cagent's
+  unauthenticated window, records the report as a local file and does not try
+  to repair it in that turn. Ask the window "what has been reported lately"
+  to read them back.
+- Three doors today — node (mTLS), human (bearer token), window
+  (unauthenticated). The window is where they are heading; see the
+  cross-project `devdocs/todo_done.md` entry.
 
 ## autolab agent(pj-agdev/agautolab)
 
