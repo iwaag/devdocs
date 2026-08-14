@@ -2,7 +2,7 @@
 
 Date: 2026-08-15.
 Motivated by the front-role incident recorded in
-`devdocs/episodes/renewed_agautolab/warning.md`, where
+`pj_agdev/devdocs/episodes/renewed_agautolab/warning.md`, where
 `ollama/qwen3.6:35b-a3b-coding-nvfp4` under opencode rewrote a correctly
 delivered relative path (prefixing the repository root, prefixing the home
 directory, or dropping path segments), while `claude-sonnet-5` under
