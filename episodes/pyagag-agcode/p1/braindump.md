@@ -1,0 +1,4 @@
+pyagagにagcodeを追加した。
+ローカルモデルはこれからagcodeで動かす。
+
+まずopencodeは完全に廃止してansibleのセットアップやclusterintentのdesired/actual state、もしあれば各エージェントでの依存なども全て排除したい。
