@@ -170,3 +170,24 @@ Three durable options follow, in increasing order of ambition:
 Sample sizes are single-digit to low-double-digit per condition; the 0/10 vs
 6/10 contrast is decisive for direction-setting but the individual rates
 should not be quoted as stable numbers.
+
+## Addendum (2026-08-15): third condition — agcode
+
+The privateharness project re-ran this protocol with its own minimal
+harness (agcode: single named base directory, tool-side path resolution,
+built-in verbatim wire capture replacing the logging proxy, transcript-level
+verdicts that require the working-dir marker to have been served in a
+`tool_result` before a run counts as OK):
+
+| Harness | Wrong-base path resolution | String-copy corruption |
+|---|---|---|
+| agcode + qwen3.6-35b | **0/12, 0/12, 0/12** | **0/12, 0/12, 0/12** |
+
+This independently reproduces the Claude Code result and strengthens fact 1:
+a second, unrelated harness presenting one unambiguous base also eliminates
+the wrong-base failures in the same model. An optional cross-check with
+`glm-4.7-flash` (10 runs) showed 0 wrong-base and 1 output-fidelity failure
+(correct file served at the wire, model answered the wrong line) —
+consistent with fact 4's caveat that copy corruption is a model property
+prompt shape can only modulate. Details and wire evidence:
+privateharness `devdocs/p2/report3.md` / `report4.md`.
