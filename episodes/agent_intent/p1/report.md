@@ -1,7 +1,9 @@
 # agent_intent p1 — Phase report
 
 AI-generated (Omni Agent, 2026-08-17). Steps 1–5 of `p1/plan.md` are done and
-verified live; step 6 was optional and is left as a decision for the developer.
+verified live. Step 6 was optional and the developer chose to skip it; the
+developer also approved the agautolab1 Ansible run and the remaining
+enrollments, which are done (see the end of this report).
 
 ## What exists now that did not before
 
@@ -25,7 +27,7 @@ registration gaps (drift)  +  liveness_class (information, never a gap)
 
 Five agents are declared — `agforge`, `cagent`, `devworld-assistant`,
 `autolab-agstudio`, `autolab-agautolab1` — each with its own Plane account and
-personal API token, and `agforge` is fully enrolled end to end.
+personal API token. Four are enrolled end to end; three are live-`polling`.
 
 | step | outcome | report |
 |---|---|---|
@@ -87,8 +89,8 @@ account.
 ## Deployed
 
 nintent `3bbdb15` · nauto `a8778e6` · nctl `ef93b80` · nodeutils `d68b963` ·
-pyagag `cb3e4d2` · agforge `b7bc722` · pj-clusterintent `3c64126` ·
-pj-agdev `6ae4184`.
+pyagag `cb3e4d2` · agforge `b7bc722` · agautolab `3a92c2c` ·
+pj-clusterintent `13e418b` · pj-agdev `8fc522e`.
 
 Everything pushed to GitHub and reflected onto what consumes it: the Nautobot
 container rebuilt and migrated, the nauto Git repository synced and the new Job
@@ -100,26 +102,60 @@ Dockerfile did not change. `--no-cache` (or bumping the `NINTENT_BRANCH` build
 arg) is what actually redeploys, and `/opt/nautobot/build_info.json` is how you
 check rather than assume.
 
-## Open items for the developer
+## Completed after the developer's decisions
 
-1. **`AUTOLAB_NODE_PLANE_CREDENTIALS_SOURCE` on agautolab1.** Pointing the
-   deployed autolab node at `.local/plane/autolab.env` needs an Ansible run
-   against a real cluster node — an explicit approval boundary here, not an
-   ordinary local action. Until it runs, agautolab1 still reports to Plane
-   under the shared admin key.
-2. **Step 6, Zulip presence.** Optional. One `POST /users/me/presence` per
-   successful poll would add a realtime complement readable through the Zulip
-   API. Skipped for now because it costs a call per poll cycle for every
-   listener and has no reader yet; the status file stays the source of record
-   because it also works when Zulip is down.
-3. **Remaining enrollments.** cagent, the devworld assistant, and both autolab
-   listeners get the status file for free once their pyagag pins are bumped and
-   they restart. Their registrations are already observed and converged; only
-   liveness reads `unobserved`.
+The developer approved the Ansible run and the remaining enrollments, and chose
+to skip step 6. All three are now done.
+
+**agautolab1 now reports to Plane as itself.** `setup_autolab_node.yml
+--limit agautolab1` ran with `AUTOLAB_NODE_PLANE_CREDENTIALS_SOURCE` pointed at
+`.local/plane/autolab.env` (`ok=21 changed=4 failed=0`); the node's
+`.local/plane.env` carries the per-agent key and its checkout is at `3a92c2c`.
+
+One thing the role forced: `plane.env.j2` reads `PLANE_URL`, `PLANE_API_KEY`,
+and `PLANE_WORKSPACE_SLUG` from **one** source file, while the per-agent files
+held only the key. All four now repeat the URL and workspace slug, and the
+creation script emits them. Deploying before noticing would have written a
+`plane.env` with two empty values.
+
+**Remaining enrollments.** pyagag pins bumped and listeners restarted for
+cagent (`13e418b`) and agautolab (`3a92c2c`); new `DesiredWorkspace` rows
+`agautolab-agstudio` and `agautolab-agautolab1` declared, and every agent
+linked to the workspace its listener actually runs in. Current picture:
+
+```
+agforge             converged   liveness=polling
+autolab-agstudio    converged   liveness=polling
+cagent              converged   liveness=polling
+autolab-agautolab1  converged   liveness=unobserved  reason=no_status_file
+devworld-assistant  converged   liveness=unobserved  reason=no_desired_workspace
+```
+
+Every registration is converged. The two `unobserved` rows are the phase
+earning its keep — both are real facts, not gaps:
+
+- **agautolab1 runs no Zulip listener.** The node holds `.local/zulip.env` for
+  the `Autolab Agautolab1` bot (user 12) and the bot is subscribed to its
+  channels, but the `autolab_node` role installs only
+  `autolab-gateway.service`. Nothing polls for that identity there. Recorded in
+  `pj-agdev/.local/devenv.md`; whether to deploy a listener unit is a design
+  decision, not a p1 fix.
+- **The devworld assistant has no poll loop at all.** It uses
+  `agag.zulip.ZulipClient` to send, never `serve`/`sweep_serve`, so there is
+  nothing to write a status file. Its liveness is structurally `unobserved`,
+  and declaring a workspace for it would only change the reason text, not the
+  truth.
+
+**Step 6 (Zulip presence): skipped**, per the developer. The status file stays
+the source of record because it also works when Zulip is down, and a per-poll
+presence POST has no reader yet.
 
 ## Deus Ex Machina notes
 
 - Created four Plane accounts that in-system agents could arguably create for
   themselves — handoff candidate.
-- Bumped a pyagag dependency and restarted the agforge listener, which agforge's
-  own maintenance loop could own — handoff candidate.
+- Bumped pyagag dependencies and restarted the agforge, cagent, and agautolab
+  listeners, which those agents' own maintenance loops could own — handoff
+  candidate.
+- Ran `setup_autolab_node.yml` against agautolab1, which the autolab agent could
+  arguably drive for itself — handoff candidate.
