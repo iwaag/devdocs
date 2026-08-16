@@ -132,3 +132,22 @@ is the point, not a blocker.
   wrong desired channel): a registration gap appears.
 - A Plane issue created by an enrolled agent shows that agent's own account
   as actor (per-agent attribution works end to end).
+
+## Post-implementation notes (Omni Agent, 2026-08-17)
+
+- Liveness now classifies **as of the observation**: `polling` when the status
+  file was fresh when nodeutils looked, with the look's own age beside it as
+  `observation_age_seconds`. Folding collection age into the verdict made every
+  agent go stale in lockstep whenever the collector had simply not run.
+- did the agautolab1 listener deployment and the desired-state edits for
+  agent cagent — handoff candidate.
+- `autolab_node` gained an optional `zulip_listener` config key. agautolab1
+  had its own bot identity and credentials on disk but no unit to run them;
+  agstudio stays `false` because its listener runs under launchd.
+- Open design question: **devworld-assistant has no chat entrance.** It sends
+  to Zulip but never polls, and its entrance is the frontend — giving it a
+  listener would be a second entrance, against Single Entrance. Liveness for
+  such an agent may deserve a `not_applicable` class rather than reading
+  `unobserved / no_status_file` forever.
+- Watch: the new agautolab1 listener drew Zulip HTTP 429s on its first sweeps
+  (it retries and recovers). Two autolab listeners now sweep the same realm.
