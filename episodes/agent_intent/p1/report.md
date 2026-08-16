@@ -1,0 +1,125 @@
+# agent_intent p1 — Phase report
+
+AI-generated (Omni Agent, 2026-08-17). Steps 1–5 of `p1/plan.md` are done and
+verified live; step 6 was optional and is left as a decision for the developer.
+
+## What exists now that did not before
+
+An agag agent is a first-class desired/actual pair in cluster intent:
+
+```
+DesiredAgent  (nintent)          name, slug, lifecycle, workspace, placement,
+                                 zulip_user_id, plane_user_id, desired channels
+   |
+   |  nctl agents observe        reads Zulip + Plane with real credentials
+   v
+ObservedAgentRegistration        what the realms actually say
+   |
+   |  nctl drift
+   v
+registration gaps (drift)  +  liveness_class (information, never a gap)
+                                 ^
+                                 |  nodeutils reads <workspace>/.local/agag-status.json
+                                 |  pyagag writes it after every successful poll
+```
+
+Five agents are declared — `agforge`, `cagent`, `devworld-assistant`,
+`autolab-agstudio`, `autolab-agautolab1` — each with its own Plane account and
+personal API token, and `agforge` is fully enrolled end to end.
+
+| step | outcome | report |
+|---|---|---|
+| 1 | `DesiredAgent` model, batch kind, UI, nctl read/export | [report1.md](report1.md) |
+| 2 | four per-agent Plane accounts, tokens, ritual, rows recorded | [report2.md](report2.md) |
+| 3 | `nctl agents observe` + `Ingest Agent Registration` Job + observed model | [report3.md](report3.md) |
+| 4 | `agag-status.json` in pyagag, picked up by nodeutils | [report4.md](report4.md) |
+| 5 | `agent_evaluation.py`: gaps as drift, liveness as information | [report5.md](report5.md) |
+
+## The decision the whole phase turns on
+
+**Registration is drift. Liveness is not.**
+
+Registration is deterministic and false-positive-free: an account either exists
+in the realm or does not; a subscription either exists or does not. Liveness is
+a claim about a process that may be restarting, mid-deploy, or deliberately
+stopped, and treating it as drift would train everyone to ignore the drift
+output. So `liveness_class` rides an info-severity diff that `derive_status`
+structurally cannot turn into `drifting`, and no reconciler maps its code. The
+tests assert the negative — every liveness state asserts `gaps == []` — so a
+later promotion has to be deliberate.
+
+The supporting honesty rules, each of which is a design property rather than a
+convention:
+
+- The status file is written **only** after a poll that actually returned, so a
+  failing listener cannot refresh its own liveness. Staleness is the absence of
+  a write, which no bug in the writer can fake.
+- Ages are computed **within one machine at a time** — node-side file age plus
+  controller-side collection age — so no two clocks are ever subtracted.
+- Every "we don't know" carries a reason (`no_status_file` vs
+  `workspace_unobserved` vs `no_desired_workspace`), because *we looked and saw
+  nothing* and *we never looked* are different facts.
+- The ingest Job **skips** a payload row naming an unknown agent rather than
+  creating one: desired state is never invented from an observation.
+- Observability is on by default at the agag convention path, so an agent that
+  follows the protocol is observable without being configured — which is the
+  braindump's actual thesis.
+
+## Acceptance, live
+
+All four criteria in the plan were demonstrated against the running cluster and
+are recorded in [report5.md](report5.md) (1–3) and [report2.md](report2.md) (4):
+converged+`polling`; listener stopped → `stale` with **no** gap; a wrong desired
+channel → a registration gap; a Plane issue attributed to the agent's own
+account.
+
+## Gates
+
+| gate | result |
+|---|---|
+| nctl ordinary | 1336 passed |
+| nintent Django-free fast | 147, OK, 10 expected skips |
+| nauto ordinary | 121, OK |
+| nodeutils ordinary | 95 passed, 2 subtests |
+| pyagag | 206 passed |
+| Nautobot runtime reuse gate | "No changes detected", `cases=263`, OK |
+
+## Deployed
+
+nintent `3bbdb15` · nauto `a8778e6` · nctl `ef93b80` · nodeutils `d68b963` ·
+pyagag `cb3e4d2` · agforge `b7bc722` · pj-clusterintent `3c64126` ·
+pj-agdev `6ae4184`.
+
+Everything pushed to GitHub and reflected onto what consumes it: the Nautobot
+container rebuilt and migrated, the nauto Git repository synced and the new Job
+enabled, the agforge listener restarted.
+
+**Deployment finding worth keeping:** `docker compose build` alone does *not*
+pick up a new nintent commit — the `pip install git+…` layer is cached and the
+Dockerfile did not change. `--no-cache` (or bumping the `NINTENT_BRANCH` build
+arg) is what actually redeploys, and `/opt/nautobot/build_info.json` is how you
+check rather than assume.
+
+## Open items for the developer
+
+1. **`AUTOLAB_NODE_PLANE_CREDENTIALS_SOURCE` on agautolab1.** Pointing the
+   deployed autolab node at `.local/plane/autolab.env` needs an Ansible run
+   against a real cluster node — an explicit approval boundary here, not an
+   ordinary local action. Until it runs, agautolab1 still reports to Plane
+   under the shared admin key.
+2. **Step 6, Zulip presence.** Optional. One `POST /users/me/presence` per
+   successful poll would add a realtime complement readable through the Zulip
+   API. Skipped for now because it costs a call per poll cycle for every
+   listener and has no reader yet; the status file stays the source of record
+   because it also works when Zulip is down.
+3. **Remaining enrollments.** cagent, the devworld assistant, and both autolab
+   listeners get the status file for free once their pyagag pins are bumped and
+   they restart. Their registrations are already observed and converged; only
+   liveness reads `unobserved`.
+
+## Deus Ex Machina notes
+
+- Created four Plane accounts that in-system agents could arguably create for
+  themselves — handoff candidate.
+- Bumped a pyagag dependency and restarted the agforge listener, which agforge's
+  own maintenance loop could own — handoff candidate.
