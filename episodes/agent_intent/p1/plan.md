@@ -144,6 +144,17 @@ is the point, not a blocker.
 - `autolab_node` gained an optional `zulip_listener` config key. agautolab1
   had its own bot identity and credentials on disk but no unit to run them;
   agstudio stays `false` because its listener runs under launchd.
+- **Reverted the same day: two autolab listeners collide.** Started on
+  agautolab1, it swept the backlog and answered 16 old `mission-`/`run-`
+  topics; agstudio's listener then answered those, and the exchange only
+  stopped when the unit was disabled. The last-poster rule silences a topic
+  for *its own* poster but re-arms it for the other listener, so between two
+  same-kind agents it is a ping-pong generator rather than a loop breaker.
+  The mention gate that would separate them exists only on `create-` topics.
+  Unit and profile key stay in the role, defaulting off, until `mission-` and
+  `run-` topics gain an addressing or ownership rule. Runs failed at config
+  load (`/home/eiji/.local/plane-credentials.env` missing — the role installs
+  `plane.env` inside the checkout instead), so nothing reached Plane.
 - Open design question: **devworld-assistant has no chat entrance.** It sends
   to Zulip but never polls, and its entrance is the frontend — giving it a
   listener would be a second entrance, against Single Entrance. Liveness for
