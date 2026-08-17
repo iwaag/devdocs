@@ -1,0 +1,3 @@
+autolabに新たなbmining-トピックを追加する。
+
+仕様は非常に単純。chatlog.mdをdirectorリポジトリの.local/work/chatlog.mdに配置してpj-agdev/agautolab/agent/guides/bmining_director/guide.mdを埋めこんでdirectorエージェントを起動するだけ。directorエージェントの返答をそのままトピックに投稿しておしまい、この繰り返し。
