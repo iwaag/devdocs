@@ -28,9 +28,9 @@ devpolicy/terms.md ... Read only when you need to check terminologies
 
 - Responds to request for explaining/observing/developing projects.
 
-## devworld assistent(pj-agdev/agdevworld)
+## agfront(pj-agdev/agfront)
 
-- Responds to any requests from Human, mainly through agdevworld frontend.
+- Responds to any requests from Human and sends messages to other agents.
 
 ## forge agent(pj-agdev/agforge)
 
