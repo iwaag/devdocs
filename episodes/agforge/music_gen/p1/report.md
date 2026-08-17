@@ -76,6 +76,12 @@ inventory (agpc is not in the production inventory).
   broken, which is the pre-existing reason those observations were stale
   before this episode (ansible's `ansible_key` path works fine). Fixing
   that trust is a separate episode.
+  - **Resolved later the same day** (nctl `b583913`): the trust store was
+    fine all along — agpc never answers mDNS AAAA queries, so each of
+    ssh-keyscan's five per-key-type connections stalled ~5 s in the
+    resolver and the scan blew nctl's subprocess cap. `ssh-keyscan -4`
+    plus dividing `-T` across the connections fixed it; drift is now
+    fully converged (41, no unknown).
 - ACE Studio integration (`acestudio-cli`, `role_run.py` plumbing,
   `.local/ace-studio.env`, its tests): intact by design.
 
