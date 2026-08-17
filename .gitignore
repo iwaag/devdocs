@@ -1,0 +1,3 @@
+# AG standard style: .local/ holds local-only files (credentials, one-off
+# scripts, evidence dumps) and is always ignored.
+.local/
