@@ -1,0 +1,5 @@
+mission-トピックの仕様を変更したい。
+
+chatlog.mdを直接superdirectorに渡し、frontがやっていた作業はsuperdirectorにやらせる。missionトピックではfrontは経由しないでsuperdirector単独でやり取りすることになる。
+
+superdirectorがチャットログを直接読み、納得するまで質問をするようguideを調整した。
