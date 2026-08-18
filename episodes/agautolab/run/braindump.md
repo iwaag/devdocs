@@ -1,0 +1,17 @@
+run-トピックの仕様を変更したい。
+
+今はどのチャンネルでも起動できる単純なボタン的トピックだが、プロジェクトに紐づけた挙動に変えた上で、ワークの制御をエージェント的かつ柔軟にする。
+
+先にagent profileにsupercoderを追加する。sonnet。
+
+まずmission-トピックでrunのための準備処理を行うように処理追加。
+現在Planeにplan.mdとTask[N].mdをもとにワークを追加している処理の直後、missionトピックの親projectチャンネルが所属しているフォルダに親workのIDをもとに#work-(work ID)チャンネルを追加する。さらにこのチャンネルにタスクworkをもとにrun-(task N)-(work id)トピックを追加し、taskの内容をautolabアカウントとして書きこんでおく。
+
+run-トピックが発火したとき、mission内の一つ前のworkがDoneじゃない時はハンドラー側でPlease complete previoud workと返信。問題なければ、mission-同様にトピックワークスペースを作りchatlog.mdを配置、その通知文章とguide.mdを合成する形でmissionフォルダでsupercoderエージェントを起動。あとはsupercoderとユーザーに任せる。完了後にreport.mdがトピックワークスペースにあれば、Zulip topic resolved化とPlane workのDone。report.mdはトピックワークスペースの方に入られらる？また、このタイミングでdevlog/(mission name)/task-(task N)/[work.md, report.md]にもとワークの内容とreport.mdのコピーを配置、commitとしたい。
+
+なお、mission-側でworkが変更された場合、変更されたことを一言通知投稿したあと、新しい内容を再投稿。変更されたけどdoneだった場合は何もせずそのまま残す。(すでにdoneだったときはmissionで以降のワークの再計画が必要になるはず。これはちょっと慎重なワークフローが必要な気がするので動作テストは後回し。)
+
+workチャンネルをdoneにして閉じる方法は次のフェーズで決定。assetゲートにかんしては推奨の方法で。
+
+guideは書き直したが、問題ないかチェック。
+あと、codingエージェントとdirectorエージェントが未使用の状態になるが、残しておく。今後のスコープで検討。
