@@ -36,6 +36,11 @@ devpolicy/terms.md ... Read only when you need to check terminologies
 ## agfront(pj-agdev/agfront)
 
 - Responds to any requests from Human and sends messages to other agents.
+- It can also be asked to **supervise**: stay with a request until the agent
+  doing the work finishes, answering what it asks along the way. Since
+  `agent_standardize` p5 a front run may last an hour for that reason, and
+  waiting happens inside the run — a run that ends is a supervision that
+  stopped.
 
 ## forge agent(pj-agdev/agforge)
 
@@ -51,6 +56,11 @@ where another agent learns the entrance, the topic prefix and what is safe to
 do — so routing vocabulary travels as posted content and is never compiled
 into a consumer's guide. Re-post after a behavior change; a stale
 introduction is acted on as if it were current.
+
+An introduction is also where an agent says what it needs *from* the
+requester. autolab's says a task is not closed until the requester agrees it
+is done — a contract that lived only in its code until p5, where a supervisor
+had no way to learn its own part in it.
 
 # Adopted Policies for Development of In-System Agents
 
