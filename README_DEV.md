@@ -27,6 +27,11 @@ devpolicy/terms.md ... Read only when you need to check terminologies
 ## autolab agent(pj-agdev/agautolab)
 
 - Responds to request for explaining/observing/developing projects.
+- Its entrance is the Zulip channel named after its instance — questions
+  only, nothing is started there. Development work goes in a `workplan-…`
+  topic in the project's own `pj-<slug>` channel, because the channel is what
+  says which project the work is for. Its own introduction in `#agents` is the
+  authority on both (`agent_standardize` p4).
 
 ## agfront(pj-agdev/agfront)
 
@@ -35,6 +40,17 @@ devpolicy/terms.md ... Read only when you need to check terminologies
 ## forge agent(pj-agdev/agforge)
 
 - Responds to requests for providing media assets with characteristics specified in the requests.
+- Its entrance is the Zulip channel named after its instance; an asset
+  request is an `assetplan-…` topic there (`agent_standardize` p1).
+
+## How an agent is found
+
+Each agent posts its own introduction to the shared `#agents` channel, under
+an append-only `intro-<instance>` topic. **That post is the contract**: it is
+where another agent learns the entrance, the topic prefix and what is safe to
+do — so routing vocabulary travels as posted content and is never compiled
+into a consumer's guide. Re-post after a behavior change; a stale
+introduction is acted on as if it were current.
 
 # Adopted Policies for Development of In-System Agents
 
