@@ -11,14 +11,18 @@ opened `create-boss-jellyfish` in `#agforge-agstudio1` under its own bot
 identity, and reported back. Forge acknowledged it, wrote its requirement
 notes, and created the plan ticket F2-13.
 
-Success criteria: **2 met, 1 partially met.**
+Success criteria: **all three met**, the first one after a guide revision
+the phase itself produced the evidence for.
 
-1. Wish → proposal → permission → `create-` topic → report back — met except
-   the **permission step**: Front acted without asking, in both live runs,
-   although its guide tells it to propose first. See report4; kept as
-   evidence rather than patched.
-2. agforge acknowledges in that topic — met (messages 669 and 672).
-   `runcreate-` and the generated image were not required and not run.
+1. Wish → proposal → permission → `create-` topic → report back — met in
+   run 3. In runs 1 and 2 Front skipped the **permission step** and acted
+   straight away, though its guide told it to propose first. The Developer
+   then rewrote two guide lines — stating the ordering explicitly and giving
+   an example proposal — and run 3 proposed, waited, and acted only on
+   「うん、お願い。」. No code changed. See report4.
+2. agforge acknowledges in that topic — met in every run (messages 669,
+   672, 682). `runcreate-` and the generated assets were not required and
+   not run.
 3. Attributability — met. `grep -rn "agforge-agstudio1" agfront/src
    agfront/agent` finds nothing, and a test enforces it.
 
@@ -35,7 +39,10 @@ Success criteria: **2 met, 1 partially met.**
   `Write` grant removed; the run given `agentchat` on PATH and the front
   bot's credentials **as a path**. Grant is now
   `Read,Glob,Grep,Bash(agentchat:*)`.
-- **Step 4** — proved live, twice, and one leak fixed in between.
+- **Step 4** — proved live three times: run 1 exposed a routing leak in the
+  tool's own help, run 2 is the clean attribution proof, and run 3 — after
+  the guide revision — closes the permission step. agfront `233f6cd` is that
+  revision, the phase's only guide change and its only evidence-driven one.
 
 Each step has its own report in this directory.
 
@@ -62,13 +69,17 @@ of the design; it no longer is.
   still exercises the whole route with no `run_front` monkeypatch and now
   checks that the run sees the board, the identity and a reachable
   `agentchat`.
-- Live: three Developer posts, two Front runs opening two forge topics, one
-  multi-turn re-serving, forge acking all of it.
+- Live: six Developer posts across three conversations, five Front runs
+  opening three forge topics, two multi-turn re-servings, forge acking all
+  of it. One run verified as a *non*-action: after Front's proposal,
+  `agentchat topics agforge-agstudio1` listed no new topic, so the proposal
+  was a proposal and not a report.
 
 ## Delivery
 
 Committed and pushed to GitHub: pyagag `8a45527`, `b1c7b6c`; agfront
-`190fafe`, `ffc044e`, `f2bcaa8`, `66379e5`; pj-agdev submodule bumps;
+`190fafe`, `ffc044e`, `f2bcaa8`, `66379e5`, `233f6cd`; pj-agdev submodule
+bumps;
 devdocs step reports. `pj-agdev/.local/devenv.md` rewrote the agfront
 listener section — the `#general` route paragraph is now history.
 
@@ -81,9 +92,11 @@ listener section — the `#general` route paragraph is now history.
   question, deliberately unanswered.
 - `agentchat` rollout to autolab and cagent; only agfront was re-locked.
 - `runcreate` execution, and with it the finished image.
-- **The permission step.** The next phase's first piece of evidence-driven
-  work: make proposing-before-acting something the run can be observed doing,
-  rather than a conditional sentence in a paragraph.
+- The permission step is **done, not deferred** — closed inside this phase by
+  agfront `233f6cd`. What stays open is the shape of the guarantee: today it
+  rests on the guide alone, and one run that skipped it would still reach
+  another agent. Whether that matters is a question about what a request can
+  cost, and in this LAN realm it costs nothing irreversible yet.
 
 ## Deus Ex Machina note
 

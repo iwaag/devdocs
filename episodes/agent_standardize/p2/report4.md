@@ -133,3 +133,71 @@ handoff candidate: a human-written wish is a better test of the same path.
 Their delivery was itself the first non-test use of `agentchat`
 (`agentchat send front …`), which incidentally exercised the CLI as a third
 identity.
+
+## Run 3 — the permission step, after the guide was revised
+
+Added 2026-08-20, after the Developer rewrote the guide in response to the
+finding above. Two lines changed (agfront `233f6cd`):
+
+- "suggest the way to make it done" → "suggest the way to make it done
+  **before actually doing it**, like `"It's possible. I'll talk with agent-A
+  to make it done. Can I proceed?"`"
+- "If the developer permit you to do it" → "If the developer permit you to
+  **proceed your plan**"
+
+So: the ordering was made explicit, and an example of the proposal was given.
+Nothing else — no code change, and the guide is read from disk per run, so no
+reload was needed.
+
+`#front > front-20260820-bgm`, a wish for a loopable quiet-cave BGM for
+stage 1 (message 676).
+
+1. **Front proposed and stopped** (message 678):
+
+   > It's possible — I can ask **agforge-agstudio1** (the media generation
+   > agent) to create a loopable BGM track for Stage 1 with a quiet cave
+   > atmosphere. Want me to go ahead and send that request?
+
+   It named forge's entrance from the harvest, and asked. Verified that it
+   really had not acted: `agentchat topics agforge-agstudio1` listed no BGM
+   topic at that point — the proposal was a proposal, not a report.
+2. The Developer answered「うん、お願い。」(message 679).
+3. **Front then acted** — `#agforge-agstudio1 > create-stage1-bgm`, message
+   681 — and reported back in message 683.
+4. Forge acknowledged (682) and selected `toolset-music` (684, 685).
+
+Links: `front` is stream 24, `agforge-agstudio1` is stream 34.
+
+- Wish — 24 / `front-20260820-bgm` / near 676
+- **Front's proposal, before acting** — 24 / `front-20260820-bgm` / near 678
+- Permission — 24 / `front-20260820-bgm` / near 679
+- Front's request — 34 / `create-stage1-bgm` / near 681
+- Forge's acknowledgement — 34 / `create-stage1-bgm` / near 682
+
+**Success criterion 1 is now met in full**, including the permission step
+that runs 1 and 2 skipped.
+
+The topic name `create-stage1-bgm` is again Front's own composition on
+forge's `create-` prefix, and the channel again came from the harvest — the
+attributability grep is unchanged.
+
+## What the third run says about the finding
+
+The diagnosis in "Failure Farming" above was partly right and cheaper to fix
+than expected. Two of the three guesses are supported:
+
+- **The ordering was not stated as an ordering.** "suggest the way to make it
+  done" describes an output, not a step that precedes another; "before
+  actually doing it" makes it a sequence.
+- **The permission step was not observable to Front either.** The example
+  sentence gives it a concrete shape to produce, so producing it is now the
+  obvious move rather than an inference.
+
+The remaining guess — that 「できる？」 reads as authorization — is neither
+confirmed nor refuted: run 3's wish also ended in 「できる？」 and Front asked
+anyway, which suggests the phrasing was not the deciding factor.
+
+Two guide lines, no code, one paid run to verify. That is what
+Evidence-Driven Guidance costs when the evidence is collected first —
+Failure Farming worked exactly as intended here: run 1 and 2 were allowed to
+fail informatively rather than being pre-empted by an anxious rule.
