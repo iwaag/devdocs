@@ -90,6 +90,16 @@ approved by Front, watched by nobody human until it was over.
 
 ## Open, and worth deciding rather than rediscovering
 
+- **Front addressed one task's worker as if it were all of autolab.**
+  Message 728, into `workrun-task1-s2-6`, read in full: 「実行を開始してください。
+  タスク1〜3を順番にお願いします。」 The task-1 supercoder knows only task 1, so
+  the second sentence reached nobody; the handler's per-Work scoping and
+  the previous-work gate are what kept task 2 and 3 out of task 1's commit.
+  Found by the developer reading the topic, not by this report — the table
+  in report3 had abbreviated the message. Repaired the same day as an intro
+  sentence (agautolab `b5efbe1`, posted as the `b5efbe1`-stamped intro):
+  one topic is one task, and a step approval is not completion. Quote
+  trigger messages verbatim from now on.
 - **What a supervisor may approve on its own.** Front answered
   「はい、コミットしてください」 three times without asking the developer, and those
   answers put three commits in `main`. Defensible here; undefined in general.

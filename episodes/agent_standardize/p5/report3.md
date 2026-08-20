@@ -24,7 +24,7 @@ locate everything.
 | when (UTC) | channel / topic | what |
 |---|---|---|
 | 17:05:20 | `#front` / `front-p5-supervise-workruns` | **726** developer: 実行まで進めて、3つとも見届けて |
-| 17:06:15 | `#work-s2-6` / `workrun-task1-s2-6` | **728** Front: 実行を開始してください |
+| 17:06:15 | `#work-s2-6` / `workrun-task1-s2-6` | **728** Front: 実行を開始してください。タスク1〜3を順番にお願いします。 |
 | 17:07:19 | ″ | 731 autolab: refactor done — commit してよろしいですか？ |
 | 17:07:36 | ″ | **732** Front: はい、コミットしてください |
 | 17:08:19 | ″ | 735 commit `3f8abbb`; `task S2-7: … Done yes`; devlog; **736 ✔** |
