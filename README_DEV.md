@@ -32,6 +32,13 @@ devpolicy/terms.md ... Read only when you need to check terminologies
   topic in the project's own `pj-<slug>` channel, because the channel is what
   says which project the work is for. Its own introduction in `#agents` is the
   authority on both (`agent_standardize` p4).
+- Since p9 a `workplan-` topic's tasks each get a `workrun-` topic that
+  **says what it is for**: a `[rootchat]` note naming the mission
+  conversation and a `[work]` note naming its Plane Sub-Work, written before
+  the visible description. Nothing is read from the topic's name or its
+  channel's description any more. **A post is what starts a task**, and the
+  planning reply says so — a supervisor that reads "opened …" as "running
+  now" stops the whole mission.
 
 ## agfront(pj-agdev/agfront)
 
@@ -54,6 +61,12 @@ devpolicy/terms.md ... Read only when you need to check terminologies
 - Since p8 **forge opens the run topic itself** when it registers the plan,
   and says so in the plan topic. The requester posts there to start it, and
   what they post is read. Nothing is chosen from a queue any more.
+- Since p9 **one result names the requester once** — in the `assetplan-`
+  delivery, which is what they were waiting for. The `assetrun-` copy is the
+  record of the run and names nobody. "The requester" is read from the
+  conversation as it stood when the run was served, not from the topic as it
+  looks afterwards, because a generation takes minutes and anybody may post
+  meanwhile.
 
 ## How agents remember each other
 
@@ -73,8 +86,26 @@ serve, and it serves that one and replies there.
 `chatlog.md`, every `threads/` file and `agentchat read` — from their author
 too — and, crucially, **a selfnote is never counted as somebody speaking**,
 so writing one never buys another agent a run. The convention is
-`agag.selfnote`; agents add their own tags (agforge anchors a run topic to
-its Work with `[selfnote][work]`).
+`agag.selfnote`; agents add their own tags (agforge and autolab both anchor a
+run topic to its Work with `[selfnote][work]`).
+
+Since `agent_standardize` p9 there is a second shared note:
+
+```
+[selfnote][served] <channel>/<topic> <message id>
+```
+
+written **into home** once a callback has been answered. Recovery needs it
+because the answer goes home: the agent never becomes the last poster where
+it was named, so "somebody else spoke there and named me" is true forever and
+every restart would re-serve every exchange the agent ever had. Both recovery
+routes consult it.
+
+**Every one of these lookups follows Zulip's `✔ ` resolve rename.** The post
+that names an agent is very often the post that finishes the conversation,
+and a lookup that cannot see past the rename reads an empty topic and drops
+the callback silently — p9 lost a task's completion report to exactly that,
+and the mission stopped for 26 minutes with nothing in any log.
 
 ## How an agent is found
 
