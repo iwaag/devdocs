@@ -40,6 +40,17 @@ devpolicy/terms.md ... Read only when you need to check terminologies
   planning reply says so — a supervisor that reads "opened …" as "running
   now" stops the whole mission.
 
+**Since `agent_standardize` p10 an instance's own channel answers about its
+work.** Ask forge or autolab in its own channel where its plans stand and it
+surveys its board — its own topics for forge, every `pj-` channel and their
+derived `work-` channels for autolab — and says so. Told to close out what is
+finished, it verifies by reading, resolves those topics, and (autolab) marks
+the mission Work Done with `python -m agautolab.mission_done`. **It never
+tidies on its own**: that is contract, not shackle. Each serving keeps a
+streamed transcript, because an answer that skipped a project reads exactly
+like one that found nothing in it — which is how a whole project went
+unreported for one round of p10.
+
 ## agfront(pj-agdev/agfront)
 
 - Responds to any requests from Human and sends messages to other agents.
