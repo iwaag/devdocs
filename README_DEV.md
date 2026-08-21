@@ -38,15 +38,43 @@ devpolicy/terms.md ... Read only when you need to check terminologies
 - Responds to any requests from Human and sends messages to other agents.
 - It can also be asked to **supervise**: stay with a request until the agent
   doing the work finishes, answering what it asks along the way. Since
-  `agent_standardize` p5 a front run may last an hour for that reason, and
-  waiting happens inside the run — a run that ends is a supervision that
-  stopped.
+  `agent_standardize` p7 that is not a long run but several short ones — Front
+  posts, ends, and is called again when the answer names it.
+- **Its reply always goes to the developer.** Since p8 a run called back from
+  another agent's topic still answers in its own `front-*` conversation;
+  anything it says to that agent is a deliberate `agentchat send`. That is
+  what ends an exchange between two agents, and it is the whole of p8's
+  answer to p7's "nothing decides when a conversation is over".
 
 ## forge agent(pj-agdev/agforge)
 
 - Responds to requests for providing media assets with characteristics specified in the requests.
 - Its entrance is the Zulip channel named after its instance; an asset
   request is an `assetplan-…` topic there (`agent_standardize` p1).
+- Since p8 **forge opens the run topic itself** when it registers the plan,
+  and says so in the plan topic. The requester posts there to start it, and
+  what they post is read. Nothing is chosen from a queue any more.
+
+## How agents remember each other
+
+Since `agent_standardize` p8 an agent that speaks in another agent's
+conversation writes a hidden line into it first:
+
+```
+[selfnote][rootchat] <channel>/<topic>
+```
+
+naming the conversation of its own that it is there on behalf of. That post
+is the whole memory — no agent keeps a file of who it is talking to. When the
+answer names the agent, the topic tells it which of its own conversations to
+serve, and it serves that one and replies there.
+
+`[selfnote]` posts are machine-to-machine. They are hidden from every
+`chatlog.md`, every `threads/` file and `agentchat read` — from their author
+too — and, crucially, **a selfnote is never counted as somebody speaking**,
+so writing one never buys another agent a run. The convention is
+`agag.selfnote`; agents add their own tags (agforge anchors a run topic to
+its Work with `[selfnote][work]`).
 
 ## How an agent is found
 
