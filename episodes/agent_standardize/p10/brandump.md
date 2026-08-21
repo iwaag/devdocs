@@ -1,0 +1,19 @@
+agforge/agautolabのfrontエージェントにplanの一覧と実行段階を把握ができるかチェックする。
+今の仕様だとPlaneにあるワークの情報はほぼZulipにコピーされ、実行時情報はZulipにしかないので、zulipの走査だけでいけるはず。planeの操作はdone化ぐらいかも。
+agentchatコマンドなど、すでにあるコマンドで可能か？
+そうならガイドに数行のヒントを加えるだけでできるかも？
+最終的なtopic resolve化/work done化も、状態把握ができれば結果として可能になるはず。
+
+# agforgeにentrance-トピック追加
+
+agforgeチャンネル内のassetplanとassetrunトピックを走査し、計画一覧や特定のworkの状態を説明できるところまで確認。そのためのguideを作成、他のguideを参考に超簡潔に。
+
+# agautolabにentranceトピック追加
+
+agautolabの方は#pj-チャンネルと、その配下のworkplan、そこから派生したworkrunチャンネルを走査し、計画一覧や特定のworkの状態を説明できるところまで確認。そのためのguideを作成、他のguideを参考に超簡潔に。
+
+# resolve/done処理
+
+「全ての計画の進捗状況を確認し、関連するworkrun/assetrunがresolvedになっているplanがあるか確認してください。」みたいな感じで確認させ、「では完了しているものを全てresolvedとしてください」みたいなのを、最初はOmni Agentが指示を、次にagfrontができるようにする。
+
+なお、今回はワーク自体の実行をテストするのが目的ではないので、もし実際に新しいplanやプロジェクトでテストするなら、text.mdを作成するワークとか、画像を１枚作成するplanとか、そういうので十分。
