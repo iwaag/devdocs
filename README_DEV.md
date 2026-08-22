@@ -11,6 +11,10 @@ devpolicy/terms.md ... Read only when you need to check terminologies
 
 # In-System Agents
 
+A new agent is `agag init <agent>` (pyagag): it generates a project on the
+shared skeleton (`agag.agent`) and prints the human checklist; `agecho` at
+the workspace root is the minimal fixture it made (`agag_builder` p1).
+
 ## cagent (pj-clusterintent)
 
 - Responds to requests for explaining/observing/changing desired state and/or actual state of the cluster.
