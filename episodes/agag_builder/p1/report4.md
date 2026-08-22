@@ -10,19 +10,27 @@ own files; hatch already ships them (fixed, pyagag `2eabf40`).
 Tracked files, 111 lines in total; the only code is `listener.py` (26 lines,
 the `AgentSpec` and one `listener_main(SPEC, {})` call) and `intro.py` (8).
 
-## Checklist as executed
+## Provisioning (current reproduction)
 
-1. Bot: `POST /api/v1/bots` as the Developer (an owner) → user 16,
-   `agecho-agstudio1-bot@agstudio.local`; credentials written to
-   `agecho/.local/zulip.env` and copied to `pj-agdev/.local/zulip/agecho.env`.
-2. Channels: bot subscribed to `#agents`; `#agecho-agstudio1` created with a
-   description, bot + Developer subscribed.
-3. Plane: skipped (agecho registers nothing).
-4. `params/intro.md`: the first TODO replaced by three honest sentences; the
-   request TODO left as is.
-5. `uv sync`, `uv run python -m agecho.intro` → `#agents/intro-agecho-agstudio1`
+The p1 run predates `agag provision`; its manual bot/channel work is now one
+agent-side command using the dedicated provisioner identity:
+
+```sh
+AGAG_ZULIP_ADMIN_ENV=<provisioner-env> agag provision agecho
+```
+
+The historical result was Zulip bot user 16
+(`agecho-agstudio1-bot@agstudio.local`), credentials in the ignored
+`agecho/.local/zulip.env`, membership in `#agents`, and an own
+`#agecho-agstudio1` channel shared with the administrator. Plane was skipped
+because agecho registers nothing.
+
+After provisioning, `params/intro.md`'s first TODO was replaced by three
+honest sentences (the request TODO remained), then:
+
+1. `uv sync`, `uv run python -m agecho.intro` → `#agents/intro-agecho-agstudio1`
    (message 1326, revision `76523d0`).
-6. `service/listen.sh` → listener up: `pull sweep: all topics in
+2. `service/listen.sh` → listener up: `pull sweep: all topics in
    'agecho-agstudio1', prefixes ('agechorun-', 'agechoplan-') elsewhere,
    routes [] + DM thread`.
 

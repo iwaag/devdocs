@@ -80,9 +80,11 @@ No agecho-specific code was involved.
 
 ## Human-side notes
 
-- agecho's bot was created over the API as the Developer (owner); `#agecho-agstudio1`
-  and the `#agents` subscription likewise. Creds: `agecho/.local/zulip.env`,
-  copy at `pj-agdev/.local/zulip/agecho.env`.
+- agecho's historical p1 bot/channel result is now reproduced with
+  `AGAG_ZULIP_ADMIN_ENV=<provisioner-env> agag provision agecho`; direct use
+  of the Developer identity is no longer part of the workflow. Creds remain
+  local at `agecho/.local/zulip.env` (with the fixture copy under
+  `pj-agdev/.local/zulip/`).
 - agecho's listener is a `nohup` process, not launchd; it ends with this
   session. agecho stays as the standardize fixture (plan, Step 5).
 - The `assetplan-skeleton-check-icon` plan (F2-22) in forge was registered
