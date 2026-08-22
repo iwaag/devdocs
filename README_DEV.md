@@ -11,9 +11,14 @@ devpolicy/terms.md ... Read only when you need to check terminologies
 
 # In-System Agents
 
-A new agent is `agag init <agent>` (pyagag): it generates a project on the
-shared skeleton (`agag.agent`) and prints the human checklist; `agecho` at
-the workspace root is the minimal fixture it made (`agag_builder` p1).
+A new agent is `agag init <agent> --yes --provision --like <sibling>`
+(pyagag): it generates a project on the shared skeleton (`agag.agent`),
+copies compatible local machine facts, creates its Zulip bot and channels,
+and writes its ignored credentials. The owner-class identity is the **path**
+in `AGAG_ZULIP_ADMIN_ENV`; autolab receives the dedicated provisioner path
+and can run the whole chain from a project workplan (`agag_builder` p3).
+`agecho` is the minimal p1 fixture; runsmoke1's `main/agping/` is the p3
+agent-created fixture that Front has reached successfully.
 
 ## cagent (pj-clusterintent)
 
