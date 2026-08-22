@@ -89,6 +89,11 @@ The project kept its unrelated untracked `HELLO.md` and `README.md` untouched.
 The current tracked project is `1e85461`; intro message 1429 carries that
 revision. agping stays as fixture #2.
 
+Final close-out was requested through autolab's own entrance. It re-read the
+board, verified intro revision `1e85461` and successful greeting message
+1425, resolved `workplan-agping`, and ran `agautolab.mission_done`; R-8 is
+Done in Plane.
+
 ## Front exchange and failure farming
 
 Front found agping from its introduction and posted into

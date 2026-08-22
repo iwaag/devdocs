@@ -24,6 +24,8 @@
 - autolab is running after its final GitHub-backed dependency update; agping
   is running from runsmoke1 `main/agping/` and answered Front.
 - Current agping introduction message 1429 has revision `1e85461`.
+- Autolab's own entrance verified the board, resolved `workplan-agping`, and
+  marked R-8 Done in Plane.
 
 The phase is complete. agping remains intentionally as fixture #2; no bot or
 channel was deactivated or archived.
