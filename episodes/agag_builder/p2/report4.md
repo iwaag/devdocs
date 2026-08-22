@@ -11,7 +11,7 @@
   skeleton start lines:
 
 ```
-agautolab zulip listener starting (pull sweep: all topics in 'autolab-agstudio1', prefixes ('workrun-', 'workplan-', 'bmining-') elsewhere, routes ['bmining-', 'workplan-', 'workrun-'] + DM thread)
+autolab zulip listener starting (pull sweep: all topics in 'autolab-agstudio1', prefixes ('workrun-', 'workplan-', 'bmining-') elsewhere, routes ['bmining-', 'workplan-', 'workrun-'] + DM thread)
 front zulip listener starting (pull sweep: all topics in 'front-agstudio1', prefixes ('front-',) elsewhere, routes ['front-'] + DM thread)
 ```
 

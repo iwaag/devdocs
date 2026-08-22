@@ -1,177 +1,207 @@
-# agag_builder p1 plan — `agag init` が生む薄皮
+# agag_builder p1 plan — the thin skin `agag init` generates
 
-Goal: 新しい agag 準拠エージェントを **1 コマンド + 数問** で立ち上げ、`#agents` に
-自己紹介を投げ、agfront がその紹介だけを頼りに話しかけて返事が返るところまで通す。
+Goal: bring up a new agag-compliant agent with **one command + a few
+questions**, post its introduction to `#agents`, and have agfront talk to it
+knowing nothing but that introduction — and get a reply.
 
 Success criteria:
 
-1. `agag init <agent>` が対話で instance 名・topic 接頭辞・role を聞き、
-   `pj-agdev/<agent>/` に動くプロジェクトを生成する。
-2. 生成物は **薄い**: 固有コードは instance 名・role 定義・guide・`params/intro.md`
-   程度。listener / intro / selfnote / entrance / role_run の実体は pyagag 側にある。
-3. 生成したダミーエージェント（`agecho` 等）を `listen.sh` で起動し、`#agents` に intro
-   を投稿、agfront に「`agecho-agstudio1` に挨拶して」と頼んで返事が `front-*` に届く。
-4. agforge を新しい pyagag 骨格に載せ替えて今まで通り動く（他の既存エージェントは
-   本フェーズでは触らなくてよい。後方互換は不要、agforge が壊れたら直す）。
+1. `agag init <agent>` asks interactively for instance name, topic prefixes
+   and roles, and generates a working project.
+2. The generated project is **thin**: agent-specific code is the instance
+   name, role definitions, guides and `params/intro.md`. Listener / intro /
+   selfnote / entrance / role_run live in pyagag.
+3. A generated dummy agent (`agecho` or similar) is started with
+   `listen.sh`, posts its intro to `#agents`; agfront is asked "say hello to
+   `agecho-agstudio1`" and the reply lands in a `front-*` topic.
+4. agforge is moved onto the new pyagag skeleton and keeps working (other
+   existing agents are not touched this phase; no backward compatibility —
+   if agforge breaks, fix it).
 
 Decisions already made (braindump + discussion):
 
-- **テンプレートよりライブラリ。** `agag init` の価値は生成物の小ささで測る。
-  規約変更（p8 の selfnote のような）が pyagag の 1 push で全エージェントに届く形にする。
-- 新コマンドは `agag`（pyagag の `[project.scripts]` に追加）。`agentchat` はそのまま残す。
-- 初版のデプロイはローカル `listen.sh` 起動まで。launchd plist / ansible は生成しない
-  （`pj-agdev/devenv/launchd/*.plist.in` を見れば手で 5 分）。
-- Zulip の bot アカウント作成、Plane アカウント、チャンネル説明文の編集は人間の作業。
-  `agag init` はそれを **最後にチェックリストとして印字** するだけ。agent には
-  HTTP 400 で編集できない（standardize p10 TODO）ので無理に自動化しない。
-- Plane 登録は「plan 系 topic が Work を登録する」流儀を踏襲するが、**初版のダミー
-  エージェントは Plane を使わなくてよい**。Plane 連携は生成物の opt-in
-  （`agents.toml` か role の `requires`）にする。
+- **Library over template.** The value of `agag init` is measured by how
+  small its output is. A convention change (like p8's selfnotes) must reach
+  every agent with one pyagag push.
+- The new command is `agag` (added to pyagag's `[project.scripts]`).
+  `agentchat` stays as it is.
+- First version deploys only as far as a local `listen.sh`. No launchd plist
+  / ansible generation (`pj-agdev/devenv/launchd/*.plist.in` is a 5-minute
+  copy by hand).
+- Creating the Zulip bot account, the Plane account and editing the channel
+  description are human work. `agag init` **prints them as a checklist at
+  the end**, nothing more. An agent cannot edit its channel description
+  (HTTP 400, standardize p10 TODO), so do not force automation.
+- Plane registration follows the "plan topics register a Work" convention,
+  but **the first dummy agent need not use Plane**. Plane is opt-in in the
+  generated project (`agents.toml` or a role's `requires`).
 
-Constraints: secrets は `.local/`。pyagag を変えたら push → 消費側で
-`uv lock --upgrade-package pyagag` → push（localrule.md）。料金は気にしない。
+Constraints: secrets in `.local/`. After changing pyagag: push →
+`uv lock --upgrade-package pyagag` in consumers → push (localrule.md).
+Cost is not a concern.
 
-## 現状の事実（計画時に確認済み）
+## Facts checked at planning time
 
-- pyagag（`/Users/eiji/projects/pyagag`）: CLI は `agentchat` のみ
-  （`agag.chat:main`、`send/read/topics/channels/resolve`）。scaffold は無い。
-  共有できている部品: `agag.zulip`（`ZulipClient`, `sweep_serve`, `serve`）、
-  `agag.topics.serve_topic`（ack→handler→必ず返事、p10 の共通 seam）、`agag.intro`
-  （`post_intro`, `write_agents_md`）、`agag.selfnote`, `agag.harness.run_harness`,
-  `agag.agent_config`（`ag.agent-config.v1`）、`agag.plane`, `agag.instance.instance_name`, `agag.status`。
-- 各エージェントに **コピペで残っているもの**（pyagag に上げる候補）:
-  - `instance.py`（agforge 40 行 / autolab 45 行、差分は docstring だけ）
-  - `intro.py`（27 / 34 行、同上）
-  - `role_run.py`（forge 205 / autolab 196 / front 133 行）: `agents.toml` 解決 →
-    `AGENTCHAT_ZULIP_ENV` / `AGENTCHAT_HOME` / PATH に `agentchat` を通す → `run_harness`。
-    `ROLE_ALLOWED_TOOLS` テーブル（role ごとの `--allowedTools`）もここ。
-    **grant が無い role は claude_code が permission prompt で timeout まで止まる**
-    （agfront/role_run.py の注記）。骨格化するときこの表を agents.toml 側に移すと楽。
-  - `zulip_listener.py`（forge 119 行）: `topic_filter`（自分のチャンネル全部 + 接頭辞）、
-    `dispatch`（接頭辞→handler、それ以外→`entrance_topic`）、`main`（`sweep_serve`）。
-    autolab の 1254 行版は mission 固有が混ざっているので参考にしない。
-  - `entrance_topic.py`（130 行）+ `agent/guides/entrance_front/guide.md`（8 行）:
-    どのエージェントも同じ「自分の板を読んで答える front run」。guide 内の
-    `assetplan-/assetrun-` だけが固有。
-  - `anchor.py`（`[selfnote][work]`）、`plane.py` のラベル/プロジェクト決め。
-- パス規約: `<root>/.local/zulip.env`（bot 資格情報）、
-  `pj-agdev/.local/plane-credentials.env`（共有。forge は `ROOT.parent/.local/…` で
-  探しているため pj-agdev 外に置くと見つからない。骨格では `AGAG_PLANE_ENV` 環境変数か
-  `<root>/.local/plane-credentials.env` で解決し、親ディレクトリ相対をやめる）、`<root>/.local/instance.toml`、
-  `<root>/.local/agents.local.toml`。
-- pyagag の消費は git 依存: `pyagag = { git = "https://github.com/iwaag/pyagag.git", branch = "main" }`。
-- `agautolab/init_project.py` / `project_init.py` は **autolab が作業プロジェクトを
-  作るもの**で、エージェントの scaffold ではない。ただし対話 + Zulip チャンネル作成 +
-  Plane プロジェクト作成の実装例として読む価値あり（`client.create_channel`,
-  `agag.plane.create_project`）。
-- `devdocs/episodes/agent_standardize/p10/report4.md §8` に未解決 TODO 一覧。
-  本フェーズで拾わなくてよいが、「自チャンネルの説明文を agent が編集できない」は
-  init のチェックリストに直結する。
+- pyagag (`/Users/eiji/projects/pyagag`): the only CLI is `agentchat`
+  (`agag.chat:main`; `send/read/topics/channels/resolve`). No scaffold.
+  Already shared: `agag.zulip` (`ZulipClient`, `sweep_serve`, `serve`),
+  `agag.topics.serve_topic` (ack → handler → always reply; p10's common
+  seam), `agag.intro` (`post_intro`, `write_agents_md`), `agag.selfnote`,
+  `agag.harness.run_harness`, `agag.agent_config` (`ag.agent-config.v1`),
+  `agag.plane`, `agag.instance.instance_name`, `agag.status`.
+- **Copy-pasted across agents** (candidates to lift into pyagag):
+  - `instance.py` (forge 40 / autolab 45 lines; docstring is the only diff)
+  - `intro.py` (27 / 34 lines; same)
+  - `role_run.py` (forge 205 / autolab 196 / front 133): resolve
+    `agents.toml` → put `AGENTCHAT_ZULIP_ENV` / `AGENTCHAT_HOME` / `agentchat`
+    on PATH → `run_harness`. The `ROLE_ALLOWED_TOOLS` table (per-role
+    `--allowedTools`) is here too. **A role without a grant makes claude_code
+    sit on a permission prompt until timeout** (note in agfront/role_run.py).
+    Moving that table into agents.toml makes the skeleton easier.
+  - `zulip_listener.py` (forge 119): `topic_filter` (whole own channel +
+    prefixes), `dispatch` (prefix → handler, otherwise → `entrance_topic`),
+    `main` (`sweep_serve`). autolab's 1254-line version is mixed with mission
+    logic; do not use it as the reference.
+  - `entrance_topic.py` (130) + `agent/guides/entrance_front/guide.md`
+    (8 lines): the same "front run reading its own board" for every agent.
+    Only `assetplan-/assetrun-` in the guide is specific.
+  - `anchor.py` (`[selfnote][work]`), label/project choice in `plane.py`.
+- Path conventions: `<root>/.local/zulip.env` (bot credentials),
+  `pj-agdev/.local/plane-credentials.env` (shared; forge looks it up as
+  `ROOT.parent/.local/…`, which fails outside pj-agdev. The skeleton should
+  resolve it via an `AGAG_PLANE_ENV` env var or
+  `<root>/.local/plane-credentials.env`, and stop using parent-relative
+  paths), `<root>/.local/instance.toml`, `<root>/.local/agents.local.toml`.
+- pyagag is consumed as a git dependency:
+  `pyagag = { git = "https://github.com/iwaag/pyagag.git", branch = "main" }`.
+- `agautolab/init_project.py` / `project_init.py` are **autolab creating a
+  work project**, not an agent scaffold. Still worth reading as an example of
+  interactive prompts + Zulip channel creation + Plane project creation
+  (`client.create_channel`, `agag.plane.create_project`).
+- `devdocs/episodes/agent_standardize/p10/report4.md §8` lists open TODOs.
+  Not for this phase, but "an agent cannot edit its own channel description"
+  feeds straight into init's checklist.
 
-## Step 1 — 共通化の表を作る（成果物: `p1/skeleton_map.md`）
+## Step 1 — the lifting map (output: `p1/skeleton_map.md`)
 
-agforge / agautolab / agfront の `src/` を横に並べ、各モジュール・関数を
-**pyagag に上げる / 生成テンプレートに残す / そのエージェント固有** の 3 列に振り分ける。
-上記「現状の事実」が叩き台。forge を基準にし、autolab は差分確認だけ。
+Lay agforge / agautolab / agfront `src/` side by side and sort every
+module/function into **lift to pyagag / keep in the template / agent's
+own**. The facts above are the draft. Use forge as the base line; autolab is
+only diffed against it.
 
-ヒント: `diff <(sed s/agforge/X/g …) <(sed s/agautolab/X/g …)` で instance.py と
-intro.py は docstring 差しか無いことが確認済み。role_run は 3 つとも読むこと。
+Hint: `diff <(sed s/agforge/X/g …) <(sed s/agautolab/X/g …)` already showed
+instance.py and intro.py differ only in docstrings. Read all three role_run.
 
-## Step 2 — pyagag に骨格を入れる（`agag.skeleton` でも `agag.agent` でも命名は自由）
+## Step 2 — the skeleton in pyagag (`agag.skeleton`, `agag.agent`, naming is free)
 
-Step 1 の「上げる」列を移す。目安となる API:
+Move the "lift" column. Target API, roughly:
 
-- `AgentSpec`（または toml）: `agent`（短名）, `plan_prefix`, `run_prefix`, roles,
-  `root: Path`。`instance_name()` は `agag.instance.instance_name(root/.local/instance.toml, fallback=…)` を呼ぶだけ。
-- `listener_main(spec, dispatch)`: forge の `zulip_listener.main` + `topic_filter` を一般化。
-  `dispatch` が None の接頭辞は `entrance` に落とす。
-- `run_role(spec, role, prompt, workspace, …)`: role_run の共通部。
-  `ROLE_ALLOWED_TOOLS` は `agents.toml` の `[roles.X] allowed_tools = "…"` に移して
-  `agag.agent_config` で読む（`docs/agent-config-v1.md` を更新、schema は v2 にしてよい）。
-- `entrance.handle(spec, client, channel, topic)`: forge の `entrance_topic` を移し、
-  guide 本文は pyagag 内蔵のデフォルト + `{plan_prefix}/{run_prefix}` 置換。
-  エージェント側に `agent/guides/entrance_front/guide.md` があればそちら優先。
-- `intro.main(spec)`: `python -m <agent>.intro` の中身。
+- `AgentSpec` (or toml): `agent` (short name), `plan_prefix`, `run_prefix`,
+  roles, `root: Path`. `instance_name()` just calls
+  `agag.instance.instance_name(root/.local/instance.toml, fallback=…)`.
+- `listener_main(spec, dispatch)`: generalizes forge's `zulip_listener.main`
+  + `topic_filter`. Prefixes with no `dispatch` entry fall through to
+  `entrance`.
+- `run_role(spec, role, prompt, workspace, …)`: the common part of role_run.
+  `ROLE_ALLOWED_TOOLS` moves to `agents.toml` `[roles.X] allowed_tools = "…"`
+  read by `agag.agent_config` (update `docs/agent-config-v1.md`; schema may
+  become v2).
+- `entrance.handle(spec, client, channel, topic)`: forge's `entrance_topic`
+  moved; guide body is a pyagag built-in default with
+  `{plan_prefix}/{run_prefix}` substitution, and the agent's
+  `agent/guides/entrance_front/guide.md` wins when present.
+- `intro.main(spec)`: the body of `python -m <agent>.intro`.
 
-自由裁量: モジュール分割、名前、dataclass か toml か。禁止事項は **無し**。
-既存 tests（pyagag、agforge 19 本）は壊れたら直すか消す。
+Free choices: module split, names, dataclass vs toml. **No prohibitions.**
+Existing tests (pyagag, agforge's 19) are fixed or deleted when they break.
 
-確認: forge の `zulip_listener.py` / `role_run.py` / `entrance_topic.py` / `intro.py` /
-`instance.py` を骨格呼び出しに置き換え、`uv run pytest` と `AGFORGE_ZULIP_LOG_ONLY=1`
-での起動、実 Zulip で `assetplan-` 1 本を通す。commit → push（pyagag、agforge、lock 更新）。
+Check: replace forge's `zulip_listener.py` / `role_run.py` /
+`entrance_topic.py` / `intro.py` / `instance.py` with skeleton calls, run
+`uv run pytest`, start with `AGFORGE_ZULIP_LOG_ONLY=1`, then one real
+`assetplan-` on live Zulip. Commit → push (pyagag, agforge, lock update).
 
 ## Step 3 — `agag init`
 
-`pyagag/src/agag/init.py`、`[project.scripts] agag = "agag.cli:main"`（`agag init` のみで可）。
+`pyagag/src/agag/init.py`, `[project.scripts] agag = "agag.cli:main"`
+(`agag init` alone is enough).
 
-質問は最小限（デフォルト付き、`--yes` で全部デフォルト）:
+Questions, minimal (with defaults; `--yes` takes every default):
 
-1. agent 短名（引数）
-2. instance 名（default `<agent>-<hostname>1`、`.local/instance.toml` に書く）
-3. plan / run 接頭辞（default `<agent>plan-` / `<agent>run-`）
-4. roles（default `front`）、profile（default `sonnet`）
-5. 出力先（default カレントディレクトリ直下 `./<agent>`、`git init` だけして remote は付けない）
+1. agent short name (argument)
+2. instance name (default `<agent>-<hostname>1`, written to
+   `.local/instance.toml`)
+3. plan / run prefixes (default `<agent>plan-` / `<agent>run-`)
+4. roles (default `front`), profile (default `sonnet`)
+5. output directory (default `./<agent>` under the current directory;
+   `git init` only, no remote)
 
-生成物（目安、減らす方向で）:
+Generated files (a guide; shrink it):
 
 ```
 <agent>/
-  pyproject.toml            # pyagag git 依存、scripts
+  pyproject.toml            # pyagag git dependency, scripts
   agents.toml               # ag.agent-config + allowed_tools
   instance.example.toml
-  params/intro.md           # {instance} 置換、接頭辞入り雛形
-  agent/guides/<plan>_front/guide.md   # 8 行程度の雛形。「何をするか」は TODO で空欄
+  params/intro.md           # {instance} substitution, prefixes filled in
+  agent/guides/<plan>_front/guide.md   # ~8-line stub; "what it does" left as TODO
   src/<agent>/__init__.py
-  src/<agent>/listener.py   # 10〜20 行: spec を定義して agag の listener_main を呼ぶ
-  service/listen.sh         # forge のものをほぼコピー
+  src/<agent>/listener.py   # 10–20 lines: define spec, call agag's listener_main
+  service/listen.sh         # near copy of forge's
   .gitignore                # .local/
-  .local/instance.toml      # 回答から生成
+  .local/instance.toml      # from the answers
 ```
 
-終了時に印字するチェックリスト（人間作業）:
+Checklist printed at the end (human work):
 
-- Zulip: bot アカウント作成 → `.local/zulip.env`（`ZULIP_URL/EMAIL/API_KEY`）。
-  `<instance>` チャンネル作成は `ZulipClient.create_channel` で自動化してよいが、
-  `#agents` 購読と説明文は人間。
-- Plane: 使うなら `pj-agdev/.local/plane-credentials.env` が既にある。アカウント追加は人間。
-- `uv sync && uv run python -m <agent>.intro` → `service/listen.sh`。
-- 常駐させるなら `pj-agdev/devenv/launchd/` の plist.in を複製。
+- Zulip: create the bot → `.local/zulip.env` (`ZULIP_URL/EMAIL/API_KEY`).
+  Creating the `<instance>` channel may be automated with
+  `ZulipClient.create_channel`; subscribing to `#agents` and the description
+  are human.
+- Plane: if used, `pj-agdev/.local/plane-credentials.env` already exists.
+  Adding an account is human.
+- `uv sync && uv run python -m <agent>.intro` → `service/listen.sh`.
+- To keep it running, copy a plist.in from `pj-agdev/devenv/launchd/`.
 
-ヒント: テンプレートエンジンは不要。`string.Template` か f-string で十分。
-ファイル内容は pyagag パッケージ内に `templates/` として同梱（`importlib.resources`）。
+Hint: no template engine needed; `string.Template` or f-strings. Ship the
+file contents inside the pyagag package as `templates/`
+(`importlib.resources`).
 
-## Step 4 — ダミーエージェントで通す
+## Step 4 — run it through with a dummy agent
 
-置き場所はワークスペースルート `/Users/eiji/projects/agecho/`（remote 無し）。
-`pj-agdev/` 配下は各エージェントが submodule なので、使い捨てはそこに入れない。
+Location: workspace root `/Users/eiji/projects/agecho/` (no remote). Do not
+put throwaways under `pj-agdev/`, where each agent is a submodule.
 
-`agag init agecho` → 上記チェックリストを実行 → `listen.sh` 起動 →
-`python -m agecho.intro` → agfront に「agecho-agstudio1 に挨拶して、返事を教えて」。
+`agag init agecho` → do the checklist → start `listen.sh` →
+`python -m agecho.intro` → ask agfront "say hello to agecho-agstudio1 and
+tell me what it replied".
 
-期待: agfront は `tools/agents.md`（intro の harvest）だけで `agecho-agstudio1`
-チャンネルの plain topic に投稿し、agecho の entrance（front run）が返事、
-agfront が `front-*` に報告。何も固有実装をしていないのに会話が成立すれば成功。
+Expected: agfront, from `tools/agents.md` (the intro harvest) alone, posts
+in a plain topic of the `agecho-agstudio1` channel; agecho's entrance (a
+front run) answers; agfront reports in `front-*`. If a conversation happens
+with zero agent-specific code, the phase is a success.
 
-失敗したら直すのが本題（Failure Farming）。詰まりやすい所:
-- agfront 側の `tools/agents.md` は run 開始時に harvest される。intro 投稿後に
-  Front を呼ぶこと。
-- `#agents` に bot が購読していないと intro が投稿できない。
-- entrance の guide がデフォルト内蔵のままでも返事は返るはず。返らないなら
-  `allowed_tools` の grant 漏れ（permission prompt で timeout）を疑う。
-- `[selfnote][rootchat]` は agfront の `agentchat send` が書く。agecho 側は
-  `serve_topic` の `reply_to` 経由で自動処理されるはず。
+Fixing what fails is the point (Failure Farming). Likely snags:
+- agfront's `tools/agents.md` is harvested at run start; call Front after
+  the intro is posted.
+- The bot must be subscribed to `#agents` to post the intro.
+- The entrance should reply with the built-in default guide. If not,
+  suspect a missing `allowed_tools` grant (permission prompt until timeout).
+- `[selfnote][rootchat]` is written by agfront's `agentchat send`; agecho's
+  side should be handled by `serve_topic`'s `reply_to` automatically.
 
-## Step 5 — 記録
+## Step 5 — record
 
-- `p1/report.md`: 生成物の行数、Step 4 の Zulip ログ抜粋、失敗と修正、
-  pyagag に上げきれず agforge に残ったものの一覧（次フェーズの種）。
-- `devdocs/README_DEV.md` の In-System Agents に「新エージェントは `agag init`」を 1 行。
-- agecho は残してよい（以後の standardize 実験の最小フィクスチャになる）。
-  消すなら Zulip チャンネルは archive、Plane は放置でよい。
+- `p1/report.md`: line counts of the generated project, Step 4 Zulip log
+  excerpt, failures and fixes, and what could not be lifted and stayed in
+  agforge (seeds for the next phase).
+- One line in `devdocs/README_DEV.md` In-System Agents: new agents come from
+  `agag init`.
+- agecho may stay (it becomes the minimal fixture for later standardize
+  experiments). If removed: archive the Zulip channel, leave Plane alone.
 
-## Out of scope（次以降）
+## Out of scope (later)
 
-- autolab から「新しい agag エージェントを作って」で `agag init` を呼ばせる
-  （Step 3 の `--yes` とチェックリスト印字はそのための布石）。
-- agautolab / agfront の骨格載せ替え。
-- launchd / ansible の生成。
+- autolab calling `agag init` on "make me a new agag agent" (Step 3's
+  `--yes` and the printed checklist are the groundwork).
+- Moving agautolab / agfront onto the skeleton.
+- Generating launchd / ansible.
