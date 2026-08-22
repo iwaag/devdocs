@@ -153,3 +153,29 @@ Per-agent Plane identity remains separate work. The current production profile
 also represents one scalar `agag_agent` placement per host; multiple different
 agag agents on one host would need a placement-list inventory contract or
 separate profile groups. macOS/launchd targets remain out of scope.
+
+## Post-phase correction (2026-08-22, verification pass)
+
+An independent verification of every success criterion passed, with one
+defect in the delivered Tool Giving: `cagent/agent/AGENTS.md` documented the
+credential source as a bare relative path. Ansible resolves a `copy` source
+against the role and playbook directories, not the working directory, so an
+agent following the guide verbatim gets `Could not find or access` and
+`failed=1`. The phase's own runs succeeded only because cagent improvised the
+path — the written instruction was never the one that worked.
+
+Fixed in `pj-clusterintent` `719d0bd` by documenting `$PWD/` on that source,
+with the reason next to it so the prefix is not tidied away later. Re-verified
+through the human door with the plan's original request wording: cagent
+rendered and applied on its own and reported `ok=19 changed=0 failed=0`,
+matching a direct controller run.
+
+Verification also confirmed: listener active/enabled with linger, fresh
+`agag-status.json` and `last_error: null`, intro at revision `c6e393e`, both
+Zulip channels, four desired records with no secrets, `nctl drift` converged
+with `liveness=polling`, the workspace present/matched/fresh, and the
+`autolab_node` wrapper passing check mode with no harmful drift.
+
+One cosmetic issue remains open: `agents.local.toml.j2` emits `[roles.*]` in a
+different order than the deployed file, so an autolab run reports the overlay
+as changed and restarts the listener once even when the content is equivalent.
