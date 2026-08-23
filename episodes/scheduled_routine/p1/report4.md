@@ -70,10 +70,61 @@ the cheaper outcome.
    `wait` subcommand although devenv.md describes one — the venv is behind
    the pyagag pin described there. Not needed for the routine itself.
 
-## Run 2 — scheduled fire 17:00Z
+## Schedule change during the step
 
-(to be appended)
+After run 1 the Developer asked for faster observation than an hourly
+fire; the launchd job was `bootout`-ed (16:41Z) and runs 2 and 3 were fired
+by hand with `trigger.sh imgprompt`. The launchd path was already verified
+by the 16:00Z fire (report3); the plist stays in the repo for re-enabling.
 
-## Run 3 — scheduled fire 18:00Z
+## Developer judgement on run 1 (message 1499, 16:31Z)
 
-(to be appended)
+> どれも良い出来で90点とします。次のルーチン実行では海岸の風景をテーマとしてください。
+
+Finding: a Developer comment in the run topic is itself a `front-` post, so
+**Front served it** (message 1501: "feedback + standing instruction for the
+next run — no action now, not contacting forge"). Harmless and correctly
+judged, but every judgement costs one Front run. Nothing to change in p1.
+
+## Run 2 — manual trigger, 16:41Z (messages 1502–1522)
+
+| time | what |
+|---|---|
+| 16:41:40 | served; Front read the judgement, opened `assetplan-coastal-landscape` with the coastal theme, 4 prompts, spec only — no orchestration sentence |
+| 16:41:59 | forge registered F2-24, opened `assetrun-coastal-landscape`, no questions |
+| 16:42:31 | Front pressed the button (callback) |
+| 16:45:25 | forge delivered; Front reported URL, `[S3KEY] files/2026-08-24/34b98ff4c3eb4e9e9742f36f7cbaf7b9.zip`, 4 prompts |
+
+4 minutes end-to-end, **4 Front runs**, no question to the Developer.
+Front applied the run-1 correction from topic history on its own: the
+candidate guidance "describe only the asset" did **not** need to go into the
+standing text.
+
+## Run 3 — manual trigger, 16:46Z (messages 1524–1544)
+
+No Developer comment between runs 2 and 3.
+
+| time | what |
+|---|---|
+| 16:46:04 | served; Front chose **alpine lake** ("distinct from both prior runs"), `assetplan-alpine-lake` |
+| 16:46:59 | forge registered F2-25, opened the run topic; Front triggered |
+| 16:49:30 | delivered; `[S3KEY] files/2026-08-24/6a4f0d585dc74a7681c0cc6c4a26e7a8.zip` |
+
+3.5 minutes, **3 Front runs** (the plan-registration and button press were
+one callback this time).
+
+### Finding: the theme varies, the prompts do not
+
+Front wrote in run 3: "same structure: wide-angle painterly dawn shot, macro
+photorealistic detail, minimalist silhouette, flat-vector aerial top-down."
+All three runs use that identical four-slot template; only the subject
+changes. The standing text says "clearly different prompts" per run and
+"vary it from previous runs" about the *theme*, and Front satisfied both
+literally. The Developer's single judgement ("90, all good") gave it no
+reason to change the template either. If the routine is meant to explore
+*prompting*, the standing text needs to say that the variation axis is the
+prompt technique, not the subject — candidate Evidence-Driven Guidance for
+the standing text (Step 5), not for Front.
+
+Front's "two-line take" is also thin (it restates that the run went well);
+with no negative judgement to react to, there is nothing for it to propose.
