@@ -111,7 +111,7 @@ yourself" was never exercised.
 
 ## Schedule
 
-`devenv/launchd/com.adev… com.agdev.routine-rtnotes.plist.in` (pj-agdev
+`devenv/launchd/com.agdev.routine-rtnotes.plist.in` (pj-agdev
 commit "2-hourly launchd job for routine rtnotes"): `StartInterval` 7200 —
 every 2 h from load rather than p1's hourly calendar tick, because a stuck
 task waits `WORK_TIMEOUT_SECONDS` = **1200** (the plan's 3600 figure is
