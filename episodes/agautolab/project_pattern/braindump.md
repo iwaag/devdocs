@@ -26,6 +26,6 @@ The file "autolab doc patterns" explains how project structure should be managed
 
 ただ、プロジェクトマネジメント関連のcliコマンドはすでにあった気がするので、もしすでにあればそっちのコマンド書式に自然に合わせる形でいい。
 
-この状態で、新規に#pj-studyarxivチャンネルを作り、"studyパターンプロジェクトを、publishリポジトリをhttps://github.com/iwaag/study-arxiv-torend、mainリポジトリをhttp://agstudio:3000/autodev/papers.gitにして作って。"とworkplan-で依頼。想定通りプロジェクトワークスペースを作るか見てみる。
+この状態で、新規に#pj-studyarxivチャンネルを作り、"studyパターンプロジェクトを、publishリポジトリをhttps://github.com/iwaag/study-arxiv-trend、mainリポジトリをhttp://agstudio:3000/autodev/papers.gitにして作って。"とworkplan-で依頼。想定通りプロジェクトワークスペースを作るか見てみる。
 
 publish/フォルダーのgithubへのpushは行わず、後で人間が手動で行う前提でいい。
