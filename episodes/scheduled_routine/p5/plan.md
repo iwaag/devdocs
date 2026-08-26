@@ -9,11 +9,14 @@ project runs an actual mission on the schedule.
 
 Decisions taken up front, not re-opened:
 
-- **Plane, stopgap option 1** from the project_pattern phase report: this
-  project gets a Plane project, created by hand (one
-  `ensure_plane_project` call), so `serve_run` can bind. No code change to
-  the pattern-managed gate; the "pattern projects and their ledger" design
-  stays open.
+- **Plane, stopgap option 1** from the project_pattern phase report,
+  approved by the Developer (2026-08-26): **every pattern-managed project
+  gets a Plane project automatically**. The pattern-managed gate in
+  `init_project` changes from "do nothing" to "ensure the Plane project,
+  touch nothing else" — folders, Gitea, clones stay entirely the agent's.
+  The deeper "pattern projects and their ledger" design (a
+  pattern-declared ledger folder, option 2) stays open for its own
+  episode.
 - Repo names are **not specified** in the request, so the agent should use
   `autolab project init-repo` standard names — the second live proof of
   the pattern doc's "if not specified" line.
@@ -33,8 +36,14 @@ prohibitions.
 - Pattern-managed ritual (project_pattern Steps 3–4): create the
   `#pj-<slug>` channel with the autolab bot subscribed, then create
   `.local/projects/<slug>/README_PROJECT.md` by hand — the marker that
-  keeps `init_project` away. The workplan request then builds the
-  workspace (`autolab doc patterns`, init-repo, README).
+  keeps `init_project` away from the folders. The workplan request then
+  builds the workspace (`autolab doc patterns`, init-repo, README).
+- The gate to change is project_pattern Step 3's early return in
+  `init_project` (keyed on `README_PROJECT.md`): it must now call
+  `ensure_plane_project` (idempotent, host-side token — no serving ever
+  sees it) before returning, and the returned string should say so. The
+  step-order test for the pattern-managed case asserts: Plane ensured,
+  no Gitea call, no folder created.
 - **Known frictions when a pattern project executes a mission** — expected,
   recorded, not pre-fixed (they are the project_pattern phase report's
   hard-code list, now hit live for the first time):
@@ -61,16 +70,19 @@ prohibitions.
   rate limits (60/h/IP) are ample for two summaries.
 - `WORK_TIMEOUT_SECONDS` = 1200 per task; one repo summary fits easily.
 - **MUST NOT**: push `publish/` from any agent; give agents GitHub
-  credentials; widen the pattern-managed gate or `init_project` in this
-  episode; expose the Gitea or Plane tokens to a serving; let a fix for a
+  credentials; change the pattern-managed gate beyond the one
+  `ensure_plane_project` call; expose the Gitea or Plane tokens to a serving; let a fix for a
   mission-path friction grow beyond that friction.
 
 ## Step 1 — project creation through the pattern flow
 
+- Code first: the gate change above, its test, commit, push, pin bump,
+  listener restart (the p2 ritual). This is the episode's only code
+  change; keep it to the one call.
 - Ritual: `#pj-ghtrends` channel (bot subscribed), marker
-  `README_PROJECT.md`, and the Plane project (one-liner via
-  `project_init.load_plane_config` + `ensure_plane_project`; record the
-  exact command).
+  `README_PROJECT.md`. No hand-made Plane: the first serving's
+  `init_project` creates it — verify in the Plane UI after the workplan
+  run and record that it appeared without a human call.
 - As the Developer in `#pj-ghtrends › workplan-create`: "studyパターンの
   プロジェクトを作って。リポジトリは標準の名前でいい。mainにはGitHubの
   トレンド解析で選んだリポジトリの概要まとめを蓄え、publishにはレビュー
@@ -144,8 +156,9 @@ before and after the hand push.
   avoidance across two runs.
 - Whether `ghtrends` should become a standing routine (daily?) and what
   the standing text would need; do not schedule it beyond the one fire.
-- The Plane stopgap: what having a hand-made Plane project cost or saved,
-  as input to the ledger decision. Do not decide it here.
+- The Plane stopgap: what auto-ensured Plane cost or saved on a pattern
+  project, as input to the still-open ledger design (option 2). Do not
+  decide it here.
 
 ## Out of scope
 
