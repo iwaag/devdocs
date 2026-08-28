@@ -26,7 +26,38 @@ bound task required to finish the record:
 front run exited 1: You've hit your session limit
 ```
 
-This makes the remaining resume verification impossible through the required
-Front → Autolab path. The run is stopped here; Steps 5 and 6 have not been
-started. No cluster Desired State, container, or persistent process was
-created by the experiment.
+The live evidence led to an Autolab repair: completed-task rework now opens a
+fresh, anchored `workrun-rerun-task…` surface rather than posting to the
+resolved topic.  The change is in agautolab commit `cb8556b` (parent project
+pin `4468f54`), with 169 focused tests passing.  It was pushed before this
+resume test.
+
+## Resumed result
+
+After the Claude limit reset, the upper actor selected the already-running
+local Ollama service instead of a cloud credential.  Prime Agent v0.8.1 was
+given its documented custom provider configuration in ignored local material:
+`http://localhost:11434/v1`, `openai-completions`, and model
+`qwen3.8:27b-mlx-bf16`.  The nominal `apiKey` field is required by Prime
+Agent's OpenAI-compatible provider schema, but Ollama did not receive or
+require a real credential.
+
+The first retry exposed a macOS Unix-socket pathname limit because the
+workspace-derived socket was too long.  A fresh short socket under `/tmp` was
+then used.  At `2026-08-28T10:19Z`, the bounded offline/no-tools command
+returned exit `0`; its JSON event stream names provider `ollama`, API
+`openai-completions`, model `qwen3.8:27b-mlx-bf16`, and final response
+`OLLAMA_PRIME_OK`.  This is the missing model-response evidence, so the
+persisted local-test state changed from `waiting_external` to `verified`.
+
+No container, persistent process, model download, port, or Nautobot Desired
+State was created or altered.  `nctl status` remained healthy (Nautobot
+reachable, one worker, zero pending jobs) immediately before the retry.
+
+The localtest result commit is `3f222b5`.  Its required push to the local
+Gitea repository could not complete because Git was unable to obtain a
+username for `http://agstudio.local:3000` (`failed to get: -25308` / `could
+not read Username`).  No credential was guessed or substituted.  The
+repository is locally committed but not yet remotely pushed; this is the
+remaining external handoff before Steps 5–6 can truthfully claim the Step 3
+repository-push verification.
