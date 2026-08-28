@@ -61,3 +61,10 @@ not read Username`).  No credential was guessed or substituted.  The
 repository is locally committed but not yet remotely pushed; this is the
 remaining external handoff before Steps 5–6 can truthfully claim the Step 3
 repository-push verification.
+
+That handoff was completed by the Omni Actor at `2026-08-28T10:22Z`: the
+ignored, per-agent Gitea token and its purpose-built `askpass.sh` were used
+only for `git push`.  Commit `3f222b5` reached
+`autodev/studyarxiv-localtest-2608.23552` (`fbab1ce..3f222b5`).  macOS
+Keychain declined to cache the credential, but this did not affect the remote
+push and no secret was printed or committed.
