@@ -21,10 +21,12 @@ production effect `applied`.
 
 A read-only cagent window request, `req_c6caddd0412b4f4fbb792ee64a941f52`,
 reported the experiment and asked whether the existing service was registered
-and observable.  It was accepted but remained `running` while this step was
-closed; it made no repair or Desired State mutation.  The independently
-readable nctl evidence above answers the question without relying on that
-pending prose response.
+and observable.  It completed without a repair or Desired State mutation:
+the service is converged, placement `ollama-agstudio` is active with profile
+`ollama`, and nodeutils recorded the active `ollama` process and HTTP 200
+endpoint on agstudio.  The agent also clarified the scope: this is true
+because the test's `localhost:11434` is the agstudio process; a separate
+Ollama on another host would not be covered by this observation.
 
 No new discovery code is justified.  `nodeutils` already documents sanitized
 container, Compose-project, port, and important-service collection, and its
