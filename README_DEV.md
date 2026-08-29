@@ -73,6 +73,20 @@ unreported for one round of p10.
   what ends an exchange between two agents, and it is the whole of p8's
   answer to p7's "nothing decides when a conversation is over".
 
+## arXiv sage (`arxivsage`)
+
+- Answers from the public `study-arxiv-trend` tree: current papers on LLM
+  agents and agent harnesses, their summaries, runnable manuals, and local-test
+  reports. Its own Zulip channel accepts questions only in `entrance-…` topics.
+- It never edits the knowledge tree or runs a study. An honestly unanswerable,
+  reasonable in-scope question becomes a deduplicated Markdown note in its
+  ignored `tostudy/` queue for the study workflow to consume.
+
+A **sage** is the reusable pattern behind this domain-specific agent: one
+agag instance owns a narrow, externally maintained knowledge tree, cites what
+it read, says when that tree does not answer, and leaves researchable unknowns
+to the responsible workflow rather than pretending to maintain the source.
+
 ## forge agent(pj-agdev/agforge)
 
 - Responds to requests for providing media assets with characteristics specified in the requests.
