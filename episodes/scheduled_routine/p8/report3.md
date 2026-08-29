@@ -22,29 +22,30 @@
 > 
 > Approve a plan that is roughly that; if it is off, say what is off. Approving means acting — start it and check it through to Done, ask nothing. Report here when it is Done with the workplan topic and the per-paper verdicts.
 
-## Schedule and dispatch timeline (all UTC, 2026-08-29)
+## Schedule and dispatch timeline (all 2026-08-29 UTC)
 
 | time | event |
 |---|---|
-| 08:01:16 | Developer asks in `#front › front-schedule` (2754) for one `publish` fire at 08:16:00Z, request until 09:31:00Z |
-| 08:01:57 | Front adds request **`r12`**, fire **`e42`** (2756); direct schedule edit |
-| 08:12:20 | production dispatcher (`com.agdev.routine-dispatch`) "marked e42 before action … dispatched and pushed e42" — its 5-minute tick fires anything due before the next tick, hence 4 min early |
-| 08:12:21 | `trigger.sh` posts as Developer into `#front › front-routine-publish` (2758) |
-| 08:13:01 | Front reads the standing text and opens `#pj-studyarxiv › workplan-publish-2026-08-29` (2761) — the mission text is a faithful, lightly condensed transcription of the standing request |
-| 08:13:44 | autolab plans: Work `S3-12`, sub-work `S3-13`, `start.flag` created on its own (standing go-ahead), channel `work-s3-12`, topic `workrun-task1-s3-12` (2767, 2766) |
-| 08:14:04 | **Front itself posts the start into `workrun-task1-s3-12`** (2770) — the p6 gap (Front never started a workrun without Omni) is closed |
-| 08:14:04–08:19:21 | supercoder runs (5 min 15 s) |
-| 08:19:21 | task report (2777), topic resolved by autolab, `S3-13` Done |
-| 08:20:03 | Front's closing report to the Developer in `front-routine-publish` (2780) |
+| 08:01:38 | Developer asks Front in `front-schedule` for one `publish` fire at 08:16:00Z (message 2754) |
+| 08:01:57 | Front: request **`r12`**, event **`e42`**, routine `publish` (2756) — direct schedule edit, no other agent |
+| 08:12:09 | Developer moves `e42` to 08:12:00Z with `rtschedule move` and `launchctl kickstart`s `com.agdev.routine-dispatch` (user asked not to idle until 08:16) |
+| 08:12:20 | production dispatcher: "marked e42 before action … dispatched and pushed e42" |
+| 08:12:21 | `trigger.sh` posts the run line into `#front › front-routine-publish` (2758) |
+| 08:13:01 | Front opens `#pj-studyarxiv › workplan-publish-2026-08-29` with the full mission (2761) and reports so (2763) |
+| 08:13:44 | autolab plans: Work **S3-12**, sub-work **S3-13**, `start.flag` created itself citing the standing go-ahead, `work-s3-12/workrun-task1-s3-12` opened (2767) |
+| 08:14:04 | **Front posts the start message into the workrun topic itself** (2770) — the routing p6 left unproven now works end to end without Omni |
+| 08:14:04–08:19:21 | supercoder runs, reports (2777), resolves the topic (2778) |
+| 08:20:03 | Front's final report to the Developer (2780) |
 
-Total from fire to Front's final report: **7 min 42 s**, zero Omni
-interventions in the routing.
+Front's mission text (2761) is a faithful restatement of the standing text
+— all three conditions, edit-then-copy, never move, no push, rejection
+valid, per-paper report, result JSON.
 
 ## The `publish/` commit
 
-`df91fd3` "Publish 2608.23552 and 2608.23283: generic environment, verified
-arXiv versions" — local only, `main...origin/main [ahead 1]`, **not pushed**
-(verified). 7 files, 418 insertions:
+`df91fd3` "Publish 2608.23552 and 2608.23283: generic environment,
+verified arXiv versions", **local only, not pushed** (`git status` clean,
+`origin` = GitHub, one commit ahead of `fbf6517`). Files (+418 lines):
 
 ```
 README.md
@@ -52,51 +53,57 @@ papers/2608.23283/manual.md  summary.md  test.md
 papers/2608.23552/manual.md  summary.md  test.md
 ```
 
-`README.md` is a fresh index: layout, the two published papers with their
-level, the three conditions restated, and a "Not published" section naming
-the seven rejected papers and the rule.
+`main/` untouched: `git status` clean at `9931cfa`.
 
 ## Per-paper verdicts and the main → publish edits
 
-| paper | verdict | edits (the entire diff) |
+| paper | verdict | edits (full `diff -u` main→publish) |
 |---|---|---|
-| 2608.23552 Prime Agent | **copied** | `summary.md`: "First posted: 2026-08-05; current version v1: 2026-08-24" → "First posted: 2026-08-24; current version v1 (2026-08-24)" (the routine checked arXiv: single version, 24 Aug). `test.md`: "See repository `autodev/studyarxiv-localtest-2608.23552` …" → "A separate, internally tracked repository holds the full raw run log". `manual.md`: unchanged |
-| 2608.23283 Apodex 1.1 | **copied** | `summary.md`: the header line lost "submitted 2026-08-24" and gained a new line "First posted: 2026-08-24; current version v2 (2026-08-25)" (no version line existed). `test.md`: same internal-repo sentence rewritten. `manual.md`: unchanged |
-| 2608.15089, 2608.23041, 2608.25593, 2608.15763, 2608.26530, 2608.21156, 2608.20430 | **rejected** | rule stated: publication requires a completed local test (`test.md`); summary/manual alone are working notes from documentation, not an independently checked finding |
+| 2608.23552 Prime Agent | copied | `summary.md`: "First posted: 2026-08-05; current version v1: 2026-08-24" → "First posted: 2026-08-24; current version v1 (2026-08-24)" — the routine checked arXiv's submission history and found the 08-05 date wrong. `test.md`: "See repository `autodev/studyarxiv-localtest-2608.23552` …" → "A separate, internally tracked repository holds the full raw run log …". `manual.md` unchanged. |
+| 2608.23283 Apodex 1.1 | copied | `summary.md`: "submitted 2026-08-24" dropped from the byline, new line "First posted: 2026-08-24; current version v2 (2026-08-25)." added (there was no version statement at all). `test.md`: same internal-repo rewrite. `manual.md` unchanged. |
+| 7 summary-only papers | rejected | one rule: publication requires a completed local test; summary/manual are documentation-derived working notes, not an independently checked finding. Listed in `publish/README.md` under "Not published" with the rule. |
 
-Condition-1 grep by the Developer over `publish/` (`agstudio`, `.local`,
-`home.arpa`, `/Users`, `/tmp`, `localhost`, `host.docker`, `11434`,
-`autodev`, `:3000`, `sock`): **no hits**. Condition 3: the routine judged
-the `manual.md` blockquotes as short, attributed README excerpts (not paper
-text) and left them.
+The diff is four hunks of one or two lines — readable, and exactly the
+kind of edit the braindump wanted (condition 1 rewrite, condition 2
+added/corrected). Condition 3: the routine judged the only blockquotes to
+be short, attributed README excerpts, not paper text.
+
+`publish/README.md` (45 lines) explains the layout, lists the two papers
+with their L1 level, restates the three conditions, and names the seven
+rejected ids with the rule.
 
 ## Cost numbers (harness run records)
 
 | run | role | cost_usd | num_turns | duration_ms |
 |---|---|---|---|---|
-| Front, schedule edit (`agfront run-0260`) | front | 0.1740 | 9 | 17 501 |
-| Front, routine fire → workplan (`run-0261`) | front | 0.1897 | 13 | 43 787 |
-| Front, callback → start workrun (`run-0262`) | front | 0.1358 | 10 | 23 673 |
-| Front, callback → final report (`run-0263`) | front | 0.1825 | 12 | 40 929 |
-| autolab planning (`superdirector run-0106`) | superdirector | 0.1363 | 9 | 41 457 |
-| autolab task (`supercoder run-0099`) | supercoder | **0.6728** | 38 | 315 281 |
+| Front, schedule edit (`agfront/.local/agent/front/run-0260`) | front | 0.1740 | 9 | 17 501 |
+| Front, open workplan (`run-0261`) | front | 0.1897 | 13 | 43 787 |
+| Front, start workrun (`run-0262`) | front | 0.1358 | 10 | 23 673 |
+| Front, final report (`run-0263`) | front | 0.1825 | 12 | 40 929 |
+| autolab planning (`superdirector/run-0106`) | superdirector | 0.1363 | 9 | 41 457 |
+| autolab task (`supercoder/run-0099`) | supercoder | **0.6728** | 38 | 315 281 |
 
-Routine total ≈ **$1.49** (Front $0.68 over four short runs, autolab
-$0.81). As in Step 2, the mission returned `null` for its own result JSON
-("the runtime populates these, not me") — the numbers above were read from
-`.local/agent/*/run-NNNN.json` by the Developer.
+Routine fire total ≈ **$1.49**, of which the review itself is $0.67 / 5.3
+min; the Front legs are $0.68 across four short runs. Wall clock from
+dispatch to Front's final report: 08:12:20 → 08:20:03 (7 m 43 s).
 
-## Observations
+As in Step 2, the mission reported `{"cost_usd": null, …}` — a run cannot
+see its own result JSON; the numbers above were read from the run records.
 
-- Front flagged on its own that autolab resolved the task topic "without
-  waiting for my sign-off", contrary to autolab's introduction; it attributed
-  this to the blanket go-ahead and did not act. Correct call; worth a line in
-  the phase report as the intro/behavior mismatch it is.
-- The workplan topic was never resolved and `S3-12` was not marked Work Done
-  by anyone in this run (same as Step 2's `S3-10`, whose close-out request
-  stalled on a Plane rate limit). Close-out is handled in Step 4.
-- The routine went beyond grep-level sanitization on condition 2: it did
-  not just check the version line existed, it verified the dates against
-  arXiv and corrected a wrong "First posted" in `main/`'s summary. That is
-  the copy diverging from `main/` for a good reason — `main/` keeps the
-  error, which the Step 4 review notes as a candidate for feeding back.
+## Frictions and observations
+
+1. **Front closed the loop itself.** Planning → start post → final report
+   with no Developer/Omni post in any `pj-`/`work-` topic. This is the p6
+   revalidation the plan asked for.
+2. autolab created `start.flag` at planning time because the mission
+   carried the standing go-ahead, and the task resolved its own topic
+   after reporting. Front flagged the latter as contrary to autolab's
+   introduction ("not closed until the requester agrees") — a real
+   contract/behavior mismatch to note, not a failure.
+3. The closeout of the Step 2 mission (`S3-10`) via autolab's own channel
+   stalled: the entrance run hit a Plane rate limit on `mission_done`,
+   posted "I'll report once it completes" and ended — a finished run cannot
+   retry. Re-asked (2782) together with S3-12's closeout; result in
+   `report.md`.
+4. `e42` was moved forward by hand and the dispatcher kickstarted; still
+   the production launchd job, not `--now`.
