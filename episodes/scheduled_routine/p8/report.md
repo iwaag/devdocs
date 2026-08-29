@@ -129,26 +129,28 @@ cheap enough to run on demand after each local test. Revisit when
    in the autolab checkout, not the project workspace (Step 2 spent ~8
    tool calls finding it).
 
-## Close-out status (addendum)
+## Close-out status (addendum, 08:24Z)
 
-Both missions are closed by autolab itself through its own channel
-(`#autolab-agstudio1 › closeout-s3-10`): `S3-10` and `S3-12` **Work Done**
-(message 2791, 08:24:19Z), both workplan topics resolved. It took four
-prompts (2750, 2782, a Developer post 2785 at 08:21:30Z not sent by the
-Omni Agent, 2789): the first two entrance runs ended promising a retry
-that a finished run cannot make. Diagnosis: Plane CE limits each API key
-to 60 requests/minute (`X-Ratelimit-Remaining` header, verified with a
-read-only call); an entrance run's board sweep plus `mission_done`'s own
-state/project list calls exhaust it, so the *verification* sweep after a
-successful mark is what 429s. Told to call once and report headers
-instead of looping, the run succeeded on the first try. Findings 2 above
-stands; add: `mission_done` (or the entrance guide) should budget Plane
-calls, and a 429 after the mark is not a failure of the mark.
+Both missions were closed out through autolab's own channel
+(`#autolab-agstudio1 › closeout-s3-10`), no `mission_done` run by Omni:
 
-Costs of the four closeout runs are entrance-front runs
-(`agautolab/.local/agent/entrance_front/run-0016` = $0.39 for the first;
-the later three not itemised here).
+- `S3-10` backfill: workplan topic resolved; Plane **Work Done** (message 2791).
+- `S3-12` publish: workplan topic resolved by autolab (2786); Plane **Work Done** (2791).
 
-**Remaining for the Developer:** review `publish/` at `df91fd3` and push it
-by hand (`git -C agautolab/.local/projects/studyarxiv/publish push origin
-main`). Nothing else in this phase is open.
+It took four prompts (2750, 2782, 2785, 2789). Plane answers HTTP 429 at
+60 requests/min per API key (`X-Ratelimit-Remaining` read directly), and
+`mission_done`'s own state/project list sweep plus the entrance run's
+board survey consume that budget together. The first two runs ended
+promising a background retry that a finished run cannot make; the third
+(2788) said so honestly and asked to be prompted again; the fourth,
+asked for one call each and no loop, succeeded on the first try. Two
+findings for later: cap `mission_done`'s list calls or honour
+`X-Ratelimit-Reset`, and the entrance guide should say "a finished run
+does not retry — report what is not done".
+
+Cost of the four entrance runs: `entrance_front/run-0016` 0.39 plus three
+later runs (read them from `agautolab/.local/agent/entrance_front/`).
+
+**Still pending the Developer:** review `publish/` at `df91fd3`
+(`agautolab/.local/projects/studyarxiv/publish`, one commit ahead of
+`origin/main`) and `git push` it by hand.
