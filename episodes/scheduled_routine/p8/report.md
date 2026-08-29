@@ -129,9 +129,26 @@ cheap enough to run on demand after each local test. Revisit when
    in the autolab checkout, not the project workspace (Step 2 spent ~8
    tool calls finding it).
 
-## Close-out status
+## Close-out status (addendum)
 
-- `S3-10` (backfill): workplan topic resolved by autolab; Plane Work Done
-  — see the addendum below.
-- `S3-12` (publish): task `S3-13` Done and resolved; Work Done — see the
-  addendum below.
+Both missions are closed by autolab itself through its own channel
+(`#autolab-agstudio1 › closeout-s3-10`): `S3-10` and `S3-12` **Work Done**
+(message 2791, 08:24:19Z), both workplan topics resolved. It took four
+prompts (2750, 2782, a Developer post 2785 at 08:21:30Z not sent by the
+Omni Agent, 2789): the first two entrance runs ended promising a retry
+that a finished run cannot make. Diagnosis: Plane CE limits each API key
+to 60 requests/minute (`X-Ratelimit-Remaining` header, verified with a
+read-only call); an entrance run's board sweep plus `mission_done`'s own
+state/project list calls exhaust it, so the *verification* sweep after a
+successful mark is what 429s. Told to call once and report headers
+instead of looping, the run succeeded on the first try. Findings 2 above
+stands; add: `mission_done` (or the entrance guide) should budget Plane
+calls, and a 429 after the mark is not a failure of the mark.
+
+Costs of the four closeout runs are entrance-front runs
+(`agautolab/.local/agent/entrance_front/run-0016` = $0.39 for the first;
+the later three not itemised here).
+
+**Remaining for the Developer:** review `publish/` at `df91fd3` and push it
+by hand (`git -C agautolab/.local/projects/studyarxiv/publish push origin
+main`). Nothing else in this phase is open.
