@@ -66,3 +66,39 @@ The intended consumer is a `workplan-` topic in `#pj-studyarxiv`. Its result
 must land in the public `publish/` tree and be pushed by the developer; then an
 operator runs `sync_knowledge.sh`. No automatic refresh or study-side consumer
 is part of p1.
+
+## Addendum (2026-08-30): the channel was not in the `agents` folder
+
+The developer noticed after the phase closed that `#arxivsage-agstudio1` was
+missing from Zulip's `agents` channel folder. It was never in this plan —
+"folder" appears nowhere in `plan.md`, `braindump.md` or reports 1–8 — so
+this is a gap in the plan, not an execution miss.
+
+The cause is one line that was never written: `agag.zulip` has had
+`create_channel(folder_id=…)` and `create_channel_folder()` since pyagag
+`97d2f8d`, but **no provisioning code ever passed a folder**, so every
+channel `agag` has ever created landed unfiled. arxivsage was the fifth:
+`front` (24), `agecho-agstudio1` (46), `agping-agstudio1` (49) and
+`agecho-agautolab1` (50) were unfiled too. Only `agforge-agstudio1` (34),
+`autolab-agstudio1` (36) and `agents` (35) were in folder 3, all placed by
+hand before agag existed.
+
+Fixed in code rather than by hand, because the next `agag init` would have
+repeated it:
+
+- pyagag `ce99a68` — `provision()` resolves the folder by name (minting it
+  when the realm has none) and passes it to `create_channel`. A channel that
+  already exists is only *joined*, so `create_channel`'s `folder_id` files
+  nothing in that case; it is moved instead with a new
+  `ZulipClient.set_channel_folder` (`PATCH /streams/<id>` with `folder_id`,
+  verified against Zulip 12.2, feature level 500). `--no-folder` opts out.
+  Five new `agag provision` tests; full suite 416 passed.
+- agautolab `e9fa5c5` — lock bumped to that pyagag and the agstudio listener
+  restarted, since autolab is the agent that can run the whole `agag init`
+  chain from a workplan.
+- The realm was reconciled by hand once: all eight agent instance channels
+  plus `#agents` are now in folder 3. That is a one-time repair of channels
+  created before the fix; provisioning does it from now on.
+
+Background: `devdocs/episodes/agautolab/channel_folder/report.md`, whose
+"ready when needed" recommendation this closes.

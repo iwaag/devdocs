@@ -62,3 +62,27 @@ project is actually decided:
    list is already fetchable and empty today).
 3. Decide folder-per-project vs. one shared "Projects" folder before coding
    either.
+
+## Addendum (2026-08-30): the wiring exists now
+
+The recommendation above is done, and the trigger was not a second channel
+per project but a second *agent*. `agag provision` created every agent
+instance channel unfiled, which stayed invisible while there were two of
+them and became visible at eight: the developer looked for
+`arxivsage-agstudio1` in the `agents` folder after `sage` p1 and it was not
+there, along with `front`, both `agecho` channels and `agping-agstudio1`.
+
+pyagag `ce99a68` implements steps 1–3 of the recommendation as
+`agag.provision`: the folder is resolved by **name** (`AGENT_FOLDER =
+"agents"`, minted if the realm has none — folder creation is not
+idempotent, so the lookup comes first) and passed to `create_channel`.
+Step 1 was already in place from this episode; what this adds is a caller,
+plus `ZulipClient.set_channel_folder` for the case the original note did not
+cover — `folder_id` files a channel only at **creation**, and provisioning
+an instance whose channel already exists merely joins it. That method
+(`PATCH /streams/<id>` with `folder_id`, Zulip 12.2 / feature level 500) is
+also how a channel older than its realm's folders gets filed.
+
+The question this episode left open — folder-per-project vs. one shared
+folder — is still open for `pj-<slug>` channels, which remain outside this
+path. Only agent instance channels are provisioned through `create_channel`.
