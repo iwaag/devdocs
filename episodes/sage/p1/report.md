@@ -102,3 +102,37 @@ repeated it:
 
 Background: `devdocs/episodes/agautolab/channel_folder/report.md`, whose
 "ready when needed" recommendation this closes.
+
+## Addendum 2 (2026-08-30): the Developer was not subscribed either
+
+Looking at the repaired folder, the developer noticed the second half of the
+same defect: `#arxivsage-agstudio1` had no human in it. Its subscribers were
+the sage bot, `Front` (which subscribes itself by posting), the Omni Agent
+(same reason, from the step 6 acceptance tests) and `Provisioner` — the
+machine account that created it and reads nothing.
+
+`provision()` subscribed `whoami()`, whoever held the credentials named by
+`AGAG_ZULIP_ADMIN_ENV`. That was correct while it was `developer.env` — which
+is why `agecho-agstudio1` (46) has the Developer — and became wrong the day
+agag got its dedicated `Provisioner` account (2026-08-22). Three agents were
+provisioned after that day and all three shipped with no human watching:
+`agping-agstudio1` (49), `agecho-agautolab1` (50), `arxivsage-agstudio1` (92).
+
+The channels are public, so nothing was hidden; it simply never appeared in
+the developer's sidebar. **A conversational entrance nobody is subscribed to
+is an entrance with no one behind the door**, which is why this counts as a
+bug and not a preference.
+
+- pyagag `f78e2cc` — watchers are the realm's organization owners (Zulip role
+  100, non-bot, active), resolved at provisioning time so no generated agent
+  carries a realm-local user id. `whoami()` remains only as a fallback when no
+  owner is visible: a channel watched by its maker is wrong, a channel watched
+  by nobody is worse. The provision output now names the watchers, so the next
+  occurrence is visible in the command's own output. Two new tests; 418 passed.
+- agautolab `409ad08` — lock bumped, listener restarted.
+- The three channels were repaired by hand: Developer subscribed, Provisioner
+  removed. All eight agent channels now carry the Developer and their own bot.
+
+Both halves of this were invisible for the same reason: `agag provision`
+reported what it *created* and not what it *decided*. It now prints the folder
+and the watchers.
