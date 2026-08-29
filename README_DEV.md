@@ -14,7 +14,10 @@ devpolicy/terms.md ... Read only when you need to check terminologies
 A new agent is `agag init <agent> --yes --provision --like <sibling>`
 (pyagag): it generates a project on the shared skeleton (`agag.agent`),
 copies compatible local machine facts, creates its Zulip bot and channels,
-and writes its ignored credentials. The owner-class identity is the **path**
+and writes its ignored credentials. Since 2026-08-30 it also files the
+instance's own channel in the `agents` channel folder and subscribes the
+realm's organization owners to it — a new agent's entrance is watched by the
+humans who own the realm, never by the account that provisioned it. The owner-class identity is the **path**
 in `AGAG_ZULIP_ADMIN_ENV`; autolab receives the dedicated provisioner path
 and can run the whole chain from a project workplan (`agag_builder` p3).
 `agecho` is the minimal p1 fixture; runsmoke1's `main/agping/` is the p3
