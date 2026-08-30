@@ -10,10 +10,43 @@ free* — is **untested**. Not disproven, not weakly supported: untested,
 because **thirteen prompts** across two video models produced twelve
 out-of-memory errors and one hard error, and never one frame of video.
 
-The result is that **both video models exceed what this card can deliver, by
-a small margin that no available lever recovers.** A single ComfyUI process
-on this 47.26 GiB card reaches about **41.9 GiB** of usable allocation; Wan
-2.2 14B FLF2V and MiniMax H3 both want more.
+> ## CORRECTION, 2026-08-30 16:54Z — this report's central conclusion was wrong
+>
+> The Developer ran MiniMax H3 on that card by hand and **it produced a clip**:
+> prompt `0a8a5cf4`, `status: success`, **471.0 s**, 16:32:17Z → 16:40:08Z,
+> output `MiniMax_H3_00008_.mp4`, 124 frames at 832x480 with both
+> `first_frame` and `last_frame` set. I verified all of that against the
+> backend rather than accepting it.
+>
+> **The two memory-saving levers were causing the OOM.** Every failing attempt
+> carried `MiniMaxH3TurboLoRA.low_vram: true` and `CLIPLoader.device: "cpu"`.
+> The successful run carries `low_vram: false` and `device: "default"` — and
+> is **larger and longer** than every cell that failed (832x480 x 124 frames
+> against 480x480 x 39). Nothing about the card changed.
+>
+> **CLIP-to-CPU was my recommendation**, argued as "the biggest and most
+> targeted lever" because a 32B encoder was sitting on the GPU. It was the
+> defect. Whatever those two options do inside these nodes, on this card they
+> cost VRAM rather than save it.
+>
+> So this report contains two wrong conclusions of mine, stacked: first that a
+> second process's CUDA context was the shortfall, then that the shortfall was
+> irreducible. Both were reasoned from real measurements and both were wrong,
+> because **every one of those measurements was taken through a defect I had
+> introduced.** The text below is kept unedited beside this note.
+>
+> What survives: the `/free` asynchrony finding, the idle-backend squat, the
+> `length % 17 == 5` grid, and that a run cannot see which graph it built.
+> What does not: the ceiling, the hardware request, and the reason SwarmUI was
+> stopped.
+
+The result *as this fire measured it* was that **both video models exceed what
+this card can deliver, by a small margin that no available lever recovers.**
+A single ComfyUI process on this 47.26 GiB card reaches about **41.9 GiB** of
+usable allocation; Wan 2.2 14B FLF2V and MiniMax H3 both want more.
+**For MiniMax this is now known to be false** — see the correction above. For
+Wan it still stands on its own evidence (it never ran with those two levers),
+but it deserves the same suspicion until retested.
 
 **And I got the central diagnosis wrong.** I attributed the shortfall to a
 second ComfyUI process squatting on the card, and on the strength of that the
