@@ -100,6 +100,21 @@ it; nothing structural would have.
 The queue now holds 11 entries, 8 open. A second fire has real work waiting
 without anyone writing it.
 
+**A second defect, caught on verification.** `main/spriteSheetFrames/`
+named the internal generation-test repository in three places — once in
+`tips.md`'s evidence line and twice in `summary.md`. The pattern requires
+`main/` to stand on its own when copied out: it names evidence files, never
+the repository holding them. Redacted by hand (commit `5a51567`, text only,
+no finding changed) and recorded here as a Deus Ex Machina. No host facts,
+IPs, ports or credentials were present anywhere in `main/` or in this
+episode folder — checked by grep across both.
+
+This is a gap in the routine's step 4 rather than a slip: the standing text
+says "commit and push `main`" and never says "and check it against the
+publication conditions before you do". The `publish` routine would catch it
+later, but `main/` is supposed to be written publish-ready in the first
+place. One line in the standing text closes it.
+
 **One defect, and it is mine.** The `## Closed` section still reads
 `*(none yet)*` — the run marked entries closed *in place* rather than moving
 them, because I seeded the file with both a per-entry `Status:` field and
@@ -226,6 +241,9 @@ other. Worth watching before any cadence is set, not worth fixing yet.
   about to change.
 - **Fix the `QUESTIONS.md` format ambiguity** (status field vs. section
   headings — pick one) as part of whatever touches the pattern next.
+- **Add one line to the routine's step 4**: check `main/` against the
+  publication conditions *before* committing, not after. See the second
+  defect below.
 
 ## Deus Ex Machina
 
@@ -242,5 +260,9 @@ other. Worth watching before any cadence is set, not worth fixing yet.
 - **Fired the routine by a hand post rather than through the dispatcher**,
   because Front is event-driven and a separate `trigger.sh` call would have
   double-fired — handoff candidate, minor.
+- **Redacted the internal repository name from `main/spriteSheetFrames/`**
+  after the run had pushed it — handoff candidate, and the reason the
+  recommendation above adds a publication-conditions line to the routine's
+  step 4.
 - **Copied two sprite sheets into this public episode folder** for the
   report. No host facts in them.
