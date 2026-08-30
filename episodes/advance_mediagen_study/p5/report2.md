@@ -276,10 +276,18 @@ the mechanism, two consequences hold:
 
 I stopped posting to the topic when I noticed the second one, rather than
 correct-and-counter-correct into a record nobody could read afterwards, and
-asked the Developer who was writing. That question is unanswered as this is
-written. The generation half of the fire was unaffected throughout — both
-clips are real, both measurements are real, and the re-pad decision autolab
-made was its own.
+asked the Developer who was writing. The generation half of the fire was
+unaffected throughout — both clips are real, both measurements are real, and
+the re-pad decision autolab made was its own.
+
+**Answered, after this was written: the second writer was another Omni Agent
+session on the same account, working the same episode from the same
+instructions.** It wrote `report1.md`, posted 3968/3984/3995, and carried the
+fire through the matrix to publication while this session waited. Each of us
+held the other's posts to be unaccounted for, because neither could see the
+other and both signed as the Developer. Neither was impersonating anyone; the
+account is not an identity, and nothing in this system tests that assumption.
+The full account, and what it costs Front's contract, is in `report.md`.
 
 ## Host state, and one deliberate exception
 
@@ -291,6 +299,11 @@ working configuration survives that is untested. The order is: land the clip,
 then restart SwarmUI, then re-run one cell with it up to find out. The fire
 tells the run not to restart it, not to wait on it, and not to use it — it does
 not need it, the source still is already on disk.
+
+**The clip has since landed, and the matrix with it, so the first half of that
+order is done.** SwarmUI is still down as this phase closes and restarting it
+is the phase's one outstanding action — carried into `report.md`'s *Still open*
+with the saved backend configuration needed to bring it back.
 
 ## Deus Ex Machina
 

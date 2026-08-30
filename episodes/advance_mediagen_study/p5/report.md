@@ -8,8 +8,9 @@ hardware, unchanged. **The difference was two configuration flags that had been
 switched on as an obvious precaution before anyone measured anything.**
 
 The braindump's bet — that first+last frame conditioning gives a looping walk
-cycle for free — is **supported but not yet won**, and the reason it is not yet
-won is stated plainly below rather than smoothed over.
+cycle for free — is **won**. The control returned after this report was first
+drafted and is decisive: first+last closes at **0.4006×**, first-only at
+**1.4388×**, at matched length, seed and everything else.
 
 ## What was asked, and what came back
 
@@ -17,15 +18,14 @@ won is stated plainly below rather than smoothed over.
 |---|---|
 | web survey of the method | **done** (fire 1) — 7 external URLs, one 403 recorded as unreachable |
 | one timed clip before any matrix | **done** — two, in fact: 476.6 s and 477.8 s |
-| frames → 64×64 sprite sheet | **done**, and read here; the run had not yet reported it when this was written |
-| duplicate + loop-closure checks | **done** (by the Omni Agent; see the independence problem below) |
-| frame-for-frame against p1's `sheet_locked8.png` | **done** here |
-| matrix: first+last vs first-only × length | **running** at the time of writing (4 cells, ~30 min) |
-| `main/` summary, tips, INDEX row, publish | **drafted, not committed** — held for review |
+| frames → 64×64 sprite sheet | **done** |
+| duplicate + loop-closure checks | **done** — by both parties; see the independence problem below |
+| frame-for-frame against p1's `sheet_locked8.png` | **done** |
+| matrix: first+last vs first-only × length | **conditioning axis done and decisive; length axis not established** — both length-39 cells OOM'd |
+| `main/` summary, tips, INDEX row, publish | **done** — `main` at `15b9423`, test repository at `34ba91b`, both pushed, `publish/` untouched |
 
-The phase is therefore **not closed**. The matrix that settles the braindump's
-actual comparison was in flight when this was written, and nothing has been
-pushed. Read the verdict below with that in front of it, not behind it.
+**The phase is closed.** Everything the plan asked for was delivered except the
+length axis, and the reason that failed is itself one of the findings.
 
 ## The finding that outranks the clip
 
@@ -135,17 +135,27 @@ in one palette, cell to cell, because they are frames of a single continuous
 generation rather than eight independent ones. Its background keyed cleanly to
 transparency; p1's is opaque and unkeyable as it stands.
 
-The sheet is **24 colours**, inside the ≤32 clause.
+**The keying defect was found and fixed during the fire.** As first extracted
+the keying was outside-in only: a flood from the border cleared the surround
+but never reached the enclosed pockets under the belly and between the legs,
+leaving a solid grey mass *inside* the silhouette in most cells. Replacing the
+border flood with a per-frame global colour-tolerance test — safe once the
+frames are quantised — cleared them. The delivered sheet is **8 unique RGBA
+values**: seven opaque colours plus transparent, binary alpha with no soft
+edges, 76.3% transparent, comfortably inside the ≤32 clause.
 
-**It loses on two things.** Pose amplitude is lower — p1's frames throw the
-legs further, and read more as a run; the video cells are a subtler walk.
-And the keying is **outside-in only**: a flood from the border clears the
-surround but never reaches the enclosed pockets under the belly and between
-the legs, so a solid grey mass stays *inside* the silhouette in most cells,
-with the shadow bar still baked along the ground line. Against the "flat
-keyable background" clause the sheet currently ships background inside the
-sprite. A defect of this extraction, not of the method, and the main thing
-between this sheet and a clean asset.
+Worth noting that the fix *lowered* the colour count, from 24 to 7 opaque. The
+unkeyed pockets had been spending palette budget on spurious greys. The run's
+write-up initially claimed usage had risen to 32/32; the measured sheet says
+otherwise, and the number was corrected before publication.
+
+**It loses on one thing.** Pose amplitude is lower — p1's frames throw the
+legs further and read more as a run; the video cells are a subtler walk. The
+**cast shadow** also survives, still baked along the ground line, and it cannot
+be keyed by colour: the shadow and the character outline are the same palette
+entry, `(57,36,43)`, so a colour-tolerance test that removes one eats the
+other. It is inherited from p1's source still rather than introduced by the
+video model, and removing it needs a geometric rule or a pre-quantisation pass.
 
 Judged against p1's own asset requirement — 64×64, side view, four-legged walk,
 4–8 frames, looping, one shared ≤32-colour palette, consistent silhouette,
@@ -158,34 +168,68 @@ locked-seed sequence actually loops* — not by answering it for locked-seed
 stills, but by producing the first method here that demonstrably does, with a
 number.
 
-## The braindump's claim: supported, not won
+## The braindump's claim: won
 
 *"First+last is more promising than first-only; it will loop naturally."*
 
-**Supported.** A first+last clip closes at 0.40× over its full length and 0.66×
-over the best gait window, on a clip whose length is not a whole number of gait
-cycles. The conditioning is doing the work.
+The control returned. Both length-124 cells succeeded, differing only in
+whether `last_frame` was wired:
 
-**Not won**, because **the first-only control had not returned.** Nobody here
-has yet seen what first-frame-only conditioning produces on this subject, so
-"beats first-only" is still an untested comparison — exactly the shape of
-mistake this phase's own headline finding is about. autolab's four-cell matrix
-was running when this was written and contains that control; its result decides
-the braindump, and nothing before it does.
+| | **first+last** | **first-only** |
+|---|---|---|
+| **full-clip loop closure** | **0.4006×** | **1.4388×** |
+| mean adjacent-frame distance | 6.057 | 7.892 |
+| exact duplicate frames | 0 | 0 |
+| measured gait period | 16 | 12 |
+| best stride-2 8-frame window | **0.6562×** | 0.8594× |
+
+**A ratio below 1 means the clip's last frame is closer to its first than a
+typical single step is to its neighbour.** First+last lands at 0.40; first-only
+at 1.44 — it ends *further* from the start than it travels in one frame. A
+3.6-fold difference on the one measure this phase exists to produce, and
+first+last still wins when first-only is allowed to pick its own best window
+(0.66 against 0.86).
+
+Two details that strengthen it. First-only also **drifts more per frame**
+(7.892 against 6.057): it is not merely failing to return, it is moving further
+from itself throughout. And the **gait period differs**, 16 against 12 — the
+end-frame constraint is shaping the motion itself, not just pinning the
+endpoint.
+
+The braindump said *"start == end makes the clip a loop for free."* It does.
+
+### The length axis was not established
+
+Both length-39 cells OOM'd, at 45.01 and 45.40 GiB, while both length-124 cells
+succeeded. **The short configuration failed and the long one succeeded**, which
+is backwards from the obvious expectation and is not a cache artefact: the
+cells ran 124, 39, 124, 39, and cell 3 succeeded *after* cell 2 had failed, so
+a progressively filling card is ruled out. Two for two each way.
+
+On this model a shorter clip costs more memory than a longer one. The mechanism
+is not visible from outside the node and neither party invented one.
+
+**This retro-explains fire 1's second cause.** Every fire-1 generation attempt
+was short — 39, then 22, then 39 — so fire 1 was simultaneously carrying the
+two bad flags *and* only ever asking for the configuration that reliably fails.
+The Developer's successful hand-run differed on both axes at once, which is why
+it worked and why neither cause was separable until this matrix ran.
 
 ## Costs
 
-Fire 2 only (fire 1's 57 runs / $22.92 are in `report1.md`), and **partial** —
-the mission was still running when this was written.
-
 | | runs | cost |
 |---|---|---|
-| autolab (supercoder) | 5 | $2.48 |
-| Front | 11 | $3.38 |
-| **total so far** | **16** | **$5.86** |
+| fire 1 | 57 | $22.92 |
+| fire 2 — autolab | 10 | $11.34 |
+| fire 2 — Front | 23 | $5.85 |
+| **phase total** | **90** | **$40.11** |
 
-Plus ~16 minutes of GPU for two clips. Fire 2 produced two clips, a sheet and
-the phase's central finding for about a quarter of fire 1's cost, which
+Plus roughly 45 minutes of GPU across five successful and thirteen failed
+generations, and one production still-image backend stopped for an hour on a
+diagnosis that turned out to be wrong.
+
+Fire 2 produced two clips, four matrix cells, a published subject and the
+phase's central finding for about three quarters of fire 1's cost, which
 produced no image at all.
 
 ## Front
@@ -268,7 +312,7 @@ Neither implementation was wrong; the specification was.
 That is also a partial recovery of the independence check written off below.
 The numbers reached autolab, and it still did not take them on faith.
 
-## The independence check was mostly lost, and by whom is unresolved
+## The independence check was mostly lost, and the second writer was a second Omni Agent session
 
 Step 4 was designed so autolab would measure loop closure and duplicates
 independently, with the Omni Agent's numbers held back for comparison. The
@@ -299,11 +343,78 @@ Two consequences, both structural:
   entire contract is one conversation with one principal; two writers on one
   account, occasionally disagreeing, is invisible to it by construction.
 
-The Omni Agent stopped posting when it noticed the second message and asked the
+One session stopped posting when it noticed the second message and asked the
 Developer who was writing, rather than correct-and-counter-correct into a
-record nobody could read afterwards. That question is unanswered. **The
-generation half of the fire was unaffected** — both clips, both measurements
-and the re-pad decision are real and stand.
+record nobody could read afterwards.
+
+**That question is now answered: the second writer was another Omni Agent
+session on the same account, working the same episode from the same
+instructions.** Each held the other's posts to be unaccounted for, because
+neither could see the other and both signed as the Developer. Messages 3968,
+3984 and 3995 came from the session that also wrote `report1.md`; it drove the
+fire to publication while the session that wrote this report had gone quiet
+waiting for an answer. Both were doing the job as briefed. Neither was
+impersonating anyone.
+
+This is the failure mode worth carrying forward, and it is not "an agent
+misbehaved":
+
+- **An account is not an identity.** Every safeguard here — Front's one
+  requester, autolab's acceptance gate, the plan's independence check — assumes
+  the Developer is one writer. Nothing in the system tests that assumption, and
+  nothing can, because the credential is the same file.
+- **Concurrency is invisible to everyone downstream.** autolab received a
+  coherent stream of instructions that occasionally contradicted itself and had
+  no way to attribute the contradiction. Front's contract — relay one principal
+  faithfully — is unsatisfiable under these conditions and it never knew.
+- **Two sessions finding each other by noticing anomalies in their own record**
+  is a slow and unreliable detector. One found it in a message it did not
+  write; the other found it in a `git log` while about to overwrite the first's
+  committed report — and did overwrite it, restoring from git immediately after.
+  No content was lost, but only because the work was committed.
+
+**The generation half of the fire was unaffected** — both clips, all four
+matrix cells, both measurements and the re-pad decision are real and stand.
+What was lost is the clean version of step 4, and it cannot be recovered in
+this fire.
+
+## The publication check verified less than it appeared to
+
+`main/` was cleared for commit on this evidence:
+
+```
+$ git grep -nE 'gentest-|report\.md|agforge|…|:8188|/Users/'
+$ echo $?
+1
+```
+
+Exit 1, zero hits, pasted with the command as the standing text requires. It
+was still not a check of what was about to be published. **`git grep` searches
+tracked files only**, and the entire new `subjects/videoFrameExtraction/`
+directory was untracked at that moment — it appears as `?? subjects/videoFrameExtraction/`
+in the very `git status` output taken alongside the grep. The new subject, the
+whole reason for the commit, was the one thing not scanned.
+
+autolab caught it, re-ran with untracked files included, and found **17 further
+hits**: nine `gentest-videoFrameExtraction` repository names, six `report.md`
+pointers, an internal IP-and-port, and a source path — plus a Zulip message id
+it dropped on the same principle although no pattern matched it. All were
+masked before the commit landed, so nothing leaked; `15b9423` is clean, and a
+filesystem-wide scan that does not rely on git's index confirms it
+independently.
+
+This is the same lesson p4 recorded, one turn further on. p4's was *a redaction
+scoped to the leak you already found verifies only that leak*. This round adds:
+**a check scoped to tracked files verifies only tracked files** — and a clean
+exit code from the wrong scope is more dangerous than no check at all, because
+it is pasted as evidence and reads as diligence. The durable form is
+`git grep --untracked`, or a plain filesystem walk that never consults the
+index.
+
+autolab also flagged, unprompted, that it had committed the extra fixes without
+a second explicit sign-off, reading the original "commit and push" as acceptance
+of the publication step as a whole. Naming the judgement call rather than
+quietly making it is the behaviour the contract wants.
 
 ## Deus Ex Machina
 
@@ -322,19 +433,39 @@ and the re-pad decision are real and stand.
 - **The working graph came from the Developer's own hand-run.** Not a handoff
   candidate; it is the human's box and the human's tool.
 
+## Closed
+
+- **The braindump's claim.** First+last 0.4006× against first-only 1.4388× at
+  matched length 124. Won.
+- **`spriteSheetFrames`'s oldest open line.** Re-scoped rather than closed: the
+  tip records the first loop-closure number any pipeline here has produced, and
+  says plainly that it does not answer the same question for a locked-seed
+  *still* sequence, because "the last pose handing back to the first" is not the
+  same continuous-distance question for independently generated stills. It
+  hands over the method — per-lag scan, closure ratio against mean adjacent
+  distance — so that question is now answerable by whoever wants it.
+- **The keying defect.** Fixed during the fire; interior pockets cleared,
+  silhouettes clean, 8 unique RGBA values.
+- **Publication.** `main` at `15b9423`, test repository at `34ba91b`, both
+  pushed, `publish/` untouched, `localtest.yaml` `verified`.
+
 ## Still open
 
-- **First-only conditioning.** In the running matrix; unsettled until it
-  returns and is read.
-- **The keying defect** — the cast shadow survives the colour key as a grey
-  lump attached to the sprite in all eight cells.
+- **SwarmUI is still down**, and restoring it is the one outstanding action
+  from this phase. It is agforge's production still-image path and has been off
+  since fire 1's disproven squatting hypothesis. Restarting it and re-running
+  one cell also answers whether the working configuration survives sharing the
+  card with ~5.4 GiB of another process's CUDA context — untested, because every
+  successful run had the card to itself. The saved backend configuration is
+  `id 0 / comfyui_selfstart / enabled true / AutoRestart true / GPU_ID 0 /
+  OverQueue 1 / max_usages 2 / StartScript ../ComfyUI/main.py`.
+- **`length` as an axis.** Not established. 124 works, 39 and 22 do not, and
+  the short-costs-more mechanism is unexplained.
 - **Pose amplitude.** The video walk is subtler than p1's; whether prompt
   wording ("running" vs "trotting", explicit stride language) moves it is
   untested.
-- **Whether the working configuration survives SwarmUI being up.** It has been
-  down throughout, which is ~5.4 GiB of CUDA context the successful runs never
-  had to share. Restarting it and re-running one cell answers this and restores
-  the production still-image path, which has been offline since fire 1.
-- **`length` as an axis.** Only 124 was ever run.
-- **`main/` was not touched.** No `videoFrameExtraction` summary, tips, or
-  INDEX row; nothing published.
+- **The cast shadow.** Survives keying because it shares a palette entry with
+  the outline. Needs a geometric rule or removal before quantisation.
+- **Two Omni Agent sessions on one account.** The immediate confusion is
+  resolved and recorded above, but nothing prevents a recurrence, and no agent
+  in the system can detect it.
