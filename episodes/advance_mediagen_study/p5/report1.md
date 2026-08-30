@@ -1,18 +1,24 @@
 # Step 1 — Fire 1: the video-model route, and the card it could not get
 
-One fire of `routine-mediagen`, 2026-08-30 14:30Z → 15:33Z. **63 minutes
-wall clock, 31 paid runs, $11.54.** Mission **M-32**, four tasks. Task 1
-completed and committed; task 2 ended `waiting_external`; tasks 3 and 4 never
-started.
+One fire of `routine-mediagen`, 2026-08-30 14:30Z → 16:17Z. Mission **M-32**,
+four tasks. Task 1 completed and committed; task 2 ended `waiting_external`;
+tasks 3 and 4 never started.
 
 **No clip was ever produced.** The braindump's claim — *first+last frame
 conditioning beats first-frame-only, because start == end makes the loop
 free* — is **untested**. Not disproven, not weakly supported: untested,
-because eleven prompts across two video models produced ten out-of-memory
-errors and one hard error, and never one frame of video.
+because **thirteen prompts** across two video models produced twelve
+out-of-memory errors and one hard error, and never one frame of video.
 
-What the fire produced instead is a diagnosis of the GPU node, to the
-gigabyte, and it is worth more than the matrix would have been.
+The result is that **both video models exceed what this card can deliver, by
+a small margin that no available lever recovers.** A single ComfyUI process
+on this 47.26 GiB card reaches about **41.9 GiB** of usable allocation; Wan
+2.2 14B FLF2V and MiniMax H3 both want more.
+
+**And I got the central diagnosis wrong.** I attributed the shortfall to a
+second ComfyUI process squatting on the card, and on the strength of that the
+Developer took down a production service. It bought about 0.3 GiB and changed
+nothing. That is recorded in full below rather than tidied away.
 
 ## The fire
 
@@ -107,8 +113,17 @@ the axis became 39 and 90.
 | 7 | same, after I freed the card | **41.58 GiB** | 68.6 s |
 | 8 | collision with 7's models | 42.11 GiB | 2.1 s |
 | 9–11 | repeats, and `length` 22 | **41.58 GiB** each | ~70 s each |
+| 12 | Wan again, **whole card, SwarmUI stopped** | 38.06 GiB | 41.0 s |
+| 13 | MiniMax, **whole card**, correct graph | **41.86 GiB** | 74.6 s |
 
-Device limit **47.26 GiB** throughout. About **9.4 minutes** of GPU time.
+Device limit **47.26 GiB** throughout. About **13 minutes** of GPU time.
+
+Runs 12 and 13 are the honest ones: SwarmUI stopped, card verified whole at
+46.4 GiB across three consecutive reads, queue empty. Run 12 was the run
+rebuilding the *superseded Wan graph* from prose instead of using the
+committed `onecell.py` — caught by reading the executed node list off the
+backend (`unet_high`/`unet_low`, two `KSamplerAdvanced`) rather than from its
+report. Run 13 is the MiniMax cell as specified.
 
 The SageAttention lever was mine and it is dead on this hardware — the card
 is a Turing part and the library will not load. The run found that by trying
@@ -165,20 +180,62 @@ idle for three hours and one minute. Nothing was competing. The memory came
 back **on its own, having served no request**, which is a materially different
 and more useful finding than "somebody else is using it."
 
+## The part I got wrong
+
+Mid-fire I diagnosed the shortfall as the second ComfyUI process's CUDA
+context and predicted that stopping it would return ~5.6 GiB and let the cell
+run. The Developer authorised it and stopped SwarmUI — **agforge's production
+still-image path** — to open the window.
+
+| | allocated at OOM | unaccounted |
+|---|---|---|
+| second process alive | 41.58 GiB | ~5.6 GiB |
+| second process stopped | **41.86 GiB** | ~5.36 GiB |
+
+**It bought about 0.3 GiB and the cell still failed.** The ~5.4 GiB is
+intrinsic to a running ComfyUI process — its own CUDA context and caching
+allocator — not memory a second process was holding.
+
+The squatting finding itself is real and stands: an idle backend did hold
+~21 GiB, ComfyUI's `/free` did not reclaim it, only SwarmUI's
+`FreeBackendMemory` did, and it re-acquired the memory within ten minutes
+having served nothing. **But it was never the thing standing between us and a
+clip.** It was a real problem that was not *this* problem, and I stacked a
+prediction on it that did not survive contact with the measurement.
+
+The cost of that error was a production service taken down for nothing. The
+lesson is not "measure more" — every number here was measured. It is that a
+correct finding sitting next to an unexplained gap is not a licence to assume
+the finding explains the gap.
+
+### A second correction, smaller and more useful
+
+**`POST /free` is asynchronous.** It returns HTTP 200 before the memory is
+released, so an immediate read shows the old figure and looks exactly like a
+no-op. That is why I had concluded the endpoint did nothing for memory it did
+not own — the one time I saw it work, I happened to wait three seconds.
+
+This propagated: the run adopted my too-strong conclusion, read the card once
+straight after calling `/free`, saw 21.77 GiB, and correctly stopped rather
+than run on a shrunken card. The card was in fact whole. **The stop was right
+behaviour on a condition I had underspecified**, and the fix is to poll until
+the figure stops rising rather than read once.
+
 ## Where it stopped
 
-Task 2 closed as **`waiting_external`**, not `failed` — the run's own call,
-and the right one: nothing here is broken, it is blocked on a host decision.
-Committed at `b758867`, with both free-memory calls wired permanently into
-`onecell.py`. The host request raised is **not** "free the memory" —
-we now know that does not hold — but **stop the SwarmUI-owned
-`comfyui_selfstart` backend so a single process owns the GPU**, with
-read-only checks that prove it: no `running` `comfyui_selfstart` in the
-backend listing, and the two surfaces reporting the same free VRAM.
-On these numbers that should be enough for the planned cell to run.
+Task 2 closed as **`waiting_external`**, not `failed` — nothing here is
+broken, it is blocked on hardware. `onecell.py` committed at `b758867`.
 
-**That decision is the Developer's and it is genuinely costly** — SwarmUI is
-agforge's production still-image path. It is open at the time of writing.
+**The host request has been replaced.** "Stop the second process" was tried,
+measured, and did not work. What this actually needs is **a GPU with more
+memory, or a materially smaller video model.** Stopping things has been
+exhausted.
+
+**SwarmUI must be restarted.** It was taken down for a hypothesis that did not
+hold, so agforge's production still-image path is offline for no benefit.
+Restoring it is the first thing to do, and the saved backend configuration is
+`id 0 / comfyui_selfstart / enabled true / AutoRestart true / GPU_ID 0 /
+OverQueue 1 / max_usages 2 / StartScript ../ComfyUI/main.py`.
 
 ## Deus Ex Machina
 
@@ -195,8 +252,10 @@ in `onecell.py`:
 There is a third, smaller one: I read the backend's `/history` directly
 throughout, so I knew each failure before the report arrived. That is not a
 handoff candidate — it is the disinterested-eyes role the plan gives me, and
-this fire is the case for it. The run's reports were honest every single time;
-I checked because checking is cheap, not because it was wrong.
+this fire is the case for it. The run's reports were honest every single time.
+It earned its keep once for real: run 12 executed the **superseded Wan graph**
+while reporting in good faith, and only the executed-node list showed it. A
+run cannot see which graph it built; the backend can.
 
 ## What this says about Front
 
@@ -226,19 +285,37 @@ for, and it worked.
 
 | | runs | cost |
 |---|---|---|
-| autolab (supercoder + superdirector) | 11 | $5.89 |
-| Front | 20 | $5.65 |
-| **total** | **31** | **$11.54** |
+| autolab | 20 | $11.02 |
+| Front | 37 | $11.90 |
+| **total** | **57** | **$22.92** |
 
-Front is 65% of the runs and 49% of the cost, for a fire that produced no
-image. Much of that is the supervision loop being woken by acknowledgements.
-Worth watching, not yet worth changing — two of its wake-ups paid for
-themselves outright.
+Plus about 13 minutes of GPU on a card that had a production service stopped
+for it. **57 paid runs and no image.**
+
+Front is 65% of the runs and 52% of the cost. Much of that is the supervision
+loop waking on acknowledgements and re-reporting "nothing has changed" — it
+needed an explicit stand-down to stop. That is the one clear efficiency defect
+of the fire, and it is structural rather than Front's judgement: two of its
+wake-ups paid for themselves outright.
 
 ## Still open
 
-- The claim itself. Untested.
-- Whether stopping the second ComfyUI process actually clears the shortfall.
-  Predicted yes on these numbers; unverified.
+- The claim itself. Untested, and not testable on this hardware as configured.
+- What actually accounts for the ~5.4 GiB a single ComfyUI process cannot use.
+  Measured consistently; not explained.
+- Whether a materially smaller video model exists on this box that would fit
+  inside ~41.9 GiB. Not surveyed — the survey was aimed at method, not at
+  memory footprint, because nobody knew memory was the binding constraint.
 - Whether MiniMax H3's pixel-art LoRA axis is worth anything, which cannot be
   asked until one clip exists.
+
+## Closed, and worth carrying forward
+
+- **`length % 17 == 5`** for MiniMax H3 on this graph — 33 and 81 are illegal.
+- **`/free` is asynchronous**; verify by polling, never by one immediate read.
+- **An idle SwarmUI backend squats ~21 GiB and re-acquires it after being
+  freed**, and only its own `FreeBackendMemory` reclaims it. True, and not the
+  cause of anything here.
+- **A run cannot see which graph it built.** Run 12 reported in good faith
+  while executing the superseded model; only the backend's executed-node list
+  revealed it.
