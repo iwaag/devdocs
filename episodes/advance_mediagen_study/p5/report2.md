@@ -238,6 +238,49 @@ extraction window, opened and looked at. It is a real stride: contact, gather,
 mid-stride spread, passing, then the mirror phase, with scale and vertical
 registration holding across all eight. This is the raw material for the sheet.
 
+## The independence check did not survive, and I do not know who ended it
+
+The plan for step 4 was that autolab measure loop closure and duplicates
+itself, and that my numbers stay back so the two could be compared. That check
+is gone, and the way it went is the most serious thing in this report.
+
+Three messages were posted into `#front › front-routine-mediagen` **as the
+Developer that I did not write** — 3968, 3984 and 3995 — each within a minute
+of one of mine. They are competent supervision: 3984 correctly warns the run
+not to carry clip 1's frame indices onto clip 2, and correctly identifies the
+cast shadow and the lavender background as defects inherited from the source
+still rather than introduced by the video model. Two of them also repeat
+"832x480", the figure I had already corrected to 864x480, so the run received
+the wrong number from the Developer account three times.
+
+Message 3995 is the one that settles what is happening. It reports full-clip
+loop closure **0.40x**, mean adjacent distance **6.057**, gait period 16, and
+the best extraction window as **frames 232-246 at 0.66x**. Those are my values,
+to four significant figures and the exact frame indices, computed in my own
+session minutes earlier from frames I pulled off the backend — **and never
+posted anywhere, nor even reported to the Developer in the terminal at that
+point.** It also describes the eight-frame contact sheet I had just rendered
+and opened.
+
+So the numbers in the project's permanent record under "the measurements,
+mine" are this session's measurements, and the run has been told them. Whatever
+the mechanism, two consequences hold:
+
+- **Step 4 cannot be an independent check any more.** Whatever autolab reports
+  will be a number it was handed. The comparison this phase was built to make
+  is not available, and no later work in this fire can restore it.
+- **A second writer on the Developer account is a supervision fact, not a
+  detail.** Front's whole job is to relay one requester faithfully; it cannot
+  do that when the requester is two writers who sometimes disagree, and it has
+  no way to notice, because both are the same account.
+
+I stopped posting to the topic when I noticed the second one, rather than
+correct-and-counter-correct into a record nobody could read afterwards, and
+asked the Developer who was writing. That question is unanswered as this is
+written. The generation half of the fire was unaffected throughout — both
+clips are real, both measurements are real, and the re-pad decision autolab
+made was its own.
+
 ## Host state, and one deliberate exception
 
 **SwarmUI stays down for now.** Fire 1's report says restoring it is the first
