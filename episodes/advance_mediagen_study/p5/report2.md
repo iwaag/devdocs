@@ -200,6 +200,44 @@ an instruction about `/free` changed meaning in transit — first Front replacin
 my host-state reading with "confirm it live", then autolab confirming it live
 by doing the one thing it was told not to. The endpoint attracts diligence.
 
+## The second clip, and what the re-pad bought
+
+autolab chose to re-pad and re-run rather than carry the stretch as a known
+defect — its call, made on its own. Clip `473dc382`, **`success`, 477.8 s**,
+genuinely 864x480, `length` 124, seed 12345, frames `00125`-`00248`.
+
+I measured it the same way I measured the first:
+
+| | clip 1 `6f198ce6` (832x480, stretched) | clip 2 `473dc382` (864x480) |
+|---|---|---|
+| full-clip loop closure | 1.12x | **0.40x** |
+| mean adjacent distance | 6.047 | 6.057 |
+| exact duplicate frames | 0 | 0 |
+| gait period | 16 (half at 8) | 16 (half at 8) |
+| best stride-2 window | frames 105-119 at 0.82x | frames 232-246 at **0.66x** |
+
+**Removing a 3.85% horizontal stretch improved full-clip loop closure by a
+factor of 2.8.** The wrap from the last frame back to the first is now two and
+a half times *smaller* than the average step inside the clip. Nothing else
+changed — same seed, same prompt, same length, same graph. That the mean
+adjacent distance is unchanged (6.047 vs 6.057) is what makes the comparison
+clean: the clip did not get smoother overall, only its ends got closer.
+
+The pair is worth more than either clip alone, and both are kept. A
+conditioning image that does not match the model's own output geometry
+degrades the one property first+last conditioning exists to provide, and the
+degradation is invisible in the pictures — clip 1 looks fine.
+
+**The gait period reproduced at 16 independently on the second clip**, from a
+differently-shaped input at the same seed. It is a property of the model and
+prompt rather than an artefact of one generation, which is what makes it safe
+to write into `tips.md`.
+
+`clip2_gait_window.png` beside this file is frames 232/234/…/246 — the
+extraction window, opened and looked at. It is a real stride: contact, gather,
+mid-stride spread, passing, then the mirror phase, with scale and vertical
+registration holding across all eight. This is the raw material for the sheet.
+
 ## Host state, and one deliberate exception
 
 **SwarmUI stays down for now.** Fire 1's report says restoring it is the first
