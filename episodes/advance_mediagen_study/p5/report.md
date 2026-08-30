@@ -135,12 +135,17 @@ in one palette, cell to cell, because they are frames of a single continuous
 generation rather than eight independent ones. Its background keyed cleanly to
 transparency; p1's is opaque and unkeyable as it stands.
 
+The sheet is **24 colours**, inside the ≤32 clause.
+
 **It loses on two things.** Pose amplitude is lower — p1's frames throw the
 legs further, and read more as a run; the video cells are a subtler walk.
-And the keying left a grey lump attached to the dog in every cell: the cast
-shadow plus surrounding pixels that survived the colour key, which reads as a
-rock the dog is standing on. That is a defect of this extraction, not of the
-method, and it is the first thing a next pass should fix.
+And the keying is **outside-in only**: a flood from the border clears the
+surround but never reaches the enclosed pockets under the belly and between
+the legs, so a solid grey mass stays *inside* the silhouette in most cells,
+with the shadow bar still baked along the ground line. Against the "flat
+keyable background" clause the sheet currently ships background inside the
+sprite. A defect of this extraction, not of the method, and the main thing
+between this sheet and a clean asset.
 
 Judged against p1's own asset requirement — 64×64, side view, four-legged walk,
 4–8 frames, looping, one shared ≤32-colour palette, consistent silhouette,
@@ -245,6 +250,14 @@ against the step the sheet actually shows, not against one the viewer never
 sees. Measured on the delivered 64×64 keyed cells themselves the ratio is
 **0.608** on RGB and **0.530** with alpha — the deliverable closes tighter than
 the full-resolution frames it came from.
+
+The arithmetic settles it rather than leaving it a preference: **7.105 / 6.057
+= 1.1731 exactly**, which is the run's reported figure to four decimal places.
+Its full-clip numbers also reproduce the Omni Agent's to four decimals
+(6.0566, 2.4262, 0.4006, period 16/8, zero duplicates) — same metric, two
+implementations, exact agreement. Nothing is broken in either. A competing
+theory is in the topic record — that the run computed the window ratio over the
+wrong frame set — and it does not survive the arithmetic above.
 
 **The fault is the plan's.** Its own words were *"distance frame N → frame 0 vs.
 the mean adjacent-frame distance"*, which does not say which adjacency applies
