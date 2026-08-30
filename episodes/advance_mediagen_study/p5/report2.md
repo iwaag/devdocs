@@ -12,7 +12,7 @@ levers were the cause.
 
 ## The measurement
 
-Standalone ComfyUI `http://192.168.0.110:8188`, prompt_id
+The standalone ComfyUI surface on the GPU node, prompt_id
 `0a8a5cf4-7e86-4b38-8000-d87935aa6880`. `execution_start`
 2026-08-30 16:32:17Z → `execution_success` 16:40:08Z: **471 s, `success`,
 output `video/MiniMax_H3_00008_.mp4`**, 124 frames at 832×480 with
