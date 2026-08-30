@@ -137,6 +137,36 @@ cheap or risky *here*:
    the highest of the four — and it is the honest test of "skeletal
    animation on the AI-generation premise".
 
+### If the chosen method needs something installed on the GPU node
+
+Downloading a checkpoint, adding a ComfyUI custom node, or standing up a tool
+on the GPU node is a host change outside any agent workspace. **There is
+already a proven path for that; do not invent one.** A run that hits such a
+boundary finishes in `waiting_external` with a local-only handoff record
+stating: the operation requested and why the method needs it; expected
+disk/VRAM/network/runtime impact; the processes, ports and files it expects to
+create; a **read-only check that proves the operation is done**; and cleanup
+or rollback advice. The Developer (or Omni Agent) performs or rejects it, and
+a later fire of the same routine reads the persisted state, observes the new
+reality with ordinary read tools, and continues — without the human restating
+the plan. `scheduled_routine` p6 step 4 ran this end to end, including a
+rejection and a resume.
+
+Two things that path does **not** give you, and this phase should fix or note:
+
+- **Nothing watches the handoff.** It is a file in the test repository plus
+  whatever the report says; p6 got its answer because a human was reading that
+  report. So a blocked run must also post the request in its `workplan-` topic
+  naming the Developer, and raise a `QUESTIONS.md` entry marked as blocked on a
+  human action — that entry is the queue the next fire reads anyway.
+- **A model file is not desired state; a service is.** `swarmui` and `comfyui`
+  are already declared for the GPU node in Nautobot as `observe_only`
+  deployment profiles, and they run as user-session processes, so `nctl drift`
+  reports them `service_missing` — a known false drift, not something this
+  phase caused or should repair. Dropping a `.safetensors` into the models
+  directory changes nothing there. Opening a new persistent service or port
+  does, and that is a cagent/nintent conversation before it is an install.
+
 ## Step 1 — Framework: workflow subjects and an open-question queue
 
 Harness-side Developer work on `agautolab` (doc change; no restart).
@@ -148,10 +178,12 @@ Harness-side Developer work on `agautolab` (doc change; no restart).
 2. Add the queue to the pattern: **`main/QUESTIONS.md`**, publish-ready like
    the rest of `main/`. One entry per open question: subject, the question,
    why it matters, what evidence would close it, the date it was raised.
-   A run **closes** entries by appending the tip that answers them and
-   **raises** the new ones it created. Say plainly that each `tips.md`'s
-   "Still open" section remains the local narrative, and `QUESTIONS.md` is
-   the cross-subject queue a routine reads first.
+   plus a status: `open`, or `blocked` naming the human action it waits on
+   (see the handoff section above). A run **closes** entries by appending the
+   tip that answers them and **raises** the new ones it created. Say plainly
+   that each `tips.md`'s "Still open" section remains the local narrative, and
+   `QUESTIONS.md` is the cross-subject queue a routine reads first — a fire
+   that finds only `blocked` entries should say so and stop, not invent work.
 3. Seed `QUESTIONS.md` from the existing `tips.md` "Still open" list plus
    this phase's animation questions. Doing this by hand as the Developer is
    fine and faster; note it as a Deus Ex Machina handoff line if so.
@@ -177,6 +209,10 @@ cycle per fire:
 5. **Improve** — append `tips.md` (evidence line + date), update the
    subject's row in `INDEX.md`, close and raise entries in `QUESTIONS.md`,
    commit and push `main` and the gentest repository.
+
+If step 4 needs a host-level install, stop at `waiting_external` with the
+handoff record, post the request in the topic, raise a `blocked` entry, and
+end the fire — that is a successful cycle, not a failed one.
 
 Carry the p9 lessons into the standing text itself: literals survive
 verbatim into the workplan; video work gets its own task and one measured
