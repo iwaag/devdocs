@@ -99,13 +99,86 @@ is the CUDA context, not a model.
 
 ### 5. Optional — the square clip
 
-Run. Reported in the next section, because it is the answer to the one
-question the fire cannot afford to discover for itself.
+**Square works.** One clip, 640×640, `length` 124, seed 12345, first+last with
+start = end, the p1 still padded (here: a plain nearest-neighbour downscale,
+since the canvas is square and the source is square).
+
+| | square 640×640 | p5's clip 2, 864×480 |
+|---|---|---|
+| wall | **421.1 s** | 477.8 s |
+| frames | 124 | 124 |
+| exact duplicate frames | **0** | 0 |
+| mean adjacent-frame distance | 12.971 | 6.057 |
+| **full-clip loop closure** | **0.2701×** | 0.4006× |
+| gait period | **9** (harmonics at 18, 27) | 16 (half 8) |
+| best stride-2 8-frame window | 0.7695× (start 95) | 0.6562× (start 233) |
+| `vram_free` before submit | 46.38 GiB | — |
+| `vram_free` after run | 12.54 GiB | — |
+
+`preflight_square_contact.png` (16 frames evenly across the clip) and
+`preflight_square_window.png` (the stride-2 window, frames 95–109) beside this
+file.
+
+**The pictures are good.** One dog at one scale in one palette, side view,
+position and scale stable, a real gait with a suspended phase, flat background
+held, no zoom, pan or identity drift. The two known defects are inherited
+from the source still and survive: the lavender-not-white background and the
+cast shadow baked along the ground line.
+
+**One new defect, and it is the square clip's own.** The background is not
+quite flat: faint grey ghost shapes drift through it, most visible in the
+upper right. They are well inside the keying tolerance's reach at full
+resolution but they are *structure*, not codec noise, and whether they
+survive quantisation onto a shared palette is unknown until a sheet is cut.
+Worth watching in the fire, not worth stopping for.
+
+Three numbers deserve care, because two of them look like wins and are not
+straightforwardly comparable:
+
+- **It ran 57 s faster.** 51.2 M pixel-frames against 51.4 M, so the
+  arithmetic held and the footprint did too; 33.8 GiB was still resident when
+  the run ended, against a card of 47.26.
+- **Loop closure 0.2701× against p5's 0.4006×.** Better, but the mean adjacent
+  distance also more than doubled (12.97 against 6.06) — at 640×640 the dog
+  fills the frame where at 864×480 it was letterboxed, so more pixels move per
+  step and the *denominator* grew. The ratio is normalised, so it is not
+  meaningless, but **this is not a controlled comparison of aspect ratio** and
+  should not be reported as one. What it does establish is that the square
+  clip loops at least as well as the 16:9 clip did, which is all the fire
+  needs.
+- **The gait period is 9, not 27.** The lag scan bottoms at 9, 18 and 27 with
+  scores 1.146 / 1.115 / 1.099 — one period and its two harmonics. `analyze_loop.py`
+  reports the *global* minimum and therefore called it 27. **That picker is
+  wrong and it will be wrong again**: on a clean periodic signal the deepest
+  minimum drifts to a multiple, because averaging over fewer pairs at long lag
+  is noisier and cheaper to minimise. The fire should take the *smallest* lag
+  whose score is within a whisker of the global minimum. p5 was not bitten by
+  this only because its period was 16 and its scan stopped at 40.
+
+**That has a direct consequence for the sheet**, and it is the most useful
+thing this clip bought: p5's "best stride-2 window" rule was tied to p5's
+period of 16, where stride 2 over 8 frames spans 14 frames ≈ one cycle. Here
+one cycle is 9 frames, so stride 2 spans 1.5 cycles and the sheet reads
+wrong. Measured over this clip:
+
+| stride | span | best 8-frame closure |
+|---|---|---|
+| 1 | 7 frames | 0.8788× |
+| 2 | 14 frames | 0.7695× |
+| 3 | 21 frames | **0.5392×** |
+
+**The extraction stride must follow the measured period; it is not the
+constant 2.** Note also that no lag here scores *below* 1.0 — unlike p5's
+clip, where lag 16 beat lag 1 outright. This gait is faster and its
+periodicity is weaker, so the period is a real signal but a shallower one.
 
 **Deus Ex Machina:** the Omni Agent ran the square 640×640 clip itself before
 the fire, so the run does not spend a paid task discovering that the aspect
-ratio does not work. Handoff candidate: none — this is the preflight the
-braindump explicitly asks the Omni Agent to do.
+ratio does not work, and the stride finding above is handed over rather than
+rediscovered. Handoff candidate: none for the clip — this is the preflight the
+braindump explicitly asks the Omni Agent to do. **The period picker in
+`analyze_loop.py` is a handoff candidate**: it is a four-line fix in the tool
+the fire is about to copy.
 
 ### What the preflight changes about the fire text
 
@@ -117,6 +190,10 @@ braindump explicitly asks the Omni Agent to do.
 - Add: **the still is expected to be byte-identical between the two runs**,
   and the free between phases does not break that.
 - The free is ~5 s, not 15 s.
+- Square is proven, with numbers, so the fire inherits it instead of testing
+  it: 640×640, length 124, 421 s, 0 duplicates, closure 0.2701×.
+- **Do not hardcode stride 2 in the sheet extraction**, and fix the period
+  picker to prefer the smallest lag at the minimum rather than the deepest.
 
 ### Flagged, not fixed
 
