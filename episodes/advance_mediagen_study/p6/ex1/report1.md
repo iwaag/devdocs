@@ -141,3 +141,41 @@ will not remove.
 **Fire.** The card is cold and free, the queues are empty, the notifier is
 running and its one blocking defect is fixed and re-proved live, and the
 character prompt produces the wanted still in about nine seconds.
+
+## The fire, 2026-08-31 12:2x UTC
+
+Posted from the Developer account into `#front › front-routine-mediagen` as
+**four numbered posts** (message ids 4304, 4306, 4307, 4308), each under
+5 000 characters.
+
+**Four posts, deliberately.** The previous fire was one long payload and
+arrived in Front's chatlog truncated mid-sentence; Front noticed and asked for
+the tail, which was the right behaviour but cost a round trip. This time the
+payload is pre-split under the limit, every post is numbered *"N of 4"*, and
+post 4 ends with a sentinel line — so a truncated relay is detectable by the
+receiver rather than by luck.
+
+| post | carries |
+|---|---|
+| 1 of 4 | what the exercise is; **the suspension of the block-in-run rule, in the plan's own words**; what the notifier episode did *not* prove; **Front's one new instruction — go quiet until the bot posts**; mission shape and the new repository |
+| 2 of 4 | base URL and the five model filenames verbatim; `pipeline.py` at `422eecc` as the graph source; the pinned settings; the prompt-cache trap; task 1 — the `submit`/`finish` split and the three extraction modes |
+| 3 of 4 | the theme (cat, jump, idle), the still prompt, **the headroom finding from preflight**, the video prompt shape, the inherited defects, the dataset format |
+| 4 of 4 | tasks 2, 3 and 4; the exact `comfynotify watch` line; **the 124-output decision as already made**; the optional two-ticket variant; the four MUST NOTs; the sentinel |
+
+Three things in the fire came out of Step 0 rather than the plan:
+
+- **The suspension sentence is quoted twice** — once in post 1 with an
+  explanation of *why* the previous rule does not reach the notifier (a daemon
+  is not a child process), and once in post 4 at the point of use. The plan
+  warned that a relay would otherwise "correct" it back, and Front's own guide
+  still says block.
+- **The 124-output item is stated as a decision already taken**, not a choice
+  to make, because the preflight fixed it. The fire also tells the run *why*
+  its `finish` step must re-read `/history` anyway, so the belt and the braces
+  are both explained rather than merely both required.
+- **Headroom** is given as a selection criterion for the still, with the
+  reason — a jump needs room above the character inside a fixed frame — and
+  the seed choice explicitly left with the run.
+
+Front was also told, in post 1, that a missing sentinel means it should ask
+for the tail rather than relay a partial fire.
