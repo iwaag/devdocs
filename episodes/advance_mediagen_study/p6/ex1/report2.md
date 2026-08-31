@@ -202,3 +202,109 @@ invented at this point is what the next phase pays for.
 The run recovered in two attempts and about eleven seconds, which is the
 system working. But it recovered from **an Unexplained Chainsaw**: a tool it
 was told it had, at a name that did not resolve. Handoff candidate.
+
+## Task 3 — dataset B (idle): the mechanism, measured a second time
+
+**Same result, unprompted again.**
+
+| event | time (UTC) |
+|---|---|
+| job finished (`execution_success`) | 13:11:08.51 |
+| Comfy Notifier bot posts (message 4416) | 13:11:10 |
+| autolab's second serving starts | 13:11:10 |
+
+Two for two. The plan asked for the mechanism to be measured **twice** on the
+grounds that one success proves little, and the second measurement is the one
+that makes the first mean something. **No nudge was needed on either.**
+
+### `cycle` was genuinely tried, and honestly rejected
+
+This is the first real `cycle` run in this repository, and it failed — which
+is the useful outcome.
+
+| | reading |
+|---|---|
+| measured period | **4** — implausible for a multi-second breath-and-glance cycle |
+| chosen stride | 1 |
+| best 8-frame window | frames 117–124 |
+| window closure ratio | **1.6868** |
+
+A closure ratio above 1 means the wrap distance is **larger** than the
+window's own mean adjacent step: not a loop at all, just a locally flat patch
+of eight near-identical frames. The run opened that sheet, saw eight
+near-duplicates, and fell back to `motion` — the documented fallback, taken
+for a stated reason and recorded.
+
+**`motion` won both datasets, for two different reasons.** On the jump it was
+chosen up front because a one-shot action has no period by construction. On
+the idle it won by fallback, because the period picker found a spurious one.
+`whole` remains implemented and unit-tested and **has not yet won a real
+dataset** — the run said so rather than implying three modes had each earned
+their place.
+
+### The two motion profiles, measured
+
+`cat_jump_contact_4x.png` and `cat_idle_contact_4x.png` beside this file, with
+`preview.gif` for each. **Both opened before any number was read.**
+
+| | jump | idle |
+|---|---|---|
+| mean adjacent distance | **5.3296** | **1.9549** |
+| total motion over 124 frames | 655.5 | 240.4 |
+| full-clip closure ratio | 0.2598 | 0.8334 |
+| palette entries | 32 | 23 |
+
+The idle sheet holds one standing stance across all eight frames while the
+tail curl, the ear and head angle and a few motion flecks drift. The jump
+sheet crosses a whole arc. **The same still and the same conditioning
+produced two visibly different kinds of motion from two prompts** — the model
+did not default to one generic movement.
+
+## Task 4 — publish, and two things sent back
+
+Task 4 was signed off in **three** rounds, not one. Both corrections were
+mine; neither was caught by the run, by Front, or by the run's own
+self-check — which found no leaks and was right about that.
+
+**1. The datasets were never committed.** `git show --stat` on the task 2 and
+task 3 commits showed only `report.md` and `localtest.yaml`. Every frame,
+sheet and `meta.json` sat in the **ignored** `.local/out/`, and `preview.gif`
+and `contact_4x.png` did not exist at all. The fire carried the dataset format
+verbatim and the instruction *"commit"*; the run committed, and what it
+committed was its own prose.
+
+**This is a specification failure of the same family p6 recorded, one level
+out.** "Write `meta.json`, commit" does not say *where*, and the natural place
+for a tool's output — its output directory — is the one place git was told to
+ignore. The rule that survives: **when a deliverable is a file, name the
+tracked path it must exist at, not the act of committing.**
+
+**2. The two datasets had different shapes.** `cat_idle/meta.json` was missing
+nine fields `cat_jump/meta.json` had — `closure`, `loop`, both seeds, palette
+size, `suggested_fps` and its reason, and `sheet_visual_check`. Two datasets
+of different shapes cannot be compared, which was the entire reason for one
+character and one still.
+
+The gap had already surfaced in the published output and nobody noticed: the
+tips entry comparing the two motion profiles had to say the idle's number was
+quoted *"from this subject's internal run log since idle's own `meta.json`
+only records the `motion`-mode fields."* **A published document worked around
+a defect in the artefact it was describing, in writing, and that was not read
+as a symptom.**
+
+Both fixed, plus a third the run found itself: `motion`'s
+`extract_mode_reason` string was hardcoded to *"spends frames on
+crouch/flight/landing"*, copied from the jump and simply wrong in the idle's
+record. Reworded to describe the mode rather than one action.
+
+### Publication
+
+- `main` at **`f0ca60d`**, `gentest-actionDatasets` at **`688d8bc`**, both
+  pushed and in sync with origin. `publish/` untouched.
+- Three dated tips with evidence lines, and an `INDEX.md` row noting gait and
+  non-gait extraction are both covered now.
+- **Verified twice, independently.** The run's `git grep --untracked`, and my
+  own filesystem walk over the whole of `main/` that never consults git's
+  index. Both clean on the two published files. The only hits anywhere in the
+  tree are the **27 pre-existing phase labels in `skeletalRig/summary.md`** —
+  the same finding p6 recorded and deferred to the Developer. Nothing new.
