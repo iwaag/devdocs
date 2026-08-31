@@ -116,3 +116,89 @@ repository. The run said so plainly rather than letting "three modes added"
 imply three modes tested. Task 3's idle is therefore the first real `cycle`
 run here and its result must not be treated as pre-verified — relayed back to
 autolab as an explicit instruction.
+
+## Task 2 — dataset A (jump): the experiment, and it passed
+
+**The callback leg works end to end, unprompted, in about one second.**
+
+All three times are taken from the backend and the listener logs, not from
+anybody's report of them:
+
+| event | source | time (UTC) |
+|---|---|---|
+| video submitted | ComfyUI `execution_start` | 12:46:16.04 |
+| serving one ended, "pending" | autolab's post | 12:46:34 |
+| **job finished** | ComfyUI `execution_success` | **12:53:31.15** |
+| **Comfy Notifier bot posts** | Zulip message 4392 | **12:53:32** |
+| **autolab's second serving starts** | autolab listener log | **12:53:32** |
+
+**No human post, no Front post, no nudge.** The clip ran 435 s; the run had
+been over for seven minutes; the bot's post alone brought autolab back and it
+finished the dataset.
+
+That is the leg the notifier episode never proved — its step 4 hit a race and
+its step 5 used a scratch topic. It is proved now, on a real `workrun-` topic,
+inside a real mission.
+
+Two details worth keeping:
+
+- **The gap from job end to work resumed is ~1 s**, of which the daemon's own
+  5-second poll interval is the only real latency budget. The mechanism is not
+  merely functional, it is fast enough that "block in-run" buys nothing.
+- **Front stayed silent**, as instructed, for the whole seven minutes. Asked
+  to *not act* rather than to keep a run alive, it did, and it was woken by
+  autolab's own reply. The p6 stall was a supervisor promising to watch and
+  then ending its run; this is the same shape of moment with the opposite
+  outcome, because nobody was asked to watch.
+
+### What the model did with "jump" from a standing still
+
+`cat_jump_contact_4x.png` beside this file. **I opened it before reading any
+number.**
+
+Frame 1 is the standing stance. Frame 2 is a crouch, haunches compressed.
+Frames 3–6 rear up and leave the ground — body stretched vertical, all paws
+off, the cast shadow detached below. Frames 7–8 land and settle, with a dust
+puff the model invented on its own.
+
+**A one-shot, non-periodic action came out of a single standing still and a
+sentence.** The video model was never given a crouch or an airborne frame to
+work from; `start = end` and a motion description were enough.
+
+**`motion` extraction did what it was added to do.** Its chosen indices —
+0, 24, 34, 40, 59, 72, 76, 89 of 124 — cluster where the movement is and skip
+the standing seconds. Uniform stride over the same clip would have spent
+several of eight frames on a stationary cat.
+
+Two honest qualifications, neither of which the run hid:
+
+- **`loop: true` rests on the clip's construction, not on the sheet.** The
+  quoted closure ratio (0.2598) is measured over the **full 124-frame clip**,
+  where start = end by construction. The delivered 8-frame sheet's own last
+  frame is a settle, not the frame-1 stance. `meta.json` says exactly this,
+  in its own words, and says the picture is what decided.
+- **`suggested_fps: 10` is labelled a judgment call, not a measurement** — the
+  8 frames are motion quantiles, not equal-time samples, so the source clip's
+  24 fps does not carry over. The run said so rather than quoting 24 and
+  hoping.
+
+### A standing fact that turned out to be false
+
+The fire told autolab *"`comfynotify` is on your PATH"*, on the authority of
+the notifier episode's own report and the local environment notes. **It was
+not.** `which comfynotify` returned nothing in the run's shell, and autolab
+found the binary at its absolute path in `comfynotify/.venv/bin/` instead.
+
+`AGFORGE_COMFYUI_URL` was also unset, so the first `watch` invocation — the
+exact line the fire gave, with no `--comfyui` — **failed**. autolab retried
+with the variable set inline and the ticket was written 11 s later.
+
+`agautolab.instance.extra_environment` does put that directory on `PATH`, and
+the directory exists and contains the binary, so the grant is written and the
+value is lost somewhere between there and the agent's shell. **I am recording
+the fact and not the mechanism** — p5's lesson was that a confident mechanism
+invented at this point is what the next phase pays for.
+
+The run recovered in two attempts and about eleven seconds, which is the
+system working. But it recovered from **an Unexplained Chainsaw**: a tool it
+was told it had, at a name that did not resolve. Handoff candidate.
