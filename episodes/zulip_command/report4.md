@@ -19,15 +19,42 @@ with the instruction to relay it *verbatim, unfenced, without backticks*.
 ## First vehicle: agforge, and why it could not be one
 
 The plan allowed an `assetrun-` on agforge as the cheap stand-in. It is not a
-possible vehicle at all, and the reason is worth keeping: forge's only image
-tool, `agforge image generate`, is **synchronous and returns a download URL,
-not a `prompt_id`**, and an assetrun has no way to post a chat message. Its
-own answer (`assetplan-red-apple`, message 4495) said so and wrote an
-`idea.md` naming the two tool additions it would need. So the paragraph the
-guide carries — the old CLI one as much as the new mention one — has never
-been actionable inside an assetrun; it describes a situation forge's toolset
-cannot produce. The request was withdrawn and the mission moved to autolab,
-which submits ComfyUI graphs itself and has `agentchat`.
+possible vehicle at all. Forge said so itself (`assetplan-red-apple`, message
+4495, plus an `idea.md` naming the tool additions it would need), and reading
+`agents.toml` and `role_run.py` afterwards confirms it and sharpens it — the
+run's own account was right about the conclusion and vague about the cause:
+
+- **It cannot post to Zulip. This is the hard blocker and it is deliberate.**
+  `[roles.generator].allowed_tools` has no `Bash(agentchat:*)` — only
+  `[roles.front]` does — and `assetrun_topic.run_generator` calls `run_role`
+  without `home=`, so the run gets no `AGENTCHAT_ZULIP_ENV` and no `agentchat`
+  on PATH. That is forge's whole delivery model: the generator makes files
+  under `result/`, the front does the talking. A mechanism whose interface is
+  "post a line" is unreachable from the half of forge that generates.
+- **It cannot obtain a `prompt_id` from what it is told about.**
+  `agforge image generate` is synchronous and returns a time-limited download
+  URL as its last line; the `toolset-image` document never mentions ComfyUI at
+  all. And `AGFORGE_COMFYUI_URL` is deliberately withheld:
+  `role_run.tool_environment` hands the run exactly **one** allowlisted value
+  (`ACE_STUDIO_CLI`) plus PATH, and the URL stays in `agforge/.local/.env`
+  where only agforge's own CLI code reads it. The run does hold
+  `Bash(curl:*)` and `Bash(python3:*)`, so this half is a *knowledge* barrier
+  rather than a permission one — it could `POST /prompt` if it were ever told
+  where ComfyUI is.
+
+And a third thing, which is the one worth carrying forward: **the old CLI
+paragraph was equally un-runnable in forge, for a different reason again.**
+`tool_environment` prepends `comfynotify/.venv/bin` to the generator's PATH,
+so unlike autolab's runs forge's runs really do see the binary — but
+`Bash(comfynotify:*)` is not in the generator's grant, so claude_code would
+have refused it. Autolab could not find the binary; forge could find it and
+was not allowed to run it. Two guides carried one paragraph that neither run
+could execute, for two unrelated reasons, and nobody noticed until a run was
+asked to actually do it.
+
+The request was withdrawn and the mission moved to autolab, which submits
+ComfyUI graphs itself and whose supercoder run is given `home=` and therefore
+`agentchat`.
 
 ## The relay, measured
 

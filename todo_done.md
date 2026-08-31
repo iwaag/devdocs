@@ -18,14 +18,26 @@ Cross-project todo list. Per-project items live in each project's own
   (Recorded 2026-08-12, from the zulip_cagent_receive discussion.)
 
 - Decide what agforge's assetrun should do about long generations. Its guide
-  carries the notifier paragraph, but an assetrun **cannot act on it**: its
-  only image tool is synchronous and returns a download URL rather than a
-  ComfyUI `prompt_id`, and the run has no way to post a chat message. Forge
-  said so itself in `agforge-agstudio1 > assetplan-red-apple` (2026-09-01,
-  `episodes/zulip_command` step 4) and wrote an `idea.md` naming the two tool
-  additions. Either give forge an async submit and a chat post, or take the
-  paragraph out of its guide — do not leave it teaching something the run
-  cannot do. (Recorded 2026-09-01.)
+  carries the notifier paragraph, but an assetrun **cannot act on it**, and
+  could not act on the older CLI version either. Verified in `agforge`'s own
+  config (2026-09-01, `episodes/zulip_command` step 4, after forge said so in
+  `agforge-agstudio1 > assetplan-red-apple` and wrote an `idea.md`):
+  - `[roles.generator].allowed_tools` has no `Bash(agentchat:*)` and
+    `assetrun_topic.run_generator` passes no `home=`, so the run cannot post
+    to Zulip at all. This is forge's design — the generator makes files, the
+    front talks — and it is what makes a post-shaped interface unreachable.
+  - `agforge image generate` is synchronous and returns a download URL, never
+    a `prompt_id`, and `role_run.tool_environment` withholds
+    `AGFORGE_COMFYUI_URL` from the run (one allowlisted value, `ACE_STUDIO_CLI`,
+    plus PATH). It does have `curl` and `python3`, so this half is a knowledge
+    barrier, not a permission one.
+  - The old CLI paragraph failed differently again: `comfynotify/.venv/bin`
+    **is** on the generator's PATH, but `Bash(comfynotify:*)` is not in its
+    grant. Autolab could not find the binary; forge could find it and was not
+    allowed to run it.
+  Either give the generator an async submit plus a chat post (or a `front`
+  hand-off), or take the paragraph out of its guide — do not leave it teaching
+  something the run cannot do. (Recorded 2026-09-01.)
 
 - An agent answering the last speaker can silently misdirect a whole mission.
   In `episodes/zulip_command` step 4 the notifier's one error line made Front,
