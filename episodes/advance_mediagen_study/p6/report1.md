@@ -195,6 +195,31 @@ the fire is about to copy.
 - **Do not hardcode stride 2 in the sheet extraction**, and fix the period
   picker to prefer the smallest lag at the minimum rather than the deepest.
 
+### The fire
+
+Posted to `#front › front-routine-mediagen` at 2026-08-31, message 4084.
+Subject: **still → loop pipeline on one backend, repeatability**. Everything
+the plan asked to travel verbatim is in it — the base URL, the five MiniMax
+filenames, the SDXL checkpoint, the six-node text2img graph as JSON,
+"1:1, 640×640, length 124, seed 12345", the free instruction phrased as
+something the script owns, and the p5 prohibition on `low_vram` and CPU-CLIP
+unchanged.
+
+Two departures from the plan's fire text, both because the preflight measured
+something the plan could not know:
+
+- The square clip is handed over **as a result**, not as a thing to attempt.
+  The fire says so plainly and tells the run its job is the pipeline around
+  it.
+- The stride and period findings above are handed over, with the instruction
+  to fix the period picker in its copy of `analyze_loop.py` rather than
+  inherit the bug.
+
+The p5 relay failure is addressed directly in the first paragraph: *do not
+replace the host-state readings with an instruction to confirm them live*.
+That is the exact substitution p5 recorded, and it is the one thing a
+paraphrase cannot be caught doing from the receiving end.
+
 ### Flagged, not fixed
 
 agforge's production still-image path goes through SwarmUI, and SwarmUI's
