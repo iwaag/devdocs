@@ -18,6 +18,13 @@ ticket and the dedicated notifier bot posts its terminal result into the
 requesting Zulip topic. A generation run tickets and exits; the normal topic
 callback mechanism serves the receiving agent again.
 
+Since `zulip_command` (2026-09-01) the ticket is opened by **posting one line
+in the topic** — `@**Comfy Notifier** watch <prompt_id>` — so nothing has to
+be handed the CLI, and the notifier acknowledges with a reaction rather than a
+post, because a bot post in a run topic would serve that run early. Public
+channels only; a mention inside a code fence is not a mention, which is how
+the command is quoted without firing it.
+
 A new agent is `agag init <agent> --yes --provision --like <sibling>`
 (pyagag): it generates a project on the shared skeleton (`agag.agent`),
 copies compatible local machine facts, creates its Zulip bot and channels,
