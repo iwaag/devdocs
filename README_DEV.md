@@ -115,6 +115,15 @@ to the responsible workflow rather than pretending to maintain the source.
 - Since p8 **forge opens the run topic itself** when it registers the plan,
   and says so in the plan topic. The requester posts there to start it, and
   what they post is read. Nothing is chosen from a queue any more.
+- Since 2026-09-01 **a long generation no longer holds the run open.**
+  `agforge video submit` / `music submit` queue a ComfyUI job and return its
+  `prompt_id`; the generator writes it into `pending.json` and finishes. The
+  *listener* then posts the notifier command — the generator has no chat tool
+  and deliberately keeps none — delivers nothing, and leaves the Work open.
+  The notifier's callback is itself a post in the run topic, so it triggers
+  the run that collects the outputs with `agforge comfy fetch`. Image stays
+  synchronous: it goes through SwarmUI, which has no `prompt_id` to give, and
+  returns in seconds.
 - Since p9 **one result names the requester once** — in the `assetplan-`
   delivery, which is what they were waiting for. The `assetrun-` copy is the
   record of the run and names nobody. "The requester" is read from the
