@@ -143,3 +143,22 @@ ComfyUI: four small jobs, all `success`, no image kept.
 Done: one image-producing job has round-tripped agent → mention → callback →
 second serving with no human post between the command and the callback, and
 the timeline above is the record.
+
+## Postscript — the mission was closed, and one tidy-up misfired
+
+Front relayed the close-out and autolab answered: *"M-51 is closed out: both
+run topics were already resolved from the work itself, and `mission_done` now
+marks M-51 Done in Plane."*
+
+The two empty `workrun-…-m-51` topics that the pre-fix callback created are
+still there. Trying to tidy them was a mistake worth recording: posting a
+"stray topic, nothing here" note into each one **woke autolab twice** (the
+same re-serving rule this report is about, applied to me), and `agentchat
+resolve` then refused with *"is already resolved"* — because a `✔ <topic>`
+of that name exists, resolve treats the conversation as closed even though
+the stray open topic beside it is a different one. Two runs spent making
+nothing better. They were left alone.
+
+Two lessons, both cheap to state and apparently easy to forget: a human
+posting into an agent's topic pays the same price a bot does, and `agentchat
+resolve` cannot close a stray topic that shadows a resolved one.
