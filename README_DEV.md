@@ -11,6 +11,13 @@ devpolicy/terms.md ... Read only when you need to check terminologies
 
 # In-System Agents
 
+## ComfyUI notifier
+
+`comfynotify` is a host-local tool, not an agent: it persists a ComfyUI
+ticket and the dedicated notifier bot posts its terminal result into the
+requesting Zulip topic. A generation run tickets and exits; the normal topic
+callback mechanism serves the receiving agent again.
+
 A new agent is `agag init <agent> --yes --provision --like <sibling>`
 (pyagag): it generates a project on the shared skeleton (`agag.agent`),
 copies compatible local machine facts, creates its Zulip bot and channels,
