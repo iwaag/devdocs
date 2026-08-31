@@ -230,3 +230,178 @@ six-node ComfyUI graph renders the same asset with no SwarmUI in the path at
 all. The decision — install SwarmUI's custom nodes into the standalone
 ComfyUI, or move the production path off SwarmUI — is the Developer's, and is
 not this phase's job.
+
+## Fire 1 — the mission
+
+Front relayed the fire faithfully. I checked the relayed text against my own
+word for word: the six-node graph JSON, the base URL, the model filenames,
+`421.1`, `0.2701`, the stride table, the period-picker bug, the ghost-shape
+defect and both prohibitions all arrived intact, split over five posts
+because the payload exceeded one send.
+
+**Front caught its own truncation before relaying anything.** The fire post
+was cut off in its chatlog mid-sentence, and rather than pass on a partial
+literal it stopped and asked for the tail. That is the exact opposite of p5's
+failure, where a missing paragraph was replaced with a plausible instruction
+of its own. Asked for, and got, the right behaviour.
+
+autolab planned, then **caught that its own first plan had been written
+against the truncated text and rewrote it** before Front raised either of the
+two objections it had prepared.
+
+### Task 1 — the pipeline, and a rule I failed to state
+
+Task 1 built `pipeline.py` and the three adapted tools without touching the
+GPU. It wrote the six-node still graph fresh (no such graph existed anywhere
+in the project — every prior still went through SwarmUI), fixed the period
+picker and verified against my own 9/18/27 numbers that it returns 9.
+
+Then it did something reasonable that was wrong, and the fault is mine.
+
+I had told it *"the stride must follow the measured period"* and given three
+measured numbers — but **I never said what the rule was.** So it invented one:
+sweep every stride from 1 to period−1 and keep the lowest closure ratio. On
+my own clip that rule picks **stride 5**:
+
+| stride | span | cycles spanned | best closure ratio |
+|---|---|---|---|
+| 1 | 7 | 0.78 | 0.8788 |
+| 2 | 14 | 1.56 | 0.7695 |
+| 3 | 21 | 2.33 | 0.5392 |
+| 4 | 28 | 3.11 | 0.4257 |
+| **5** | **35** | **3.89** | **0.3608 ← the sweep's winner** |
+| 6 | 42 | 4.67 | 0.5179 |
+| 7 | 49 | 5.44 | 0.6480 |
+| 8 | 56 | 6.22 | 0.5540 |
+
+Stride 5 advances **0.56 of a gait cycle per sheet frame**. The aliasing limit
+is 0.5. It clears it by 0.06 — no margin at all; move the period by one frame
+and the same rule returns a sheet that reads backwards or stands still, which
+is p5's own "every sample at the same phase" failure restated.
+
+**The metric cannot see this by construction.** Closure ratio is the wrap
+distance over the window's *own* mean adjacent distance, so a larger stride
+inflates the denominator and the ratio falls for reasons unrelated to whether
+the sheet animates. `stride_rule_evidence.png` beside this file shows the
+stride-1 and stride-5 windows together.
+
+The rule I should have written: **stride ≈ round(period / 8)**, so the eight
+frames span about one gait cycle; closure ratio chooses only the *window
+start*. For period 9 that is stride 1 — which the sweep ranks **last**.
+
+**p5's "stride 2" was never a constant.** p5's period was 16 and 16/8 = 2. It
+was period/8 the whole time, nobody wrote the rule down, and it travelled as
+a magic number. My fire told the run to stop treating it as a constant and
+still did not say what it was — the same shape as p5's loop-closure metric,
+where the specification, not either implementation, was at fault.
+
+### Task 2 — the pipeline repeats, exactly
+
+**Every number is identical, and so is every byte.**
+
+| | run 1 | run 2 |
+|---|---|---|
+| frames | 124 | 124 |
+| exact duplicate frames | 0 | 0 |
+| mean adjacent distance | 13.1599 | 13.1599 |
+| full-clip closure distance | 3.5630 | 3.5630 |
+| **full-clip closure ratio** | **0.2707** | **0.2707** |
+| measured period | 9 | 9 |
+| chosen stride | 1 | 1 |
+| best 8-frame window | 44, ratio 0.9096 | 44, ratio 0.9096 |
+
+Beyond the metrics: **124 of 124 clip frames are byte-identical between the
+two runs**, as are all three stills. The runs are ~25 minutes apart with a
+card free and a full model unload between them.
+
+The plan expected "small drift; report the delta". **The delta is zero.** Not
+approximately — the same bytes. The braindump's first requirement, that the
+environment repeat a generation stably, is answered as strongly as it can be:
+on this backend, at a fixed seed, both SDXL *and* MiniMax H3 are exactly
+reproducible, and a `/free` between phases does not perturb either.
+
+The still is also byte-identical to the one I rendered by hand in the
+preflight, hours earlier from an independently written script — so the
+determinism is a property of the backend and the seed, not of one program.
+
+Run 2's per-stage timings, its own measurements:
+
+| stage | s |
+|---|---|
+| still | 10.3 |
+| pad | 0.0 |
+| free before video | 3.3 |
+| **video** | **422.3** |
+| free after video | 6.8 |
+| loop analysis | 4.0 |
+| sheet extract | 0.1 |
+| **total** | **446.9** |
+
+The two frees cost **10.1 s of a 447 s run — 2.3 %**. The braindump's *"even if
+slower"* is answered: freeing the card between models is not a trade-off worth
+agonising over, it is free.
+
+### The sheet
+
+`fire1_sheet_4x.png` beside this file (512×64 shown at 4×, nearest-neighbour).
+**512×64 RGBA, eight 64×64 cells, 8 unique RGBA values** — seven opaque plus
+transparent, inside p1's ≤32-colour clause, background keyed clean.
+
+It is a real walk cycle: legs advance coherently cell to cell, one dog at one
+scale in one palette. **This matters because its closure ratio is 0.9096** — a
+poor number by the metric that chose it. autolab opened the picture, said so,
+and reported the picture as decisive rather than reconciling to the score.
+That was the instruction and it followed it.
+
+**The ghost-shape defect I flagged in preflight survived quantisation**, as
+feared: grey specks sit in the keyed background of several cells, clearest to
+the right of the dog. They are background structure, not codec noise, and a
+corner-sampled colour-tolerance key does not remove them. Along with the cast
+shadow — still sharing a palette entry with the outline — that is two
+inherited defects the keying cannot reach.
+
+### Five failures to finish one task, and only one was a bug
+
+Task 2 took five attempts. The tally matters because they were not the same
+failure:
+
+- **Three orphanings.** autolab launched the pipeline, posted *"I'll wait for
+  the Monitor's notification"*, and its run ended — taking the pipeline
+  process with it. One of those cost ~7 GPU minutes and produced only a still.
+- **One crash**: a frame-numbering bug in `build_sheet`, which autolab found
+  and fixed itself.
+- **One belief.** Its last attempt used a harness-tracked background task and
+  reported *"a reply here is not required to resume me — the background task
+  itself will trigger my next turn."* It will not.
+
+**That belief is the finding.** An in-system agent's serving is one-shot;
+**nothing resumes it but a post into a topic it watches, so it cannot delegate
+its own continuation to a process it spawns.** Every stall landed in the same
+place for this one reason. The working shape is to block inside the run — one
+clip is ~450 s against a 1200 s work timeout, which is what the mission's "one
+clip per task" was for — or to end the run saying plainly that a post is
+required.
+
+I corrected myself once here: I first reported the crash as a fourth
+orphaning. A crash and an orphaning carry different lessons and I had merged
+them.
+
+Worth recording on the other side of the ledger: run 1's record could not
+carry its own stage timings, because the timers died with the crashed process.
+autolab **reconstructed them from file mtimes and labelled them as
+approximations, naming what was lost**, where inventing plausible numbers
+would have been easy and undetectable.
+
+### Deus Ex Machina, fire 1
+
+- **Read the card and the disk directly at every stall**, so each resume
+  instruction carried the true state — including "run 1's GPU work is already
+  on disk, do not regenerate it", which saved a second wasted clip. Not a
+  handoff candidate; this is the disinterested-eyes role.
+- **Diagnosed the stride rule and proved it on my own clip** before task 2
+  spent GPU on a wrong sheet. Handoff candidate in part: the rule now exists
+  in the code, but nothing would have caught it except somebody re-deriving
+  the metric's blind spot.
+- **Unstalled the mission four times through Front.** Handoff candidate,
+  urgently: a supervisor that polls its own agent's liveness would have caught
+  every one of these, and Front had no reason to look.
