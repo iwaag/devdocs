@@ -60,9 +60,6 @@ is advice the implementer may override with a stated reason.
   **124 PNG frames** through `SaveImage`; a `success` record listing 124
   outputs with URLs is ~18 KB. Whether the notifier truncates or the post
   fails is unknown — preflight item below.
-- Mission **M-39** (`workplan-video-loop-pipeline`) still has tasks 3 and 4
-  open and unstarted. autolab serves serially; a second live mission in the
-  same project makes a record nobody can read afterwards.
 
 ## The theme
 
@@ -126,21 +123,19 @@ report.
 
 ## Step 0 — Omni Agent preflight
 
-1. **Settle M-39 first.** Either let tasks 3/4 run to the end, or tell
-   autolab in the workplan topic to close them as deferred. Do not fire ex1
-   over an open mission.
-2. `agentchat read front front-routine-mediagen` — no Developer post you did
-   not write.
-3. Card ≥ 40 GiB free, queues empty; `launchctl list | grep comfy-notifier`
+1. `agentchat read front front-routine-mediagen` — no Developer post you did
+   not write. (p6's mission M-39 is closed, all four tasks resolved; nothing
+   else is live in the project.)
+2. Card ≥ 40 GiB free, queues empty; `launchctl list | grep comfy-notifier`
    running, tail of `comfynotify/.local/out/notifier.log` sane.
-4. **The 124-output post.** Write a ticket by hand for p6's last successful
+3. **The 124-output post.** Write a ticket by hand for p6's last successful
    video `prompt_id` (still in `/history` unless ComfyUI restarted) into a
    scratch topic and see what the bot posts. If it is truncated or refused,
    pick one before firing: (a) have the notifier cap `outputs` at N entries
    plus a count, or (b) tell the run to keep `SaveImage` but have its
    `finish` step re-read `/history/<prompt_id>` itself — the callback only
    needs the id. (b) needs no notifier change; say which in the fire.
-5. Optional: render the cat still by hand once to check the prompt gives a
+4. Optional: render the cat still by hand once to check the prompt gives a
    side view. Ten seconds; if you do it, the seed goes into the fire and
    the run still owns the choice.
 
@@ -183,7 +178,7 @@ callbacks into one topic.
 
 Things to put in the fire text verbatim: the base URL and model filenames
 from `onecell.py`; the still and video graphs (or "your copy of
-`pipeline.py` as committed at `d4b4894`"); the character/action defaults
+`pipeline.py` as committed at `422eecc`, which already has `--positive-prompt`"); the character/action defaults
 and the extraction rule above; the exact `comfynotify` line; **"for this
 mission, end the run after `comfynotify watch` — the previous rule to block
 in-run is suspended; the notifier's post in this topic is what resumes
