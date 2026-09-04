@@ -69,6 +69,14 @@ agent-created fixture that Front has reached successfully.
   planning reply says so — a supervisor that reads "opened …" as "running
   now" stops the whole mission.
 
+**A project channel files itself (2026-09-04).** A `pj-<slug>` channel is
+still opened by a human, but every serving of it now files it in the
+channel folder of its own name, minting the folder if needed, using the
+provisioner credential the node holds. One folder per project is the
+standard; `work-` channels inherit the parent's folder, which is why a
+project channel filed wrongly by hand used to carry its whole fleet with it
+(`devdocs/episodes/agautolab/channel_folder/report.md`).
+
 **Since `agent_standardize` p10 an instance's own channel answers about its
 work.** Ask forge or autolab in its own channel where its plans stand and it
 surveys its board — its own topics for forge, every `pj-` channel and their

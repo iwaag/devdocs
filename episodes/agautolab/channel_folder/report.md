@@ -124,12 +124,38 @@ project: <slug>; mission: …`, written by `ensure_work_channel`) rather than
 from its name. `work-r-*` vs `work-r2-*` vs `work-r3-*` are runsmoke1,
 runsmoke2 and rtnotes — a name-prefix heuristic would have merged them.
 
+## Recurrence prevention (2026-09-04, same day)
+
+The gap — no code path files a `pj-<slug>` channel — is closed in agautolab
+`d0250c1`, without changing who opens the channel. `serve` now runs
+`file_project_channel` right after `init_project`: look the `pj-<slug>`
+folder up by name, mint it if absent, `set_channel_folder` if the channel is
+anywhere else. It runs on **every** serving, which is the point — filing is
+housekeeping of the same kind as ensuring the Plane project, and repeating it
+is what makes a hand-filed mistake heal on the next post instead of
+propagating into the next `work-` channel.
+
+One thing the proposal did not know: **the autolab bot cannot file a
+human-made channel.** Measured — `PATCH streams/26 folder_id=4` as the bot
+(role 400) is `You do not have permission to administer this channel`; the
+same call as the provisioner (user 17, role 200) succeeds. Zulip grants
+channel administration to the creator or an organization administrator, so
+the step reads `PROVISIONER_ENV`, the credential `agag provision` already
+hands autolab for the same reason. A node without the file skips the step.
+Verified live before restart: `file_project_channel("foodchain")` returned
+folder 4 and `("runsmoke1")` folder 9, minting nothing.
+
+`archive_project` retires the folder as well, once its last channel is gone
+(`kept` until then — Zulip refuses to archive a folder holding a live
+channel, and `work-` channels are retired one Work at a time). pyagag
+`724c5f2` adds `archive_channel_folder` for it.
+
+Not done, by the developer's choice: `agentchat send` still creates a channel
+it was asked to post into when none exists (`ensure_subscribed` →
+`subscribe_channels`), which is how the stray below was born.
+
 ## Still open after this
 
-- **`pj-<slug>` channel creation has no folder code path at all.** Nothing
-  calls `create_channel` for a project channel, so filing stays manual and
-  the drift above will simply recur. This is now the one gap worth closing:
-  the decision it was blocked on is made.
 - `front-comfy-command-relay` (stream 109) is a stray — that name is a
   *topic* in `#front`, and a Front run created a channel from it, holding two
   selfnotes under a topic literally named `4`. Left unfiled and unarchived
