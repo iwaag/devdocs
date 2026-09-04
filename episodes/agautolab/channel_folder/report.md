@@ -86,3 +86,51 @@ also how a channel older than its realm's folders gets filed.
 The question this episode left open — folder-per-project vs. one shared
 folder — is still open for `pj-<slug>` channels, which remain outside this
 path. Only agent instance channels are provisioned through `create_channel`.
+
+## Addendum (2026-09-04): the open question closed, and the drift it caused
+
+The developer asked whether the realm's folders looked right. They did not,
+and the cause was the question this episode left open above: with no decision
+between folder-per-project and one shared folder, `pj-` channels — which are
+still filed by hand — were dropped into whichever folder was nearest.
+
+What the audit found:
+
+- **Folder 1 was named `pj-runsmoke2` and held seven projects.** 66 channels:
+  `ghtrends`, `mediagen`, `papers`, `rtnotes`, `runsmoke2`, `studyarxiv` and
+  `studynourl` with all their `work-` channels. Its description said
+  `Project channels and their work channels` — shared-folder wording under a
+  single-project name, which is the open question showing up as an artifact.
+- Only `pj-simpleshooter` (folder 2) matched the documented standard.
+- `pj-foodchain`, `pj-runsmoke1` and runsmoke1's four `work-r-*` channels were
+  unfiled.
+- **One mis-filed `pj-` channel drags a fleet.** `ensure_work_channel`
+  (`agautolab/src/agautolab/zulip_listener.py:436`) inherits the parent's
+  folder deliberately, so `rtnotes` alone accounted for 20 channels. The
+  inheritance was working exactly as written — it faithfully propagated a
+  wrong parent, and faithfully left runsmoke1's children unfiled.
+
+**Resolved in favour of folder-per-project**, which is what the braindump and
+the standard already said. Eight folders minted (`pj-foodchain`,
+`pj-ghtrends`, `pj-mediagen`, `pj-papers`, `pj-rtnotes`, `pj-runsmoke1`,
+`pj-studyarxiv`, `pj-studynourl`), 67 channels moved with
+`set_channel_folder`, and folders 1 and 2 re-described to match. Every one of
+the realm's ten projects now owns its folder; the only unfiled channels left
+are the realm defaults (`Zulip`, `general`, `ops`, `sandbox`),
+`zz-allpublic-20260813`, and one stray.
+
+The re-filing read each channel's **project from its own description** (`[AUTO]
+project: <slug>; mission: …`, written by `ensure_work_channel`) rather than
+from its name. `work-r-*` vs `work-r2-*` vs `work-r3-*` are runsmoke1,
+runsmoke2 and rtnotes — a name-prefix heuristic would have merged them.
+
+## Still open after this
+
+- **`pj-<slug>` channel creation has no folder code path at all.** Nothing
+  calls `create_channel` for a project channel, so filing stays manual and
+  the drift above will simply recur. This is now the one gap worth closing:
+  the decision it was blocked on is made.
+- `front-comfy-command-relay` (stream 109) is a stray — that name is a
+  *topic* in `#front`, and a Front run created a channel from it, holding two
+  selfnotes under a topic literally named `4`. Left unfiled and unarchived
+  pending the developer's call.
