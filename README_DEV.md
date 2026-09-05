@@ -88,6 +88,19 @@ streamed transcript, because an answer that skipped a project reads exactly
 like one that found nothing in it — which is how a whole project went
 unreported for one round of p10.
 
+## Opsroom Observer (not an agent)
+
+`Opsroom Observer` is a Zulip bot with no listener, no runs and no
+conversation: it is the credential the operation room's state engine reads the
+realm with (`agdevworld/agentroom`, `operation_room` p2). It exists so a
+~240-call sweep does not come out of the quota the agents' own listeners spend.
+It is **read-only by operation** — Zulip has no read-only API key — and its one
+write to the realm is subscribing to public channels, which an event queue
+requires and a read does not. It posts **only** in `#ops-testbed`, which no
+agent is subscribed to, and never names a real agent bot even there: a mention
+in a public channel reaches a bot that is not in the room, which is the
+`zulip_command` lesson that cost one paid Front run per lap.
+
 ## agfront(pj-agdev/agfront)
 
 - Responds to any requests from Human and sends messages to other agents.
@@ -191,6 +204,16 @@ An introduction is also where an agent says what it needs *from* the
 requester. autolab's says a task is not closed until the requester agrees it
 is done — a contract that lived only in its code until p5, where a supervisor
 had no way to learn its own part in it.
+
+Since `operation_room` p2 the post also carries a fenced **roster block**
+(`ag.agent-roster.v1`, `pyagag/docs/agent-roster-v1.md`): the Zulip name the
+instance is mentioned by, the channel whose every topic it answers, and the
+prefixes it sweeps elsewhere. It is generated from the running instance when
+it posts, so it cannot drift from the listener. It exists because none of that
+is readable from outside — prefixes are compiled into an `AgentSpec`, the
+instance name lives in that node's ignored `.local/instance.toml` — and
+`operation_room` p1 guessed both and produced 66 phantom stalled rows. **A
+consumer must keep a missing block as *unknown*, never as "no prefixes".**
 
 # Adopted Policies for Development of In-System Agents
 
