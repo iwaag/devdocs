@@ -94,13 +94,15 @@ still answers `200` and `/agents` answers **`502`** with
 `ZulipError: GET streams -> <urlopen error [Errno 61] Connection refused>` —
 which is what the view repeats instead of drawing an empty room.
 
-**Not verified: the rendered pixels.** This Mac has no headless browser
-(no Chrome, no Chromium, no playwright — only Safari), so no screenshot was
-taken, and installing one was outside what this episode asked for. What is
-proven is the bundle, the data path and the card contents; what is unproven is
-Phaser's layout of them, which is the same `PanelGridScene` code path the four
-existing views use. Opening `http://localhost:8090` with the relay running is
-the one-minute check.
+**Not verified at the time this report was written: the rendered pixels.**
+What was proven here is the bundle, the data path and the card contents; what
+was not is Phaser's layout of them.
+
+*Corrected in step 5.* The claim above that this Mac has no headless browser is
+wrong — `~/.cache/puppeteer` holds a working Chrome for Testing, and the check
+that produced the claim only looked for a `playwright` binary on `PATH` and the
+Python module. The view was screenshotted in step 5, and the layout it showed
+was **not** right. See `report5.md`.
 
 ## Constraints, at the end
 
