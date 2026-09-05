@@ -47,16 +47,16 @@ forever. Split by ownership first, then choose the route.
 
 119 unresolved topics across 54 channels, all histories read:
 
-| agent | served notes | awaiting | stalled (≥15 min) |
-|---|---|---|---|
-| Front | 326 (155 topics) | 7 | 7 |
-| autolab-agstudio1 | 10 (3 topics) | 0 | 0 |
-| agforge-agstudio1 | 0 | 0 | 0 |
-| arxivsage-agstudio1 | 0 | 0 | 0 |
-| agecho-agstudio1 / agecho-agautolab1 / agping-agstudio1 | 0 | 0 | 0 |
+| agent | owns a channel | served notes | awaiting | stalled (≥15 min) |
+|---|---|---|---|---|
+| Front | no | 326 (155 topics) | 0 | 0 |
+| autolab-agstudio1 | yes | 10 (3 topics) | 0 | 0 |
+| agforge-agstudio1 | yes | 0 | 0 | 0 |
+| arxivsage-agstudio1 | yes | 0 | 0 | 0 |
+| agecho-agstudio1 / agecho-agautolab1 / agping-agstudio1 | yes | 0 | 0 | 0 |
 
-The board is genuinely quiet, and the probe says so. The seven Front rows are
-all `front/routine-*` — see the false positives below.
+The board is genuinely quiet, and the probe says so: nothing on the realm is
+awaiting a reply from a live instance right now.
 
 ## The ✔ rename, measured
 
@@ -94,19 +94,26 @@ The value is that it is computed **outside** every agent. An agent that is
 not running cannot report that it is not running, and this is the one signal
 that does not ask it to.
 
-## False positives, and what they are made of
+## The two ways the reconstruction goes wrong
 
-Both classes found are structural, not noise.
+Both are about **identity**, and both bit this probe before the numbers above
+came out clean.
 
-**1. Registry topics.** All seven Front rows are `front/routine-*`: a topic
-whose newest post *is* the standing definition of a routine
-(`front/routine-imgprompt`, one Developer post, 12.9 days old, no reply
-expected). Front's filter is `channel == "front"`, so every topic in its
-channel is swept, and by the last-speaker rule these await Front forever.
-This is not the probe being wrong — the real listener computes the same thing
-— but the operation room must not paint 7 red rows for it. **Design note:** the
-observer needs an exclusion, and `routine-` is a prefix it can be told about;
-the honest version is that `#front` is doing two jobs in one channel.
+**1. The owned channel is the instance name, and it is not a channel name.**
+An earlier pass assumed Front owns `#front` and reported seven stalled rows,
+every one a `front/routine-*` topic — standing routine definitions whose
+newest post *is* the definition (`front/routine-imgprompt`, one Developer
+post, 12.9 days old, no reply expected). Wrong: `topic_filter`
+(`agag/agent.py:306`) matches `channel == spec.instance_name()`, and Front's
+`.local/instance.toml` says **`front-agstudio1`**, for which no channel
+exists. Front owns no channel; it is served by the `front-` topic prefix
+alone, and `#front` belongs to nobody. Correcting that took Front's stalled
+count from 7 to 0.
+
+The general form is the problem: an instance's own name lives in
+`.local/instance.toml` on that instance's node, and `.local/` is ignored and
+per-node. **An observer cannot read who an agent thinks it is.** It must be
+told, or the roster must carry the mapping.
 
 **2. Prefix ownership does not identify an instance.** The bot
 `Autolab Agautolab1` came out with 59 awaiting rows, every one of them a
@@ -121,13 +128,19 @@ decidable at all from the topic name.
 The fix for the roster is the `#agents` intro topics rather than the bot list:
 six instances have an `intro-` topic and `Autolab Agautolab1` is not among
 them. But `Front` has no intro topic either, so the roster is *intro topics ∪
-known non-standard agents* — not one clean source.
+known non-standard agents* — not one clean source. Left uncorrected, this one
+bot contributed **59 phantom stalled rows**, all of them topics another
+instance had already answered.
 
 ## What an observer cannot get from Zulip
 
-- **Sweep prefixes.** Compiled into each agent's code. The observer must be
-  told them, or parse them out of the introduction post, which states the
-  vocabulary as prose. Today the probe hard-codes a table.
+- **Sweep prefixes, and the instance's own name.** Both are per-agent
+  configuration the observer has no read path to: prefixes are compiled into
+  each `AgentSpec`, the instance name is in that node's ignored
+  `.local/instance.toml`. The observer must be told, or parse them out of the
+  introduction post, which states the vocabulary as prose. Today the probe
+  hard-codes a table, and getting either wrong produced the two failures
+  above.
 - **Whether the listener is alive.** "Awaiting for 18,626 minutes" is
   identical in shape whether the agent is dead, throttled, or looking at a
   topic nobody meant it to answer. Zulip cannot separate those; step B is
