@@ -1,125 +1,144 @@
-# operation_room p2 実装計画 — 会話/タスク層ボード
+# operation_room p2 implementation plan — the conversation/task layer board
 
-p1の調査結果(p1/report.md)に基づき、会話/タスク層の状態ボードを完成させる。
-この層だけが完全かつ正直に観測可能であり、stalled検知がこの画面の価値の中心。
+Based on p1's findings (p1/report.md), build the conversation/task-layer state
+board to completion. This is the only layer that is fully and honestly
+observable, and stalled detection is the core value of this screen.
 
-スコープ外(p3以降): プロセス/バックエンド層のタイル(listener、ComfyUI、
-ollama、launchd)、routine発火の応答確認、prompt_id結合。
+Out of scope (p3 and later): the process/backend-layer tiles (listeners,
+ComfyUI, ollama, launchd), routine-fire answer checking, the prompt_id join.
 
-破壊的フェーズ・非公開実験環境。制約は末尾の最小限のみ、他は実装者裁量。
+Destructive phase, private experimental environment. Only the minimal
+constraints at the end apply; everything else is the implementer's discretion.
 
-## 全体像
+## Overview
 
 ```
-agents の intro(ロスター) ─┐
-Zulip 初回スイープ ─────────┼→ relay(agentroom)内の状態エンジン → /ops JSON
-Zulip event queue(増分) ──┘            ↓
-                           agdevworld operation room ビュー
+roster from #agents intros ─┐
+Zulip initial sweep ────────┼→ state engine in the relay (agentroom) → /ops JSON
+Zulip event queue (deltas) ─┘            ↓
+                       agdevworld operation room view
 ```
 
-状態は p1/report.md §2 の定義に従う:
-`awaiting` / `acked` / `stalled`(閾値既定15分、設定可能に) / `done`(✔)、
-加えて表示上の `unknown`。
+States follow p1/report.md §2:
+`awaiting` / `acked` / `stalled` (default threshold 15 min, configurable) /
+`done` (✔), plus a display-level `unknown`.
 
-## Step 1: intro契約の拡張(pyagag側・ENT相当の先行作業)
+## Step 1: extend the intro contract (pyagag side; ENT-class prerequisite work)
 
-観測者が必要とするロスター(インスタンス名、巡回チャンネルとprefix)を
-`#agents` の `intro-<instance>` に機械可読な形で含める。
+Include the roster the observer needs (instance name, swept channels and
+prefixes) in `#agents` `intro-<instance>`, machine-readably.
 
-- 観測側にロスターをハードコードしない。p1で推測ロスターが幻のstallを
-  計66件出した(report §3 #9)。introは既に「契約」であり、挙動変更時の
-  再投稿運用も確立しているので、鮮度維持はその運用に乗る。
-- 実装場所: `pyagag/src/agag/intro.py`(intro生成)。各agentの巡回対象は
-  `AgentSpec` にあるので、introへ自動転記できるはず。
-- 形式は実装者裁量(fenced blockでも key: value 行でも)。ただし
-  「人間向け紹介文の可読性を壊さない」「観測者がパースできる」の両立と、
-  形式自体の文書化(introの中か devpolicy)だけは満たすこと。
-- 全インスタンス(6体)にintroを再投稿させて完了。再投稿は各agentの
-  既存機構で行い、observerや人手でintroを代筆しない。
+- Do not hard-code a roster on the observer side. In p1, a guessed roster
+  produced 66 phantom stalled rows (report §3 #9). The intro is already "the
+  contract", and the re-post-on-behavior-change convention is established, so
+  freshness rides on that convention.
+- Where: `pyagag/src/agag/intro.py` (intro generation). Each agent's sweep
+  targets live in its `AgentSpec`, so they should transcribe into the intro
+  automatically.
+- Format is the implementer's choice (fenced block or key: value lines), as
+  long as it (a) does not ruin the human-readable introduction and (b) is
+  parseable by the observer, and (c) the format itself is documented (in the
+  intro or in devpolicy).
+- Done when every instance (6 of them) has re-posted its introduction. The
+  re-post goes through each agent's own machinery — the observer and humans
+  do not ghost-write intros.
 
-## Step 2: 観測専用bot
+## Step 2: a dedicated observer bot
 
-- タスク層の全量スイープは183コールでHTTP 429に到達し(report §3 #10)、
-  しかもagentと同一クォータを消費する。クォータ分離のため専用bot
-  (例: opsroom-bot)を新設する。
-- 作成はprovisioner credential(`AGAG_ZULIP_ADMIN_ENV` のパス)経由か
-  Zulip管理UIか、どちらでも。credentialは `pj-agdev/.local/zulip/` の
-  既存規約(0600のenvファイル)に合わせて置く。
-- このbotは**読み取り専用の運用**とする。botの投稿はagentの有償runを誘発し
-  会話を誤誘導する(既知の事故パターン)。例外は検証用に作る、
-  どのagentも監視しない専用テストチャンネルへの投稿のみ。
+- A full task-layer sweep reaches HTTP 429 at 183 calls (report §3 #10), and
+  it spends the same quota the agents use. Mint a dedicated bot (e.g.
+  opsroom-bot) to separate quotas.
+- Create it via the provisioner credential (the path in
+  `AGAG_ZULIP_ADMIN_ENV`) or the Zulip admin UI — either. Store the
+  credential per the existing convention (`pj-agdev/.local/zulip/`, env file,
+  mode 600).
+- Operate this bot **read-only**. A bot post triggers paid agent runs and
+  misdirects conversations (a known incident pattern). The one exception is a
+  dedicated test channel, created for verification, that no agent watches.
 
-## Step 3: relayの状態エンジン(`agdevworld/agentroom/`)
+## Step 3: the relay's state engine (`agdevworld/agentroom/`)
 
-p1の使い捨てプローブ(`.local/opsprobe/`)のロジックを本実装に昇格させる。
-別サービスは立てず、agent_roomのrelayに `/ops` エンドポイントを足す。
+Promote the logic of p1's throwaway probes (`.local/opsprobe/`) into a real
+implementation. No new service — add an `/ops` endpoint to the agent_room
+relay.
 
-- **起動時**: introからロスターを読み、全量スイープで状態を初期化。
-- **定常時**: Zulipのevent queue(`register` → `events` long-poll)で増分更新。
-  新規メッセージとトピック変更(✔リネーム含む)を反映する。
-  定常時に全量スイープを回さない。再スイープはキュー失効時の再同期のみ。
-- 状態計算の必須部品:
-  - `agag.selfnote` のパーサ(`parse_served`, `without_selfnotes`,
-    `last_real_speaker`)。selfnoteを発話者に数えない不変条件を守る。
-  - `RESOLVED_TOPIC_PREFIX`(`agag/zulip.py:88`)。トピックのキーは
-    ✔を剥いだbare topicで持ち、リネーム前後を同一視する(p9事故の教訓)。
-  - awaitingの2経路(owner route / mention route)はp1のプローブが
-    実証済みの判定をそのまま使う(詳細は p1/report2.md 以降を参照)。
-- `/ops` のJSONには各行の**provenance**を含める: 状態の根拠
-  (最終実投稿のmessage idと時刻、対応するservedノートの有無、
-  適用した判定経路)。UIはこれを表示するだけで済む形にする。
-- relay自身の健全性も返す: event queueの生存と最終イベント時刻。
-  キューが死んでいる間、データは `unknown` として配信する。
-- 状態はインメモリでよい(agent_roomと同方針: スナップショットファイルは
-  作らない)。再起動=再スイープ。stalled閾値は設定値(env等)にする。
+- **At startup**: read the roster from the intros; initialize state with a
+  full sweep.
+- **Steady state**: incremental updates via the Zulip event queue
+  (`register` → long-poll `events`). Apply new messages and topic changes
+  (including the ✔ rename). No full sweeps in steady state; re-sweep only to
+  resynchronize after queue expiry.
+- Required building blocks for state computation:
+  - The `agag.selfnote` parsers (`parse_served`, `without_selfnotes`,
+    `last_real_speaker`). Keep the invariant: a selfnote never counts as a
+    speaker.
+  - `RESOLVED_TOPIC_PREFIX` (`agag/zulip.py:88`). Key topics by the bare name
+    with ✔ stripped, so pre- and post-rename are the same row (the p9
+    lesson).
+  - The two awaiting routes (owner route / mention route) use the detection
+    p1's probes already proved (details in p1/report2.md onward).
+- The `/ops` JSON must carry **provenance** per row: the evidence for the
+  state (the message id and time of the last real post, whether a matching
+  served note exists, which route applied). The UI should only have to
+  display it.
+- Also report the relay's own health: whether the event queue is alive and
+  the last event time. While the queue is dead, serve the data as `unknown`.
+- In-memory state is fine (same policy as agent_room: no snapshot files).
+  Restart = re-sweep. The stalled threshold is a setting (env or similar).
 
-## Step 4: フロントのoperation roomビュー
+## Step 4: the operation room view in the frontend
 
-- agdevworldに新ビューを追加。PanelGridScene再利用か新規コンポーネントかは
-  裁量(agent_roomでは再利用+`panelHeight`/`nameFontSize`追加で足りた)。
-- 表示の必須要件は2つだけ:
-  1. **unknownを第3の状態として明示的に描く**。relay不達・キュー死亡・
-     ロスター取得失敗を「すべて正常」に見せない。p9の26分沈黙は観測上
-     idleと同一だった — unknownをidle色で塗るボードはこの画面の存在理由を
-     殺す。
-  2. **各行にprovenanceを添える**(例: 「stalled — 最終実投稿から17分、
-     servedノートなし」)。緑も赤もすべて痕跡からの推論なので、根拠を
-     見せることが誤stallへの唯一の防御。
-- stalledを最上位に並べる。グルーピング(agent別/プロジェクト別)は裁量。
+- Add a new view to agdevworld. PanelGridScene reuse vs. a new component is
+  discretionary (agent_room got by with reuse plus `panelHeight` /
+  `nameFontSize`).
+- Only two display requirements:
+  1. **Render unknown as an explicit third state.** Do not let relay
+     unreachability, queue death, or roster failure look like "all good".
+     p9's 26 silent minutes were observationally identical to idle — a board
+     that paints unknown in idle colors kills the reason this screen exists.
+  2. **Attach provenance to every row** (e.g. "stalled — 17 min since the
+     last real post, no served note"). Every green and every red is an
+     inference from traces; showing the evidence is the only defense against
+     phantom stalls.
+- Sort stalled to the top. Grouping (per agent / per project) is
+  discretionary.
 
-## Step 5: 検証
+## Step 5: verification
 
-- **スクリーンショットで見る**。agent_room step5の教訓(非可視チェックを
-  全通過した視覚欠陥が3件)をそのまま適用する。CDP直叩きのドライバは
-  step5で作った約40行の手法が使える。`--headless --screenshot` は
-  PanelGridSceneの無限tweenで固まるので使わない。
-- stalled検知の実証: 専用テストチャンネル(Step 2の例外)で人工的に
-  「名指し後、served無し」の状況を作り、閾値経過でstalledに遷移し、
-  返信・✔で解消することを確認する。
-- 幻stallの再検査: p1で誤検知を出したFrontと autolab について、
-  intro由来ロスターで誤検知が消えていることを確認する。
-- event queue経路の確認: ✔リネームがdoneに反映されること(bare-topic
-  キーイングの実地確認)。
+- **Look at screenshots.** Apply the agent_room step 5 lesson (three visual
+  defects that passed every non-visual check) as-is. The ~40-line direct-CDP
+  driver from step 5 works; `--headless --screenshot` hangs on
+  PanelGridScene's infinite tweens, so don't use it.
+- Prove stalled live: in the dedicated test channel (Step 2's exception),
+  create an artificial "named, no served note" situation, watch it become
+  stalled past the threshold, and watch it clear on reply and on ✔.
+- Re-check the phantoms: confirm that with the intro-derived roster, the
+  false positives p1 produced for Front and autolab are gone.
+- Confirm the event-queue path: a ✔ rename lands as done (a live check of
+  bare-topic keying).
 
-## 罠(p1で実測済み、先に読むこと)
+## Traps (measured in p1 — read first)
 
-- Zulipホストが `.local` 名の場合、mDNSのAAAA未応答で名前解決が数秒
-  止まることがある。遅いと感じたらIPv4強制かIP直指定。
-- macOSのLocal Network許可はバイナリ単位。relayを新しいinterpreterや
-  launchd配下で動かすときは、最初に疎通を確認する(p2ではZulipのみ
-  だが、p3のComfyUI/ollamaで確実に踏む)。
-- `#front` は公開チャンネル。観測botのsubscribe範囲を考えるとき、
-  公開チャンネルは購読なしでも読める一方、mention検索の挙動が変わる点に
-  注意(p1プローブの実装が先例)。
+- If the Zulip host is a `.local` name, mDNS lookups can stall for seconds on
+  unanswered AAAA queries. If things feel slow, force IPv4 or use the IP.
+- macOS Local Network permission attaches per binary. When running the relay
+  under a new interpreter or launchd, verify connectivity first (p2 only
+  talks to Zulip, but p3's ComfyUI/ollama will definitely hit this).
+- `#front` is a public channel. When deciding what the observer bot
+  subscribes to, note that public channels are readable without subscribing,
+  but mention-search behavior differs (p1's probe implementation is the
+  precedent).
 
-## 制約(最小限)
+## Constraints (minimal)
 
-1. ロスターをobserver側にハードコードしない。introから読む。
-2. 定常運用はevent queue駆動。全量スイープは起動時と再同期時のみ。
-   観測は専用botのcredentialで行う。
-3. unknownをidle/正常として描かない。
-4. selfnoteを発話者に数えない(`agag.selfnote` を通す)。
-5. 観測botはテストチャンネル以外に投稿しない。credentialはコミットしない。
+1. No hard-coded roster on the observer side. Read it from the intros.
+2. Steady state is event-queue driven. Full sweeps only at startup and
+   resync. Observe with the dedicated bot's credential.
+3. Never render unknown as idle/normal.
+4. Never count a selfnote as a speaker (go through `agag.selfnote`).
+5. The observer bot posts nowhere except the test channel. No credentials
+   committed.
 
-それ以外(introの形式、状態エンジンのデータ構造、UIの見た目、
-グルーピング、stalled閾値の初期値調整)はすべて実装者の裁量。
+Everything else (intro format, state-engine data structures, visual design,
+grouping, tuning the initial stalled threshold) is the implementer's
+discretion.

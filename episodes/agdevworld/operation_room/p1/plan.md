@@ -1,135 +1,153 @@
-# operation_room p1 実装計画(調査フェーズ)
+# operation_room p1 implementation plan (investigation phase)
 
-p1は調査フェーズ。目的は「実行状態がどこまで検知できるか」を信号源ごとに確定させ、
-operation_roomの設計方針を決める材料を揃えること。コードを書く場合は本機能実装では
-なく実験・検証(使い捨てプローブ)として扱う。
+p1 is an investigation phase. The goal is to establish, per signal source, how
+far execution state can be detected, and to gather the material for deciding
+operation_room's design. Any code written here is an experiment or probe
+(throwaway), not a production feature.
 
-## 成果物
+## Deliverables
 
-report.md に以下を含める:
+report.md must contain:
 
-1. **信号源ごとの能力マトリクス**: 信号源 / 何がわかるか / 遅延・鮮度 /
-   タスクへの帰属可否 / 利用に必要な追加作業
-2. **状態定義の提案**: braindumpの [計画のみ/実行中/返答投稿待ち/完了] を
-   観測可能性の調査結果に合わせて再定義したもの(検知不能な状態は縮退させる)
-3. **できないことリスト**: 検知不能・帰属不能と判明したものの明示
+1. **A capability matrix per signal source**: source / what it tells you /
+   latency & freshness / attributable to a task? / work needed to use it
+2. **Proposed state definitions**: the braindump's
+   [planned only / running / awaiting reply post / done] redefined against
+   what turned out to be observable (collapse states that cannot be detected)
+3. **A cannot-do list**: everything established as undetectable or
+   unattributable, stated explicitly
 
-## 計画時点で判明していること(調査不要、報告に転記してよい)
+## Known facts at planning time (no investigation needed; copy into the report)
 
-調査の重複を避けるため、計画作成時に確認済みの事実を先に置く。
+Confirmed while writing this plan, to avoid duplicate investigation.
 
-### run記録は終了時にのみ書かれる
-- `pyagag/src/agag/harness.py:870` `write_run_record()` が単発の `write_text` で
-  書く。呼び出しは `agag/agent.py:271` 付近で、`run_harness()` が**返ってから**。
-  つまり実行中のrunは `run-NNNN.json` を残さない。番号の予約すらされない
-  (`agag/topics.py:102` `next_record_path()` は空き番号スキャン)。
-- レコードに開始/終了時刻は無く `duration_ms` のみ。終了時刻はファイルmtimeが唯一。
-- フィールド: `schema: ag.agent-run.v1`, `role, profile, harness, provider, model,
-  duration_ms, cost_usd, usage, num_turns, transcript, outcome, failure` 等。
-  → **完了状態とバックエンド帰属の情報源としては優秀、「実行中」検知には使えない。**
-- 置き場所: 各リポジトリの `.local/agent/<role>/run-NNNN.json`。
+### Run records are written only at run end
+- `pyagag/src/agag/harness.py:870` `write_run_record()` does a single
+  `write_text`. The call site is around `agag/agent.py:271` — **after**
+  `run_harness()` returns. A run in progress therefore leaves no
+  `run-NNNN.json`. Not even the number is reserved (`agag/topics.py:102`
+  `next_record_path()` scans for a free number).
+- The record has no start/end timestamps, only `duration_ms`. The file mtime
+  is the only end time.
+- Fields: `schema: ag.agent-run.v1`, `role, profile, harness, provider, model,
+  duration_ms, cost_usd, usage, num_turns, transcript, outcome, failure`, etc.
+  → **Excellent source for completion state and backend attribution; useless
+  for detecting "running".**
+- Location: `.local/agent/<role>/run-NNNN.json` in each repository.
 
-### 実行中を示すロック/pid/statusファイルは存在しない
-- `agag/` 以下に lockfile / pidfile / in-progress マーカーは無い。
-- `agag/status.py:45` の `agag-status.json`(`agag.status.v1`)はリスナーの
-  ポーリング健全性ファイルで、**ポーリング成功時にしか更新されない**。
-  ハーネス実行がリスナーをブロックしている間は古くなるため、
-  staleness は「busy」と「dead」を区別できない。観測者にとっての罠。
+### No lockfile / pidfile / status file marks a run in progress
+- Nothing under `agag/` writes a lockfile, pidfile, or in-progress marker.
+- `agag-status.json` (`agag/status.py:45`, `agag.status.v1`) is the
+  *listener's* poll-health file and is **only updated on a successful poll**.
+  While a harness run blocks the listener the file goes stale, so staleness
+  cannot distinguish "busy" from "dead". A trap for any observer.
 
-### forgeの生成ジョブ状態はファイル遷移で読める
+### forge's generation-job state is readable as file transitions
 - `agforge/src/agforge/assetrun_topic.py:87,152` —
-  `.local/agentws/<work id>/generator/pending.json`(投入済み・未watch)が
-  `start_watching()`(同:342)で `watching.json` に置き換わる。
-  フィールドは `{prompt_id, note}` + watch時に `trigger`。
-- これが**バックエンドジョブをタスク(work id)に帰属できる現状唯一の経路**。
+  `.local/agentws/<work id>/generator/pending.json` (submitted, unwatched)
+  is replaced by `watching.json` in `start_watching()` (same file, :342).
+  Fields: `{prompt_id, note}` plus `trigger` added at watch time.
+- This is **currently the only path that attributes a backend job to a task
+  (work id)**.
 
 ### ComfyUI
-- URL は `AGFORGE_COMFYUI_URL`(agforgeの `.local/.env`)。
-- 既存の読み取りコード: `agforge/src/agforge/comfy_video.py:105`(`GET /queue` →
-  `queue_running`/`queue_pending`)、同:152 と `comfy_async.py:74`
-  (`GET /history/<prompt_id>`)。comfynotify側にも
-  `comfynotify/src/comfynotify/comfy.py:16-34` に同等ヘルパ。
-- SwarmUI は生きた参照コード無し(過去episodeの env 名のみ)。ComfyUI直で考えてよい。
+- URL comes from `AGFORGE_COMFYUI_URL` (agforge's `.local/.env`).
+- Existing read code: `agforge/src/agforge/comfy_video.py:105`
+  (`GET /queue` → `queue_running` / `queue_pending`), :152 and
+  `comfy_async.py:74` (`GET /history/<prompt_id>`). Equivalent helpers in
+  `comfynotify/src/comfynotify/comfy.py:16-34`.
+- SwarmUI has no live referencing code (only env names in a past episode).
+  Think in terms of ComfyUI directly.
 
 ### ollama
-- base_url 設定は各ワークスペースの `.local/agents.local.toml`
-  `[local.provider.ollama]`(パーサ `agag/agent_config.py:289`)、
-  デフォルト `agag/agcode.py:34` = `http://localhost:11434`。
-- **`/api/ps` を叩くコードはどこにも無い**(nctl系のヘルスプローブは
-  `/v1/models` と `/api/tags` のみ)。セッション数観測は完全に新規。
-- ollamaのセッションには依頼元情報が無いので、タスク帰属は原理的に不可能の見込み。
+- base_url is configured per workspace in `.local/agents.local.toml`
+  `[local.provider.ollama]` (parser: `agag/agent_config.py:289`); default in
+  `agag/agcode.py:34` = `http://localhost:11434`.
+- **Nothing anywhere calls `/api/ps`** (the nctl health probes use
+  `/v1/models` and `/api/tags` only). Session observation is entirely new
+  ground.
+- ollama sessions carry no requester information, so task attribution is
+  expected to be impossible in principle.
 
-### routine一覧には既存のGUI seamがある
-- 正本は `pj-agdev/.local/rtschedule/schedule.json`(Giteaリポジトリのclone)。
-  スキーマは `pj-agdev/devenv/routine/dispatch.py:50-95`
-  (`requests[{id, said_at, until, text}]` / `events[{id, at, from, kind, routine,
-  fired_at, logical_at}]`)。
-- routine名の一覧は `#front` の `routine-*` トピック、発火は
-  `front-routine-<name>` トピックへの投稿(`devenv/routine/trigger.sh`)。
-- **`com.agdev.routine-gui.plist.in` が既に `python3 -m http.server 8093` で
-  rtschedule ディレクトリを配信している。** operation_roomはこれを流用するか
-  置き換えるかを設計判断として報告に含めること。
-- launchd常駐(`com.agdev.agforge-zulip` ほか各リスナー、comfy-notifier)は
-  `launchctl list` が安価な「何が生きているか」の情報源。
+### The routine list already has a GUI seam
+- The source of truth is `pj-agdev/.local/rtschedule/schedule.json` (a clone
+  of a Gitea repository). Schema: `pj-agdev/devenv/routine/dispatch.py:50-95`
+  (`requests[{id, said_at, until, text}]` /
+  `events[{id, at, from, kind, routine, fired_at, logical_at}]`).
+- The roster of routine names is the `routine-*` topics in `#front`; a fire is
+  a post into the `front-routine-<name>` topic (`devenv/routine/trigger.sh`).
+- **`com.agdev.routine-gui.plist.in` already serves the rtschedule directory
+  with `python3 -m http.server 8093`.** Whether operation_room reuses or
+  replaces this is a design decision — include it in the report.
+- The launchd residents (`com.agdev.agforge-zulip` and the other listeners,
+  comfy-notifier) make `launchctl list` a cheap "what is up" source.
 
-### selfnoteのパーサは揃っている
-- `pyagag/src/agag/selfnote.py` — `SELFNOTE_MARKER`(:56)、
-  `parse_served()`(:176)→ `(Conversation, message id)`、`parse_rootchat`(:162)、
-  `without_selfnotes()`(:210)、`last_real_speaker`(:224)。
-- 不変条件(:42): selfnoteを「最後に話した人」に数えてはならない。
-  観測系は必ず `without_selfnotes` を通してから活動を導出すること。
+### The selfnote parsers already exist
+- `pyagag/src/agag/selfnote.py` — `SELFNOTE_MARKER` (:56), `parse_served()`
+  (:176) → `(Conversation, message id)`, `parse_rootchat` (:162),
+  `without_selfnotes()` (:210), `last_real_speaker` (:224).
+- Invariant (:42): a selfnote must never count as "who spoke last". Any
+  observer must run `without_selfnotes` before deriving activity.
 
-## 調査項目
+## Investigation items
 
-上の既知事実で埋まらない部分。優先度順。
+What the known facts above do not settle. In priority order.
 
-### A. Zulip由来のタスク状態の再構成(最重要)
-- 「名指しされたがまだserveされていない呼び出し」を
-  `[selfnote][served] <channel>/<topic> <message id>` と突き合わせて検出できるか、
-  実データで検証する。✔リネーム越しの突き合わせが正しく動くかも含む
-  (p9の26分停止事故の再発検知そのもの)。
-- ここから [返答投稿待ち] と [stalled(名指し後X分経過で未serve)] が
-  導出できるかを確認する。**stalled検知はこの画面の実用価値の中心**なので、
-  4状態案に加えることを前提に検証する。
-- 実験プローブの土台には agent_room の relay(`agdevworld/agentroom/room.py`)が
-  使える。ただしp1では relay 本体に本実装を足さず、使い捨てスクリプトでよい。
+### A. Reconstructing task state from Zulip (most important)
+- Verify on real data that "a callback that named an agent but has not been
+  served" can be detected by matching against
+  `[selfnote][served] <channel>/<topic> <message id>` — including whether the
+  matching works across the ✔ rename (this is exactly the re-detection of
+  p9's 26-minute stall).
+- Confirm that [awaiting reply post] and [stalled (named X minutes ago,
+  unserved)] can be derived from this. **Stalled detection is the core value
+  of this screen**, so verify with the intent of adding it to the four-state
+  proposal.
+- The agent_room relay (`agdevworld/agentroom/room.py`) can serve as the base
+  for probes, but in p1 do not add production code to the relay itself —
+  throwaway scripts are fine.
 
-### B. 「実行中」の近似検知の実験
-run記録・ロックファイルが無い以上、候補は3つ。それぞれ使い捨てプローブで
-検知率と誤検知を確認する:
-1. transcript ファイル(`run_harness` がストリーム中に書く)の成長監視
-2. ハーネスCLIプロセスの `pgrep`(claude / codex / agy / gemini / agcode)
-3. `agag-status.json` の staleness(busy/dead 曖昧性込みで、他信号との併用前提)
+### B. Experiments in approximating "running"
+With no run records and no lockfiles, there are three candidates. Check
+detection rate and false positives with throwaway probes for each:
+1. Watching the transcript file grow (written by `run_harness` while
+   streaming)
+2. `pgrep` for the harness CLIs (claude / codex / agy / gemini / agcode)
+3. `agag-status.json` staleness (with its busy/dead ambiguity, only in
+   combination with other signals)
 
-結論が「実行中はイベント駆動では取れず、粗いポーリング近似のみ」でも
-それで良い。設計方針(状態は痕跡から再構成する)の根拠として報告する。
+If the conclusion is "running cannot be caught event-driven; only a coarse
+polling approximation exists", that is a fine result — report it as the basis
+for the design principle (state is reconstructed from traces).
 
-### C. バックエンド活動のタスク帰属
-- ComfyUI `/queue` の prompt_id と forge の `pending.json`/`watching.json` の
-  突き合わせで「どのworkの生成が走っているか」を実際に出せるか検証。
-- ollama は `/api/ps` を一度叩いてみて、何が返るか(モデル名・数だけか)を
-  記録する。帰属不可能ならその旨を「できないことリスト」へ。
+### C. Attributing backend activity to tasks
+- Verify that matching ComfyUI `/queue` prompt_ids against forge's
+  `pending.json` / `watching.json` can actually answer "which work's
+  generation is running now".
+- Hit ollama's `/api/ps` once and record what comes back (just model names
+  and counts?). If attribution is impossible, put that on the cannot-do list.
 
-### D. 状態定義の再構成
-A〜Cの結果を踏まえ、状態を2層に分けて定義し直す:
-- **会話/タスク層**(Zulip導出): 計画のみ / 返答投稿待ち / stalled / 完了(✔)
-- **プロセス/バックエンド層**(実観測): ハーネス実行近似、ComfyUIキュー深さ、
-  ollamaセッション、launchd生存
-単一の状態機械に無理に統合しない。両層を結ぶのは現状 forge の prompt_id 経路
-だけである、という前提で設計方針を書く。
+### D. Reconstructing the state definitions
+Based on A–C, redefine the states in two layers:
+- **Conversation/task layer** (derived from Zulip): planned only / awaiting
+  reply / stalled / done (✔)
+- **Process/backend layer** (real observation): harness-run approximation,
+  ComfyUI queue depth, ollama sessions, launchd liveness
+Do not force these into one state machine. Write the design direction on the
+premise that the only join between the layers today is forge's prompt_id path.
 
-## 制約(最小限)
+## Constraints (minimal)
 
-1. **プローブからZulipに投稿しない。** botの投稿はエージェントの有償runを
-   誘発し、会話を誤誘導する(既知の事故パターン)。読み取り専用で行う。
-   どうしても投稿実験が必要なら、どのエージェントも監視していない
-   専用テストチャンネルを作って行う。
-2. 実験コードは使い捨てと分かる場所に置く(`.local/` 配下や明示の
-   `experiments/` 等)。本体コード(relay、PanelGridScene等)への本実装は
-   p2以降に回す。
-3. credentialや `.local` の実値を報告・コミットに書き写さない
-   (env変数名・ファイルパスの言及は可)。
+1. **Probes must not post to Zulip.** A bot post triggers paid agent runs and
+   misdirects conversations (a known incident pattern). Work read-only. If a
+   posting experiment is truly needed, create a dedicated test channel that no
+   agent watches.
+2. Keep experimental code somewhere clearly disposable (under `.local/`, an
+   explicit `experiments/`, etc.). Production changes to the relay,
+   PanelGridScene, etc. wait for p2+.
+3. Do not copy credentials or `.local` values into reports or commits
+   (naming env vars and file paths is fine).
 
-それ以外(プローブの言語、検証の順序、どこまで深掘りするか)は実装者の裁量。
-調査の途中で「これは取れない」と早期に確定したものは、深追いせず
-できないことリストに落として先へ進んでよい。
+Everything else (probe language, verification order, depth) is the
+implementer's discretion. Anything established early as "cannot be obtained"
+should go on the cannot-do list without deep pursuit — move on.

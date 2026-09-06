@@ -1,57 +1,67 @@
-# operation_room p2追補 — done行のconfirm(手動クリア)
+# operation_room p2 addendum — confirming done rows (manual clearing)
 
-p2のボードでは、relayが✔リネームを目撃した行が `done` として残り続ける
-(スイープは✔トピックを読まないので、doneは目撃した遷移のみ。relay再起動まで
-無期限に溜まる)。これを**人間が「見届けた」と宣言して消せる**ようにする。
+On the p2 board, a row whose ✔ rename the relay witnessed stays `done`
+forever (the sweep never reads ✔ topics, so done only ever arrives as a
+witnessed transition, and rows pile up until the relay restarts). Make these
+clearable by **a human declaring "seen"**.
 
-方針: 時限evictionではなく手動confirm。このボードの原則
-「証拠は人間が見るまで残す」と一致させる。**まとめて全部消せることが主要件**。
+Policy: manual confirm, not timed eviction — matching the board's principle
+that evidence stays until a human has looked at it. **Clearing everything at
+once is the primary requirement.**
 
-## relay側: `POST /ops/confirm`
+## Relay side: `POST /ops/confirm`
 
-- ボディ無し(または `{"all": true}`)= 現在の全done行をconfirm。
-  個別指定(`{instance, channel, topic}`)は任意実装 — 全消しだけでも要件は満たす。
-- confirm記録はrelayのインメモリに置く。done行の本体と寿命が揃い
-  (再起動で両方消える)、ブラウザ間でも一貫する。永続化しない。
-- これはrelay自身のメモリへの書き込みであり、Zulipへは何も書かない。
-  p2制約5(観測者はZulipに投稿しない)は無傷。GET-only窓にPOSTが1本
-  増えるが、非公開loopback運用なので認証は不要。
-- **実装ヒント(裁量)**: confirmを `(channel, bare_topic)` だけでなく
-  その時点の最新message idと組で記録すると、「confirmはその時点の姿を
-  隠すだけで、以後そのトピックに新しい投稿(unresolve含む)があれば行が
-  自然に再浮上する」という性質が無料で手に入る。単純削除
-  (`_topics` からのdel)は、後のunresolveリネームが `_apply_update` で
-  old_key不明→無視になり再開を見落とすので避けたほうがよい。
+- No body (or `{"all": true}`) = confirm every current done row. Per-row
+  confirmation (`{instance, channel, topic}`) is optional — clear-all alone
+  satisfies the requirement.
+- Keep the confirm record in the relay's memory. Its lifetime then matches
+  the done rows themselves (both vanish on restart) and it is consistent
+  across browsers. Do not persist it.
+- This is a write to the relay's own memory, not to Zulip. p2 constraint 5
+  (the observer never posts) is untouched. It adds one POST to a GET-only
+  window, but this is a private loopback service — no auth needed.
+- **Implementation hint (discretionary)**: record a confirmation not just as
+  `(channel, bare_topic)` but paired with the latest message id at that
+  moment. That buys, for free, the property that a confirm only hides the row
+  *as it stood* — any later post to the topic (including an unresolve) makes
+  the row resurface naturally. Avoid plain deletion (`del` from `_topics`):
+  a later unresolve rename would hit `_apply_update` with an unknown old key
+  and be ignored, silently missing the reopen.
 
-## 消せる行の制限(これだけは守る)
+## Which rows are clearable (the one rule to keep)
 
-confirmできるのは **`done` の行だけ**(`stale_state == "done"` の
-unknown行を含めてもよい)。`stalled` / `awaiting` / `acked` は消せない —
-生きている負債を視界から消せるボタンは、p9の「26分誰も気づかない」を
-ボタン1つで再現する装置になる。relay側でも状態チェックして拒否する
-(フロントの出し分けだけに頼らない)。
+Only **`done` rows** may be confirmed (`unknown` rows with
+`stale_state == "done"` may be included). `stalled` / `awaiting` / `acked`
+must not be clearable — a button that removes a live debt from sight is a
+machine for reproducing p9's "26 minutes nobody noticed" with one click.
+Check the state on the relay side and refuse (do not rely on the frontend
+hiding the button).
 
-## フロント側
+## Frontend side
 
-- チップ行に「✓ confirm N done」ボタンをdone行が1件以上あるときだけ表示。
-  押すと `POST /ops/confirm` → reload。
-- 行単位のボタンを付けるかは裁量(`row.actions` の仕組みがtasksビューに
-  先例あり)。付ける場合、agent_room step 5が残した
-  「actionボタン付きカードはスクリーンショット未検証」の穴をこの検証で塞ぐこと。
-- **同時に直す**: サブタイトルの「N rows open」のカウントからdoneを除外する
-  (openという語と実態のずれの解消。p2レビューで指摘済みの小修正)。
+- Show a "✓ confirm N done" button in the chip row only while at least one
+  done row exists. Clicking it does `POST /ops/confirm` → reload.
+- Per-row buttons are discretionary (the `row.actions` mechanism has a
+  precedent in the tasks view). If added, use this verification to close the
+  hole agent_room step 5 left open: cards with action buttons were never
+  screenshot-verified.
+- **Fix at the same time**: exclude done from the subtitle's "N rows open"
+  count (resolving the drift between the word "open" and reality; a small fix
+  already flagged in the p2 review).
 
-## 検証
+## Verification
 
-`#ops-testbed` でp2 step 5のレシピを流用:
-人工stall → 返信/✔で `done` → confirm allで消える →
-(message id方式を採ったなら)同トピックへ追加投稿して行が再浮上する、まで
-一巡をスクリーンショットで確認。ボタン付きカードの見た目も撮る。
+Reuse the p2 step 5 recipe in `#ops-testbed`:
+artificial stall → reply/✔ makes it `done` → confirm-all removes it →
+(if the message-id scheme was adopted) a further post to the same topic makes
+the row resurface. Screenshot the whole cycle, including the look of a card
+with a button on it.
 
-## 制約(最小限)
+## Constraints (minimal)
 
-1. confirmできるのはdone行のみ。relay側でも拒否する。
-2. confirm記録はインメモリのみ(ファイル永続化しない)。
-3. Zulipへの書き込みは発生させない。
+1. Only done rows are confirmable; the relay refuses others.
+2. The confirm record is in-memory only (no file persistence).
+3. No writes to Zulip.
 
-他(エンドポイントの形、個別confirmの有無、ボタンの見た目・文言)は裁量。
+Everything else (endpoint shape, per-row confirm or not, button look and
+wording) is discretionary.

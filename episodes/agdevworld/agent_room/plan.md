@@ -1,119 +1,130 @@
-# agent_room 実装計画
+# agent_room implementation plan
 
-braindump.md で挙げた「Zulip観測によるAgent状態表示」をagdevworldに追加する。
-スナップショット(ファイルへの事前フェッチ)方式は取らず、リクエスト時にライブでZulipを読む。
+Add the "agent state display through Zulip observation" described in
+braindump.md to agdevworld. No snapshot (pre-fetching to files): read Zulip
+live at request time.
 
-実験用の非公開環境のため、破壊的変更・後方互換性の放棄は自由。以下に挙げる制約は
-「守らないと壊れる/矛盾する」ものだけに絞ってあり、それ以外はすべて実装者の裁量。
+This is an unpublished, experimental environment, so destructive changes and
+dropping backward compatibility are fine. The constraints listed below are
+only the ones that would break or contradict something if violated; everything
+else is at the implementer's discretion.
 
-## やること
+## What to build
 
-1. Zulipをライブで読む小さなバックエンド(agdevworldには現状バックエンドが無い)
-2. `#agents` の `intro-<instance>` トピックからAgent一覧を作る
-3. `pj-<slug>` / `work-<slug>` チャンネル群から未解決(`✔ ` が付いていない)トピックの
-   フラット一覧を作る
-4. フロントに長方形カードで表示する新しいビュー
+1. A small backend that reads Zulip live (agdevworld currently has no backend)
+2. An agent list built from the `intro-<instance>` topics in `#agents`
+3. A flat list of unresolved topics (no `✔ ` prefix) across the `pj-<slug>` /
+   `work-<slug>` channels
+4. A new frontend view showing all of this as rectangular cards
 
-## 1. バックエンド
+## 1. Backend
 
-agdevworldは現在「pure frontend」(README_DEV.md参照、`modernize_agdevworld` p1で
-assistantサービスごと削除済み)。ブラウザから直接Zulip REST APIを叩くのはAPIキーの
-露出とCORSの問題があるので、小さな中継サーバーを新設する。
+agdevworld is currently "a pure frontend" (see README_DEV.md; the assistant
+service was removed wholesale in `modernize_agdevworld` p1). Hitting the Zulip
+REST API directly from the browser would expose the API key and hit CORS, so
+build a small relay server.
 
-**モデルにすべき既存実装**: `pj-clusterintent/cagent/src/cagent_api/server.py` の
-window server(stdlib `http.server` + `ThreadingHTTPServer`、ポート8790、
-**無認証**)。cagentは node(mTLS)/human(bearer)/window(無認証)の3つの入口を
-使い分けているが、agent_roomは読み取り専用・非公開環境なのでwindow相当の
-無認証1本で十分。bearerトークンやmTLSは要らない。
+**Model it on an existing implementation**:
+`pj-clusterintent/cagent/src/cagent_api/server.py` — the window server
+(stdlib `http.server` + `ThreadingHTTPServer`, port 8790, **unauthenticated**).
+cagent distinguishes three doors — node (mTLS) / human (bearer) / window
+(unauthenticated) — but agent_room is read-only in a private environment, so
+one window-style unauthenticated door is enough. No bearer tokens, no mTLS.
 
-**Zulip読み取りロジックは自作せず `pyagag`(`agag.zulip.ZulipClient`,
-`pyagag/src/agag/zulip.py`)を再利用することを強く推奨**する。
-理由:
-- `RESOLVED_TOPIC_PREFIX = "✔ "` (zulip.py:88) が既に定義されていて、`channel_topics()`
-  はresolved込みで返ってくるので自分でこの定数を再実装するとズレるリスクがある。
-  実際に「✔ のリネームを見落として空トピックとして誤読し、ミッションが26分止まった」
-  という事故が過去に起きている(devdocs/README_DEV.md:175-179)。ここは既存コードに
-  乗るのが一番安全。
-- レートリミット処理(`RateLimited`, `rate_limit_backoff`)も既に入っている。
-- `channels()` / `channel_folders()` / `stream_id()` / `topic_history()` などが
-  一通り揃っている。
+**Strongly recommended: do not hand-roll the Zulip reading logic — reuse
+`pyagag` (`agag.zulip.ZulipClient`, `pyagag/src/agag/zulip.py`).** Reasons:
+- `RESOLVED_TOPIC_PREFIX = "✔ "` (zulip.py:88) is already defined there, and
+  `channel_topics()` returns resolved topics too, so re-implementing this
+  constant yourself risks drift. There is a real past incident where a lookup
+  missed the ✔ rename, read an empty topic, and a mission silently stalled
+  for 26 minutes (devdocs/README_DEV.md:175-179). This is the one place to
+  ride the existing code.
+- Rate-limit handling (`RateLimited`, `rate_limit_backoff`) is already built in.
+- `channels()` / `channel_folders()` / `stream_id()` / `topic_history()` and
+  the rest are all there.
 
-Node/TSで直接Zulip REST APIを叩く選択肢もあり得るが、その場合は上記の
-resolved-prefix処理とレートリミットを自分で再実装することになる点は認識しておくこと。
-どちらを選ぶかは実装者の裁量。
+Hitting the Zulip REST API directly from Node/TS is a viable alternative, but
+be aware that it means re-implementing the resolved-prefix handling and the
+rate limiting yourself. The choice is the implementer's.
 
-**認証情報**: 専用のread-onlyな権限を持つZulip credentialは今のところ存在しない
-(Zulipに読み取り専用APIキーという概念自体がない)。`pj-agdev/.local/zulip/*.env`
-または各エージェントリポジトリの `.local/zulip.env` に既存botの認証情報がある
-(`front-bot`, `autolab-*-bot`, `forge-bot`, `cagent-bot`, `developer` 等)。
-非公開の実験環境なので、新しいbotを`agag init`で作らず既存のもの(例:
-`developer.env` か `cagent-bot`)を使い回して構わない。専用botを新設したければ
-それも良い。どちらでも良いので実装を止めない。**ただしcredentialファイル自体は
-コミットしない**(既存の `.local/` gitignore運用に合わせる。styles.mdの
-「ローカル環境情報を非ignoreファイルに出さない」ルールにも合致)。
+**Credentials**: no read-only-scoped Zulip credential exists today (Zulip has
+no concept of a read-only API key). Existing bot credentials live in
+`pj-agdev/.local/zulip/*.env` or each agent repository's `.local/zulip.env`
+(`front-bot`, `autolab-*-bot`, `forge-bot`, `cagent-bot`, `developer`, etc.).
+This is a private experimental environment, so reusing an existing one (e.g.
+`developer.env` or `cagent-bot`) instead of minting a new bot with `agag init`
+is fine. A dedicated new bot is also fine. Either way — don't let this block
+the work. **But never commit the credential file itself** (follow the existing
+`.local/` gitignore convention; this also matches the styles.md rule against
+local environment info in non-ignored files).
 
-**未解決トピック一覧を作るための列挙**: `pj-<slug>` チャンネル + その
-`work-<slug>` 派生チャンネルを横断列挙するコードは現状どこにも存在しない
-(作成/アーカイブ用のコードはあるが読み取り用の列挙は無い、
-`pj-agdev/agautolab/src/agautolab/project_archive.py:100` あたりのネーミング規則が
-参考になる)。ここは新規に書く必要がある。単純に `channels()` を全部見て
-名前が `pj-` で始まるもの、および同じchannel folderに属する `work-` 始まりの
-チャンネルを拾えば足りるはず。プロジェクトごとにグルーピングするか、
-全部フラットにするかは実装者の裁量(フラットの方が早く終わる)。
+**Enumerating channels for the unresolved-topic list**: code that walks
+`pj-<slug>` channels plus their derived `work-<slug>` channels does not exist
+anywhere yet (creation/archival code exists, but no read-side enumeration —
+the naming rules around `pj-agdev/agautolab/src/agautolab/project_archive.py:100`
+are a useful reference). This has to be written fresh. Simply listing
+`channels()` and picking names starting with `pj-`, plus `work-`-prefixed
+channels in the same channel folder, should suffice. Grouping per project vs.
+one flat list is the implementer's call (flat is faster to ship).
 
-**キャッシュ**: ファイルへのスナップショットは作らない、という制約は「バックエンド
-プロセスの起動中だけ効くインメモリキャッシュ」までは禁止していない。Zulip API呼び出し
-回数が気になるなら軽いin-memoryキャッシュを挟んでよい。必須ではない。
+**Caching**: the "no snapshot" constraint forbids pre-fetched files, not an
+in-memory cache that lives only while the backend process runs. If Zulip API
+call volume becomes a concern, a light in-memory cache is fine. Not required.
 
-## 2. Agent一覧
+## 2. Agent list
 
-`#agents` チャンネルの `intro-<instance>` トピック(append-only)をそのままソースにする。
-これは「契約」(README_DEV.md:184)なので、GUIは加工・解釈しすぎず、投稿内容を
-素直に見せるだけでよい。
+Use the `intro-<instance>` topics of the `#agents` channel (append-only) as
+the source, directly. These are "the contract" (README_DEV.md:184), so the GUI
+should not over-process or over-interpret — showing the posted content plainly
+is enough.
 
-- 表示するのは最新の紹介ポストの本文で十分(挙動変更時に再投稿される運用なので)。
-  履歴も見たければ全ポストを併記しても良い。
-- **`[selfnote]` および `[selfnote][served]` タグの行は非表示にする**こと。
-  これはagent間の内部連絡用で、`chatlog.md`/`agentchat read` からも意図的に
-  隠されている(README_DEV.md:156-161)。生Zulipメッセージをそのまま読むと
-  混ざって出てくるので、フロントかバックエンドどちらかで一度は必ずフィルタする。
-- harness/model/backendの情報は出さない(braindump時点の判断通り)。introに
-  そもそも書かれていない設計だし、「Agent ≠ Model」方針(README_DEV.md:211-213)
-  にも合っている。
+- Displaying the body of the latest introduction post is sufficient (the
+  convention is to re-post after a behavior change). Showing the full history
+  as well is fine if wanted.
+- **Hide every line tagged `[selfnote]` / `[selfnote][served]`.** These are
+  machine-to-machine notes, deliberately hidden even from `chatlog.md` /
+  `agentchat read` (README_DEV.md:156-161). Raw Zulip reads will include them,
+  so filter them at least once, in either the backend or the frontend.
+- Do not display harness/model/backend information (as decided at braindump
+  time). The introductions are designed not to carry it, and this matches the
+  "Agent ≠ Model" policy (README_DEV.md:211-213).
 
-## 3. 未解決ワーク一覧
+## 3. Unresolved work list
 
-- 「トピック命名規則がagentごとに違うので難しいかも」という braindump の懸念は
-  半分だけ当たっている。**resolved/unresolvedの判定自体はZulip共通機能
-  (`✔ ` プレフィックス)なので命名規則に関係なく一律にできる**。
-  `workplan-` / `assetplan-` / `workrun-` のような意味付けの解釈はagentごとに
-  違うので、そこは無理に統一しようとせず後回しでよい。
-- 第一段階は「チャンネル名 + 生のトピック名」だけを出すフラットな一覧で十分
-  (braindumpで質問していたカード表示の粒度にも合う)。
-- どのagent/プロジェクトの分まで巡回対象にするかは実装者の裁量。まずは
-  `pj-`プレフィックスのチャンネル全部で良いはず。
+- The braindump's worry ("topic naming rules differ per agent, so this may be
+  hard") is only half right. **Resolved/unresolved itself is a uniform Zulip
+  mechanism (the `✔ ` prefix), independent of naming conventions.** What each
+  prefix *means* (`workplan-` / `assetplan-` / `workrun-`) differs per agent —
+  don't try to unify that; defer it.
+- For the first pass, a flat list of "channel name + raw topic name" is enough
+  (it also matches the card-display granularity the braindump asked about).
+- Which agents/projects to sweep is the implementer's call. All `pj-`-prefixed
+  channels should do for a start.
 
-## 4. フロント表示
+## 4. Frontend view
 
-- 既存の `PanelGridScene`(`src/scenes/PanelGridScene.ts`)は `nodes` /
-  `workspaces` / `autolab` / `tasks` の4ビューを設定駆動で共有している
-  (`src/views.ts`, `src/viewSwitcher.ts`)。ここに5つ目のview設定として
-  乗せるのが一番手数が少ないが、別コンポーネントとして新設しても構わない
-  (ユーザー指示通りどちらでも良い)。
-- カードに載せる情報: agent名/instance名、entrance(チャンネル名)、
-  intro本文、未解決ワーク件数(バッジ)。クリックで未解決トピックの
-  フラット一覧を開く、程度で十分。
-- 既存の `chatPanel.ts` (`/api/chat` 宛、現在死んでいる)や `detailPopup.ts` の
-  プロファイル編集導線には触れなくてよい。今回のスコープ外。
+- The existing `PanelGridScene` (`src/scenes/PanelGridScene.ts`) is one
+  config-driven grid scene shared by the four views `nodes` / `workspaces` /
+  `autolab` / `tasks` (`src/views.ts`, `src/viewSwitcher.ts`). Adding a fifth
+  view config on top of it is the path of least resistance, but a separate new
+  component is also allowed (per the user's instruction: either is fine).
+- Card contents: agent/instance name, entrance (channel name), intro text,
+  unresolved-work count (badge). Click to open the flat list of unresolved
+  topics — that much is plenty.
+- Leave the existing `chatPanel.ts` (pointed at the dead `/api/chat`) and the
+  profile-editing path in `detailPopup.ts` alone. Out of scope.
 
-## 制約まとめ(最小限)
+## Constraints (minimal)
 
-1. スナップショットファイル方式(`scripts/fetch-cluster-state.mjs` → `public/*.json`
-   のようなビルド時/事前実行フェッチ)は今回使わない。バックエンドが都度ライブに読む。
-2. `[selfnote]` 系の行はユーザー向け表示から除外する。
-3. 未解決判定は `✔ ` プレフィックスの有無で行う(自前で別ルールを作らない)。
-4. harness/model/backend情報は表示しない。
-5. Zulip credentialファイルはコミットしない(既存の `.local/` 運用に合わせる)。
+1. No snapshot-file approach for this feature (no build-time / pre-run fetch
+   like `scripts/fetch-cluster-state.mjs` → `public/*.json`). The backend
+   reads live, per request.
+2. Exclude `[selfnote]`-family lines from anything user-facing.
+3. Unresolved is decided by the presence/absence of the `✔ ` prefix (do not
+   invent a different rule).
+4. Do not display harness/model/backend information.
+5. Do not commit Zulip credential files (follow the existing `.local`
+   convention).
 
-上記以外(バックエンドの実装言語、PanelGridScene再利用の是非、データの
-グルーピング粒度、キャッシュの有無、UIの見た目)はすべて実装者の裁量に委ねる。
+Everything else (backend language, whether to reuse PanelGridScene, grouping
+granularity, caching, visual design) is left to the implementer.
