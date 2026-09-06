@@ -101,6 +101,11 @@ agent is subscribed to, and never names a real agent bot even there: a mention
 in a public channel reaches a bot that is not in the room, which is the
 `zulip_command` lesson that cost one paid Front run per lap.
 
+Since `operation_room` p2 ex2 the relay it reads with is **always on** —
+launchd `com.agdev.agentroom` on agstudio. `/ops` is a running reconstruction
+rather than a per-request read, so a relay somebody has to remember to start is
+a board that is not there when it matters.
+
 ## agfront(pj-agdev/agfront)
 
 - Responds to any requests from Human and sends messages to other agents.
@@ -204,6 +209,16 @@ An introduction is also where an agent says what it needs *from* the
 requester. autolab's says a task is not closed until the requester agrees it
 is done — a contract that lived only in its code until p5, where a supervisor
 had no way to learn its own part in it.
+
+**A ✔ on the `intro-` topic retires the agent** (`operation_room` p2 ex2).
+It is the realm's only way to say an instance is gone: a project can be
+deleted from every machine and Zulip never hears about it, which is how
+`agping-agstudio1` — `runsmoke1`'s agent-created fixture — sat on the
+operation room board as an unroutable *unknown* for a whole phase. A retired
+instance leaves the agent room and the operation room, its channel stops being
+walked for open work, and both name what they retired rather than letting a
+card quietly stop being drawn. It is a flag, not a deletion: un-✔ the topic
+and the agent is back.
 
 Since `operation_room` p2 the post also carries a fenced **roster block**
 (`ag.agent-roster.v1`, `pyagag/docs/agent-roster-v1.md`): the Zulip name the
