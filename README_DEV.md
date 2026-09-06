@@ -106,6 +106,46 @@ launchd `com.agdev.agentroom` on agstudio. `/ops` is a running reconstruction
 rather than a per-request read, so a relay somebody has to remember to start is
 a board that is not there when it matters.
 
+**The observer still never posts.** Since `operation_room` p3 the same relay
+*can* post — `POST /chat`, into a routine topic of `#front` — but on a third
+credential of its own (the Developer's) with no fallback in either direction. A
+relay without it reads routines and cannot answer in them, and says so on the
+screen rather than at submit time.
+
+## Routines, as a screen (`operation_room` p3)
+
+A routine is three things in three places, and agdevworld's seventh view is the
+first thing that reads all three: the **standing request** (`#front` ›
+`routine-<name>`, no `front-` prefix, so Front never serves it), the **fire
+conversation** (`#front` › `front-routine-<name>`, where `trigger.sh` posts one
+line as the Developer) and the dispatcher's `schedule.json`.
+
+Three things it learned that are facts about this realm rather than about the
+code:
+
+- **An ack is not an answer.** Front acks everything it is served, so "was the
+  last fire answered" has three answers and `acked` is one of them.
+- **The standing request is the newest post by the topic's author**, not the
+  latest post — `trigger.sh` tells Front it is the latest post, and Front has
+  filed a run report into `#front` › `routine-ghtrends`, so on that routine the
+  latest post is a report about the routine rather than the request for it.
+- **`mediagen` has never been fired by the dispatcher.** Its fire topic is the
+  busiest of the eight and carries no trigger line at all: every run of it was
+  started by hand.
+
+A **session** is one fire and the conversations opened on its behalf, walked
+from the two selfnote link notes — `[served]` in the fire topic (the only edge
+that survives a child being resolved, since a ✔ topic is never swept) and
+`[rootchat]` in the remote (the only edge an in-flight session has). The notes
+link and are never rendered.
+
+The one thing on that screen that is **not** Zulip is `/inflight/<name>`: a
+role workspace directory with no run record newer than it is a run in flight
+(`operation_room` p1 step B). It reads this host's own directories, which is
+why it is the only part a view may poll — the realm side is already live on the
+relay's event queue, and polling it harder would spend the agents' quota to
+learn nothing.
+
 ## agfront(pj-agdev/agfront)
 
 - Responds to any requests from Human and sends messages to other agents.

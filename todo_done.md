@@ -5,6 +5,20 @@ Cross-project todo list. Per-project items live in each project's own
 
 ## TODO
 
+- `devenv/routine/trigger.sh` tells Front the standing request is "the latest
+  post" in `#front` › `routine-<name>`, and on this realm that is sometimes
+  false: Front filed a run report into `routine-ghtrends` on 2026-09-04, and
+  `routine-rtnotes` carries fourteen such posts. The operation room reads the
+  newest post by the topic's *author* and shows the strays
+  (`episodes/agdevworld/operation_room/p3`), but the trigger's wording and
+  Front's habit still disagree — the fix belongs to the routine's own episode,
+  not to a screen. (Recorded 2026-09-06.)
+
+- `mediagen` is a routine in name and a hand-driven conversation in fact: 164
+  posts in `#front` › `front-routine-mediagen` and not one dispatcher fire.
+  Either give it schedule events or stop calling it a routine.
+  (Recorded 2026-09-06, from `operation_room` p3 step 1.)
+
 - Unify agent entrances on the unauthenticated `window`. cagent currently
   keeps three doors: the node entrance (`:8788`, mTLS), the human entrance
   (`:8789`, bearer token + chat UI), and — from
