@@ -79,7 +79,12 @@ token buckets, `AccountTokenUsageSummary`) — not needed, the gauge has its
 own daily series. Keep stdin open until the reply arrives, then kill the
 process (closing stdin first made it exit before answering). The
 app-server refreshes the ChatGPT token itself, so this route never touches
-`auth.json`. `codex app-server daemon start` would keep one resident and
+`auth.json`. **`/status` is not a headless route.** The TUI's `/status` shows the same
+windows, but `codex exec` has no slash-command expansion: `codex exec --json
+"/status"` (probed) sends the text to the model as a prompt, which answers
+with an invented status ("Workspace: cxstatus, Access: read-only…") and
+bills 17k input tokens for it. The app-server call is the only headless
+read. `codex app-server daemon start` would keep one resident and
 `proxy` talks to it; not worth it at one call a minute — a fresh process
 is simpler and cannot go stale.
 
