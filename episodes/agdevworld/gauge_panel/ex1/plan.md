@@ -83,20 +83,35 @@ app-server refreshes the ChatGPT token itself, so this route never touches
 `proxy` talks to it; not worth it at one call a minute — a fresh process
 is simpler and cannot go stale.
 
-**agy — Antigravity on a consumer Google account; a route exists, unproved.**
-`agy` has no usage subcommand (`agy --help`, `agy remote-control status`
-checked). But `~/.gemini/antigravity-cli/cli.log` shows the CLI runs a
-`quota_manager.go` `doRefreshQuota` on every start (the result is not
-logged), and the binary carries the Code Assist client
-(`codeassistclient`, host `cloudcode-pa`) with two quota calls: gRPC
-`/google.internal.cloud.code.v1internal.PredictionService/RetrieveUserQuota`
-and REST `/{api_version}:fetchQuotaStatus`, plus a TUI string
-"Refreshes in %s". The token is
-`~/.gemini/antigravity-cli/antigravity-oauth-token` (`{token, auth_method:
-"consumer"}`). **This shell's permission classifier denied reading that
-file, so the call was not tried**; step 3 is where it is. The gemini CLI's
-own Code Assist calls (`cloudcode-pa.googleapis.com/v1internal:…`, bearer
-OAuth) are the closest documented shape to copy.
+**agy — Antigravity on a consumer Google account; two slash commands, both headless.**
+`agy` has no usage *flag*, but its slash commands expand in print mode
+(`--disable-slash-commands` exists precisely to stop that), and `/help`
+lists `/usage (quota) — View model quota usage` and `/credits — Show
+remaining G1 credits and purchase link`. Both answer locally: `status:
+SUCCESS`, `total_tokens: 0`, `duration_seconds: 0`, no model run, and the
+JSON carries a structured `command.data` block:
+
+```
+agy -p /usage --mode plan --output-format json --print-timeout 60s
+→ command.data.groups[]: {name: "Gemini Models" | "Claude and GPT models",
+     buckets[]: {id: "gemini-weekly" | "gemini-5h" | "3p-weekly" | "3p-5h",
+                 window: "weekly" | "5h", remaining_fraction: 0.99…, reset_time: "2026-09-11T15:26:48Z",
+                 description: "…it will fully refresh in 4 days, 3 hours."}}
+   (probed: Gemini weekly 99% remaining, everything else 100%)
+agy -p /credits --mode plan --output-format json
+→ command.data: {remaining_credits: 0, upgrade_uri: "https://antigravity.google/g1-upgrade"}
+```
+
+`/usage` is the model quota the braindump means (Antigravity's "MODEL
+CREDITS … Refreshes in"): a weekly and a 5-hour window per model *group*,
+`remaining_fraction` rather than used percent — invert it on the card so
+the three harnesses read the same way. `/credits` is the purchasable
+"AI Credits" pool, a different thing; show it as one line, not a meter,
+and only when non-zero or enabled. `--mode plan` is there so nothing needs
+the permission bypass; no token file is read, no Google API is called by
+the relay — the CLI does its own OAuth. (The internal route this replaces,
+`cloudcode-pa` `fetchQuotaStatus` / `RetrieveUserQuota`, is still in the
+binary; not needed.)
 
 ## Step 1: relay `/budget`
 
@@ -142,17 +157,15 @@ last good numbers greyed if it has any. Claude's per-model scoped window
 Poll `/budget` on the same 20 s tick as `/cost` — the relay's cache is
 what limits vendor calls, not the page.
 
-## Step 3: agy, tried for real
+## Step 3: agy provider
 
-Read the token file, call `fetchQuotaStatus` (and, failing that,
-`RetrieveUserQuota` over gRPC — `agy` is a Go binary; the REST path is the
-easier first try) with `Authorization: Bearer`. Three outcomes, all fine:
-it answers and the card fills; it answers only from inside the IDE's
-language server and the card says "readable only through the IDE"; or the
-account has no quota object and the card says so. Write down the request
-that worked in `agentroom/README.md`. The **refresh countdown in the TUI**
-(`agy` interactive, "Refreshes in …") is the human-readable check to
-compare against.
+Spawn `agy -p /usage --mode plan --output-format json` (path from
+`AGENTROOM_AGY_BIN`, default `~/.local/bin/agy`; not on the launchd PATH)
+and read `command.data.groups`. One card, two groups, four meters, each
+labelled with the group and `1 − remaining_fraction`. A non-`SUCCESS`
+status, a missing `command` block (the CLI logged out → the TUI's "[Auth
+Needed]"), or a timeout is *unknown* with the CLI's own text. Add
+`/credits` as the card's footer line. Fixture: the two payloads above.
 
 ## Step 4: deploy and prove
 
