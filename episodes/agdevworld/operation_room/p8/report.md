@@ -76,3 +76,21 @@ for the Phaser views is not worth building while the dashboard is the
 monitoring surface. Server push (SSE) is not warranted: nothing observed
 exceeded 3.7 s and the human-visible delay is the tick, which is already
 under the "does anyone notice" line this plan set.
+
+## Addendum (2026-09-07, after the report) — the un-✔ run is fixed at the source
+
+The three unauthorised runs had one cause: `agag.selfnote.last_real_sender`
+counted Zulip's Notification Bot line as somebody speaking. pyagag `0a33830`
+treats any post from the `zulipinternal` realm (Notification Bot, Welcome
+Bot, move notices) as a notice, not speech — the same class as a selfnote,
+keyed on the realm string rather than the renameable display name or the
+realm-local user id. Tests added in `tests/test_selfnote.py`; 459 pass.
+Rolled to agfront `f2da1ee`, agforge `cebc8bb`, agautolab `332a3b1`,
+arxivsage `fabc1b4`, comfynotify (pj-agdev `59e4113`); the five launchd
+listeners on this Mac were kickstarted and came back on the new code.
+Verified live: un-✔ of the 15:14Z run at 16:05:31 posted notice 5168 and
+Front did not run (no serving line, no ack, run-0560 still the newest record
+95 s later); the topic was ✔'d again afterwards. **Not yet on agautolab1**:
+the VM's autolab listener is its own deployment and still runs the older
+pyagag until the next nctl/ansible rollout. The README_DEV rule "un-✔ is
+not free" now describes listeners older than `0a33830` only.
