@@ -47,7 +47,32 @@ meters these windows, not dollars.* The tiles' USD are therefore an
 API-equivalent for every claude_code run on this host; the meter, not the
 dollar, is what the plan spends.
 
-## Open for the developer — the relay is blocked on this
+## Addendum, 21:29 JST — the Keychain is the store, and the proof closes
+
+The developer read the item's attributes: `mdat 20260907115534Z`, i.e.
+20:55 JST — newer than the file (13:08) and 13 minutes before the file's
+token expired. The claude provider now reads the Keychain item first
+(`security find-generic-password -s "Claude Code-credentials" -w`, plus the
+attribute listing for `mdat`; both read-only) and the file after; the card
+says which store served (`store`) and why the Keychain did not
+(`keychain_error`). `AGENTROOM_CLAUDE_KEYCHAIN` names the item, empty
+skips it. One more test (130).
+
+Under launchd it just worked — no Keychain prompt — and the card came back:
+`store: keychain`, renewed 20:55, token expires 04:55, **session 60 %**,
+up from 53 % at step 3's read and 48 % at step 1's. That is the
+proof the plan asked for: the Front run (and this session) moved the
+meter, and the codex card still reads 0 % / 0 %.
+
+![all three cards live on the deployed gauge](gauge-budgets-keychain.png)
+
+**Not committed yet.** The classifier in this Omni shell refuses the
+`git commit` of the Keychain-reading code (agentroom `budget.py`,
+`tests/test_budget.py`, README, plist template comment) — staged in the
+agdevworld checkout, tests green, relay already running it. The developer
+commits it, or allows the commit; nothing else is pending.
+
+## Open for the developer — settled by the addendum above
 
 - **Where does Claude Code on macOS keep the live token?** If it is the
   Keychain item `Claude Code-credentials`, the claude provider should read
