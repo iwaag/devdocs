@@ -221,3 +221,52 @@ was scoped to two files and recovered its text from a diff.
   work from outside.
 - Nothing in `main/` or `publish/` was written or corrected by the Omni
   Agent.
+
+## Addendum — the push permission is withdrawn (v8)
+
+After the phase closed, the developer withdrew the agent-driven push:
+**`publish/` is committed and never pushed, on every project, with no
+exception.** The developer reviews that commit and pushes it by hand.
+
+`#front › routine-publish` message **5482**, **v8**. What it changes against
+v7:
+
+- the opening states the withdrawal explicitly, so a run that remembers v6
+  or v7 cannot act on the older permission;
+- a new paragraph, *"Never push `publish/`"* — commit locally and stop
+  there; `main/` is the opposite and unchanged (commit **and** push, because
+  that is where a later run reads the knowledge from); and if a `publish/`
+  clone is found ahead of or behind its origin, leave it and say so, because
+  reconciling it is the developer's call and not a step of this gate;
+- the projects table's origin column is relabelled `publish/` **origin** and
+  both rows now read **no**, with a sentence saying the column records where
+  the developer's own push will go and is not permission for the run to push
+  there;
+- the report line no longer asks where `publish/` was pushed; it asks the
+  run to say plainly that `publish/` was committed and **not** pushed and is
+  waiting for review.
+
+v8 also says that `studyrealworld`'s `publish/` already holds one
+agent-pushed commit from the v6/v7 runs — *"that is history, not a
+precedent, and it stays where it is. Do not push again, and do not try to
+undo it."* Nothing was reverted on the GitHub origin; `main` there is still
+`5718242`, and it is the same content the gate reviewed.
+
+`README_PROJECT.md` in the workspace, which the v6 run had rewritten to say
+`publish/` is "Committed and pushed by an agent", now says it is committed
+by an agent and **never pushed** by one, and records that one push happened
+under v6/v7 before the permission was withdrawn.
+
+**What this costs the phase's evidence.** Completion condition 4 asked that
+reviewed knowledge reach the specified publication origin, and it did —
+`5718242` is on GitHub and was verified there. That evidence stands as a
+record of what happened; it is simply no longer the standing arrangement.
+From v8 onward the routine stops one step earlier, at a reviewed local
+commit, and the last step is the developer's.
+
+**Deus Ex Machina.** Wrote v8 and corrected `README_PROJECT.md` as the
+Developer. `README_PROJECT.md` is an ignored, workspace-local file stating a
+developer-owned rule, so no in-system run was bought for a one-line
+correction — but it is worth noting that the *previous* value of that line
+was written by an autolab run under v6, so the file now mixes agent-written
+description with a hand-corrected rule.

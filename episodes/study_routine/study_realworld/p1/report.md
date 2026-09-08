@@ -36,8 +36,11 @@ studyrealworld/                        # Autolab study project, Plane "Studyreal
 ```
 
 `README_PROJECT.md` (ignored, workspace-local) records both folders, their
-repositories, the study-pattern adaptation and — corrected during step 4 —
-that `publish/` here is committed **and pushed** by an agent.
+repositories and the study-pattern adaptation. Its `publish/` line was
+rewritten twice: the v6 run changed the pattern's "never pushed by an agent"
+to "committed and pushed", and it was corrected back after v8 withdrew that
+permission — committed by an agent, **never pushed** by one, with the one
+push that did happen recorded as history.
 
 The braindump's two open questions are answered by what happened rather than
 by argument. **One file per source is enough**: a source file at 63–78 lines
@@ -56,10 +59,19 @@ correctly with no payload — and a scheduled fire carries no payload, which
 is the whole reason it is written that way.
 
 The `publish` routine is separate and unchanged in shape, but its standing
-request was rewritten twice: **v6** (5416) made it project-parameterised
-instead of arXiv-shaped, with a per-project publication origin and push
-rule; **v7** (5443) gave check 4 a stated boundary after v6's first run
-deleted things the project requires.
+request was rewritten three times: **v6** (5416) made it
+project-parameterised instead of arXiv-shaped, with a per-project
+publication origin and push rule; **v7** (5443) gave check 4 a stated
+boundary after v6's first run deleted things the project requires; **v8**
+(5482) withdrew the agent-driven push — `publish/` is committed and never
+pushed, on every project, and the developer reviews that commit and pushes
+it by hand. `main/` is unchanged: committed **and** pushed, because that is
+where a later run reads the knowledge from.
+
+v8 came after the phase's work was done, so the GitHub origin does hold one
+agent-pushed commit (`5718242`). v8 says so, and says it is history rather
+than a precedent: do not push again, and do not undo it. The addendum at the
+end of [report4.md](report4.md) records the change in full.
 
 ## The runs
 
@@ -138,6 +150,11 @@ hostnames, `.home.arpa`, absolute paths, ports, internal repository names
 and internal vocabulary finds nothing. `publish/README.md` explains what a
 source file and an investigation report are, and how to use the two indexes,
 without mentioning `main/`, routines, missions or reviews.
+
+**This evidence records what happened, not the standing arrangement.** The
+push permission that carried it there was withdrawn afterwards in v8: from
+now on the routine stops at a reviewed local commit and the developer makes
+the last step. What is on the origin stays.
 
 ## Findings
 
