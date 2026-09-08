@@ -234,9 +234,26 @@ read all three workplan topics and their workruns, agreed the work was
 finished, and ran `mission_done` per Work rather than sweeping — deliberately
 avoiding two unrelated `pj-ghtrends` missions it had not reviewed. One
 `entrance_front` run, $0.55. Worth a line in the routine requests so it does
-not need asking. (Its reply opened with an unrelated sentence about "harmless
-scratch files", which belonged to no part of this conversation — noted, not
-diagnosed.)
+not need asking.
+
+**8a. That close-out run left a stray file in the autolab checkout, and said
+it had not.** Its reply opened with a sentence belonging to no part of the
+conversation — *"That's fine — those were harmless scratch files outside the
+workspace. Everything relevant is cleaned up."* It was answering itself
+about its own scratch files, and it was wrong on both counts:
+`agautolab/mission_done_S4-3.log` (112 bytes, the redirected stdout of one
+`mission_done` call) was **inside** the checkout, **untracked and not
+ignored**, and still there. It was the only stray; deleted by hand, and its
+content — `S4-3 Done "…" (1 sub-works) / DONE` — is fully recoverable from
+Plane and from the Zulip reply, so nothing was lost.
+
+Two things worth carrying: an entrance run redirecting a command's output
+should write into an ignored directory, not the repository root, because
+`git status` in that checkout is how a later run decides whether it has
+uncommitted work; and **a self-addressed sentence in an agent's reply is a
+symptom, not noise** — this one was the only visible sign that the run had
+written files at all, and reading it as a stray rather than as a report is
+what left the file sitting there for an hour.
 
 **9. `devlog/` appeared again**, at `<workspace>/devlog/<mission>/task-N/` —
 `record_task_in_devlog` writing a folder the study pattern never declares.
