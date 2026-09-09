@@ -107,44 +107,60 @@ rather than a per-request read, so a relay somebody has to remember to start is
 a board that is not there when it matters.
 
 **The observer still never posts.** Since `operation_room` p3 the same relay
-*can* post — `POST /chat`, into a routine topic of `#front` — but on a third
+*can* post — `POST /chat`, into a routine's own `guide` or run topics, and
+a run request into a Front Desk conversation — but on a third
 credential of its own (the Developer's) with no fallback in either direction. A
 relay without it reads routines and cannot answer in them, and says so on the
 screen rather than at submit time.
 
-## Routines, as a screen (`operation_room` p3)
+## Routines (`refine_routine` p1)
 
-A routine is three things in three places, and agdevworld's seventh view is the
-first thing that reads all three: the **standing request** (`#front` ›
-`routine-<name>`, no `front-` prefix, so Front never serves it), the **fire
-conversation** (`#front` › `front-routine-<name>`, where `trigger.sh` posts one
-line as the Developer) and the dispatcher's `schedule.json`.
+A routine is a **process guide kept in Zulip** and the runs made of it.
+The `routine` channel folder holds one public channel per routine,
+`#routine-<name>`; its fixed `guide` topic is the guide, and **the newest
+post there is the whole guide** — a new version is a new full post, never an
+edit, nobody runs or reports there, and a ✔ on it retires the routine. There
+is no schedule and no dispatcher any more: a routine runs when somebody asks
+Front to run it, with whatever conditions they give in words ("until the
+5-hour window is 50 % used", "one repository only").
 
-Three things it learned that are facts about this realm rather than about the
-code:
+A **run** is `#routine-<name>` › `routinerun-<id>`, opened by Front with one
+opening post — the request as it was made, the conditions as Front read
+them, the guide post it read (its message id), and the requesting
+conversation — and then owned by Front: the `routine_run` role serves it
+with its own guide, delegates from it (root notes in the delegates' topics
+name the run, so their answers resume the run and nothing else), records
+each serving as an entry, and ends it with one fenced `ag-routinerun` block
+(`achieved`, `reason`, `report`). Front's listener delivers the report into
+the conversation that asked, names the run, and resolves the run topic.
+**Ending a run and reaching the routine's goal are two sentences**:
+`achieved` is the goal, `reason` is why the run ended.
 
-- **An ack is not an answer.** Front acks everything it is served, so "was the
-  last fire answered" has three answers and `acked` is one of them.
-- **The standing request is the newest post by the topic's author**, not the
-  latest post — `trigger.sh` tells Front it is the latest post, and Front has
-  filed a run report into `#front` › `routine-ghtrends`, so on that routine the
-  latest post is a report about the routine rather than the request for it.
-- **`mediagen` has never been fired by the dispatcher.** Its fire topic is the
-  busiest of the eight and carries no trigger line at all: every run of it was
-  started by hand.
+Three things the realm taught about starting and stopping:
 
-A **session** is one fire and the conversations opened on its behalf, walked
-from the two selfnote link notes — `[served]` in the fire topic (the only edge
-that survives a child being resolved, since a ✔ topic is never swept) and
-`[rootchat]` in the remote (the only edge an in-flight session has). The notes
-link and are never rendered.
+- **A topic Front opens alone is never served by the owner sweep** (last
+  speaker is Front), so the listener starts a run right after the serving
+  that opened it, and at startup for one opened just before a crash. A run
+  is *unstarted* while it holds only Front's speech and no serving ack; an
+  ack is what says "started", so a run never starts twice and a progress
+  entry never restarts anything. A run opened by hand is served like any
+  other topic.
+- **The root note in a run topic means "opened from"**, never "serve that
+  instead": an owned topic is always served as itself. The report is posted
+  into the origin directly by the listener, so no root note ever points from
+  the requester to the run.
+- **Usage conditions are judged on an observation**, `tools/budget.md` at
+  every run serving and `agbudget` on the run's PATH (the relay's `/budget`,
+  or a fixture file via `AGFRONT_BUDGET_URL`). "Until N % used" is the
+  current window reaching N whatever consumed it, met at once if already
+  there; a failed or stale read is neither reached nor 0.
 
-The one thing on that screen that is **not** Zulip is `/inflight/<name>`: a
-role workspace directory with no run record newer than it is a run in flight
-(`operation_room` p1 step B). It reads this host's own directories, which is
-why it is the only part a view may poll — the realm side is already live on the
-relay's event queue, and polling it harder would spend the agents' quota to
-learn nothing.
+On the screen (`agdevworld` operation dashboard and routines view) a routine
+is its guide and its runs; "Ask Front to run it" posts the request at Front's
+ordinary entrance (a Front Desk conversation) and the run appears when Front
+opens it. Completing a run closes that run and its work only — never the
+guide, the channel or another run; the requester conversation is its parent
+and stays open.
 
 ## agfront(pj-agdev/agfront)
 
@@ -158,6 +174,9 @@ learn nothing.
   anything it says to that agent is a deliberate `agentchat send`. That is
   what ends an exchange between two agents, and it is the whole of p8's
   answer to p7's "nothing decides when a conversation is over".
+- **Since `refine_routine` p1 it runs routines**: a `routinerun-` topic in
+  a routine's channel is a conversation of Front's own, served by the
+  `routine_run` role (see *Routines* above).
 
 ## arXiv sage (`arxivsage`)
 
