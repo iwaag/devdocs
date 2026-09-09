@@ -114,4 +114,4 @@ is the single seam step2 will drive.
 ## Commits
 
 - pyagag `0dbc3e9` — the contract document.
-- devdocs `ac7e299 (this commit)` — this report.
+- devdocs — this report.
