@@ -40,6 +40,11 @@ Cross-project todo list. Per-project items live in each project's own
   (Recorded 2026-09-01.)
 
 ## Done
+
+- 2026-09-10 refine_routine p1: routines became guides in Zulip (one
+  channel per routine, `guide` topic) and runs became `routinerun-` topics
+  Front opens, drives and finishes; the scheduler is retired. See
+  episodes/refine_routine/p1/report.md.
 - **agforge's assetrun can use the notifier (2026-09-01).** The paragraph its
   guide carried was un-runnable — no `prompt_id` from a synchronous
   `agforge image generate`, and `[roles.generator]` has no `Bash(agentchat:*)`.
