@@ -188,3 +188,24 @@ did.
 the commands, starting the task, closing Work G-21. Handoff candidate:
 exercising a newly shipped contract in the realm is a routine an agent could
 run.*
+
+## step6 record
+
+Documentation and close-out:
+
+- `devdocs/README_DEV.md` — a new section, *How an agent is asked to run a
+  particular way*, and a line under *Agent ≠ Model*.
+- `devpolicy/agent_records.md` (`4fa3a19`) — a run records what was asked for
+  beside the backend, and the rule the live defect taught: **a recorded field
+  is only recorded if it reaches the file.**
+- `pj-agdev/.local/devenv.md` (ignored) — the machine-specific half: restart
+  and re-post after a menu change, check for a harness child first, that
+  adding a profile to `agents.toml` is not enough to publish it, which pools
+  this host's `/budget` actually answers for, how to place a controlled
+  observation, and not to post a courtesy line into a `workplan-` topic.
+- The braindump, which had never been committed, is now in the episode folder.
+- Superproject `pj-agdev` `832d62c` bumps agautolab `3d8f73b` and agfront
+  `2e06644`.
+
+Every affected repository is committed and pushed: pyagag, agautolab, agfront,
+pj-agdev, devdocs, devpolicy.
