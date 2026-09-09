@@ -1,76 +1,76 @@
-# Refine routine p1 — guide と条件付き実行
+# Refine routine p1 — guides and conditional execution
 
-## 目的・範囲
+## Goal and scope
 
-ルーチンを Zulip の永続的なプロセスガイドとして整理し、Front が今回の依頼条件に従って作業を選び、委譲・再判断を重ねて完了を報告できるようにする。
+Organize routines as persistent process guides in Zulip. Let Front select work according to each request's conditions, delegate, reassess, and report completion.
 
-非公開の実験環境での破壊的変更。後方互換性、旧 API・形式・実行履歴の移行は不要。必要なガイド内容は新構成へ持ち込み、旧機構は撤去・置換してよい。認証強化や汎用ワークフローエンジンは目的に含めない。各 step は到達点を示し、内部構成・API・記録形式・作業分割は実装者に委ねる。
+This is a breaking change in a private experimental environment. Backward compatibility and migration of old APIs, formats, and execution history are unnecessary. Carry useful guide content into the new structure; remove or replace the old machinery freely. Authentication hardening and a general workflow engine are outside scope. Each step specifies outcomes; internal structure, APIs, record formats, and task decomposition are up to the implementer.
 
-今回扱うのは即時の実行依頼から終了まで。developer による割り込み停止、実行中タスクの強制キャンセル、時刻指定・遅延・定期発火は後続フェーズとする。通常の応答待ちからの再開とプロセス再起動後の復帰は今回の実行基盤に含む。
+This phase covers immediate requests through termination. Developer interruption, forced cancellation of running tasks, and scheduled, delayed, or recurring triggers belong to later phases. Resuming after an ordinary reply wait and recovering after a process restart are part of this phase's execution foundation.
 
-## step1 — 旧発火機構を撤去し、ガイドを配置する
+## step1 — Retire the old triggers and establish guides
 
-- ローカルサービスの状態を Nautobot または `pj-clusterintent/nctl` で把握し、旧 routine dispatcher と schedule GUI を停止。自動起動設定、スケジュール編集ツール、Front への旧案内も撤去する。
-- Zulip に `routine` チャンネルフォルダを作り、1 ルーチンにつき1チャンネル、その下に固定の `guide` トピックを配置する。チャンネル名は実装者が決めてよい。
-- 既存の `#front / routine-<name>` から、ガイドとして必要な内容を読み取って移す。過去の報告が混在するため、単純に最終投稿を採用しない。
-- ガイドの更新方法と有効な内容の読み方を揃える。`guide` の投稿・編集は実行開始にせず、今回の依頼は別の `routinerun-<id>` に記録する。
+- Inspect local service state through Nautobot or `pj-clusterintent/nctl`, then stop the old routine dispatcher and schedule GUI. Remove their startup configuration, schedule editing tools, and obsolete instructions for Front.
+- Create a `routine` channel folder in Zulip, with one channel per routine and a fixed `guide` topic in each. Channel naming is discretionary.
+- Read the existing `#front / routine-<name>` topics and carry over the content needed as guides. Historical reports are mixed in, so do not simply take the last post.
+- Align how guides are updated and how their current content is read. Posting or editing a `guide` does not start execution; each execution request belongs in a separate `routinerun-<id>` topic.
 
-確認: 旧発火ジョブが停止し、ガイドが新構成から読めること。旧イベントを再生しないこと。
+Verify: the old trigger jobs are stopped, guides are readable in the new structure, and old events are not replayed.
 
-## step2 — Front が実行を開始し、正しい会話で再開できるようにする
+## step2 — Let Front start runs and resume in the right conversation
 
-- 通常の Front 入口からルーチン実行を依頼すると、Front がガイドを読み、対象チャンネルに一意の `routinerun-` を作って実行を開始する。
-- 初回記録に、依頼原文、Front が理解した実行・終了条件、参照したガイドの内容または版を識別できる情報、依頼元のチャンネル・トピックを残す。条件は自然文でよく、ルール言語への変換は不要。
-- 委譲先からの応答は、その仕事を依頼した `routinerun-` で Front の判断を再開させる。依頼元への最終報告先と、実行中の会話の帰属を区別する。
-- Front 自身が作った実行を起動できるようにする。既存 listener は自己投稿を通常の他者投稿として扱うとは限らないため、トピック作成だけで開始したと見なさない。
-- 応答待ちは短いセッションをまたいで継続でき、再起動後も会話記録から復帰できるようにする。進捗の自己投稿が無限に Front を起動する構成を避ける。独立した依頼を待ち状態で塞がない。
+- A routine request through Front's normal entrance makes Front read the guide, create a unique `routinerun-` topic in the relevant channel, and start execution.
+- The initial record includes the original request, Front's interpretation of execution and termination conditions, the guide content or information identifying its revision, and the requesting channel and topic. Conditions may remain natural language; no rule language is required.
+- Replies from delegated agents resume Front's judgment in the `routinerun-` that requested the work. Distinguish the final report destination from the conversation that owns ongoing execution.
+- Ensure Front can start a run it created itself. The existing listener may treat self-posts differently from other authors' posts; creating a topic alone is not proof that execution started.
+- Allow waiting to span short sessions and recovery to use conversation records after a restart. Avoid progress self-posts repeatedly waking Front in a loop. A waiting request should not block independent requests.
 
-確認: 開始、委譲先の応答による再開、再起動後の復帰、同じ応答の再取得、別 run への誤配送がないことを focused tests で確かめる。
+Verify with focused tests: startup, resumption on a delegate's reply, restart recovery, repeated retrieval of the same reply, and correct routing between separate runs.
 
-## step3 — 観測を与え、継続・終了を Front の判断にする
+## step3 — Provide observations and let Front decide whether to continue
 
-- Front に現在の使用率・対象アカウントや枠・リセット時刻・観測時刻・取得失敗を読む手段と利用説明を与える。既存の relay `GET /budget` が再利用候補。実際の Front の実行環境から利用できることを確認する。
-- 「5h 枠の消費が50%以上になるまで」は、現在の枠の使用率が50%に達するまで、と解釈した旨を開始時に記録する。「開始から50ポイント消費」とは分ける。他の条件も依頼に沿って解釈する。
-- Front は成果と観測を読み、次の仕事、委譲先、継続・終了を判断する。source 開拓と report 作成などの配分は実行者裁量。固定の作業列や消費量合わせの空作業を計画に組み込まない。
-- 到達済みなら追加作業を始めず終了できる。途中で到達した場合は新しい仕事の投入を終え、進行中の委譲を収束させて報告する。厳密な50%上限や即時中断は保証しない。
-- 枠のリセット、他の仕事による消費、古い観測や取得失敗を判断材料として扱う。取得不能を達成に置き換えず、続行・保留・終了の理由を記録する。保留なら再開契機も残す。
-- 自己記録には依頼した仕事、返ってきた成果、待ち先、次の判断とその理由を残す。最終報告は成果・終了理由・残件・run へのリンクを依頼元トピックへ届け、run を終了済みとして読める状態にする。
+- Give Front a way to read current utilization, the relevant account and window, reset time, observation time, and read failures, with usage instructions. The existing relay `GET /budget` is a reuse candidate. Verify access from Front's actual execution environment.
+- Record at startup that “until usage of the 5h window reaches at least 50%” means the current window's utilization reaching 50%, distinct from consuming another 50 percentage points after startup. Interpret other conditions according to the request.
+- Front reads results and observations, then chooses the next work, delegate, and whether to continue or finish. Allocation between source discovery and report writing, for example, remains the executing agent's choice. Do not prescribe a fixed work sequence or filler work merely to consume quota.
+- If the condition is already met, Front can finish without starting additional work. If it is met during execution, stop issuing new work, let ongoing delegations reach a stopping point, and report. An exact 50% ceiling or immediate interruption is not guaranteed.
+- Treat window resets, consumption by other work, stale observations, and read failures as evidence for judgment. A failed read does not establish success; record why execution continues, pauses, or ends. If paused, record what will resume it.
+- Progress records capture requested work, returned results, outstanding replies, and the next decision with its reason. Send results, termination reason, remaining work, and a run link to the requesting topic, and make the run visibly finished.
 
-確認: 使用率の途中到達、開始時に到達済み、リセット、取得失敗を制御可能な観測 fixture で確認する。実行終了と成果物の達成状況が区別できること。
+Verify with controllable observation fixtures: reaching the threshold during execution, already meeting it at startup, window reset, and read failure. Run termination and deliverable achievement must remain distinguishable.
 
-## step4 — 既存画面と完了処理を新構成へ合わせる
+## step4 — Adapt existing views and completion to the new structure
 
-- ルーチン一覧・詳細を、新しいチャンネルと `guide`、個々の `routinerun-` から構成する。ガイド、今回の条件、進捗、待ち先、成果、終了理由、依頼元へ辿れるようにする。
-- 旧 schedule 表示・設定・発火操作を取り除く。実行を依頼する UI は Front への依頼として新しい開始経路に接続する。画面全体の再設計は不要。
-- Ops/Agent Room の所有者判定、実行関係の追跡、使用量の run 集計、共通 completion を新しい会話構成に合わせる。
-- 自動の実行終了と、既存の人間による `finish ✔` の役割を画面上で明確にする。選択した run の完了処理が永続 `guide`、ルーチンのチャンネル、別 run を巻き込まないよう関係を扱う。
+- Build routine lists and details from the new channels, `guide`, and individual `routinerun-` topics. Make the guide, current conditions, progress, outstanding replies, results, termination reason, and requesting conversation accessible.
+- Remove old schedule displays, configuration, and firing controls. Connect execution-request UI to the new start path as a request to Front. A full screen redesign is unnecessary.
+- Adapt Ops/Agent Room ownership detection, execution relationship traversal, per-run usage aggregation, and shared completion to the new conversation structure.
+- Clarify the roles of automatic run termination and the existing human `finish ✔` action in the UI. Handle relationships so completing the selected run does not include the persistent `guide`, routine channel, or other runs.
 
-確認: ブラウザで依頼から実行詳細・終了結果への導線を確認し、completion の対象範囲を focused tests で検証する。
+Verify in the browser: navigation from request to execution detail and final result. Use focused tests for completion scope.
 
-## step5 — 配備し、一連の実行を実証する
+## step5 — Deploy and prove an execution end to end
 
-- 変更範囲に対応する Front・共有ライブラリ・relay のテストと frontend build を行う。実装上のリスクに応じて追加し、形式的な網羅は求めない。
-- Nautobot/nctl とローカル環境メモで状態を把握し、変更したサービスを配備・再起動する。Front の紹介投稿も新しい入口・実行契約に合わせる。
-- 実ルーチンを1件、Front の通常入口から依頼する。実委譲、応答後の再判断、進捗記録、条件に基づく終了、依頼元への報告、画面での確認まで通す。
-- 使用率を大量に消費すること自体を検証目的にせず、短い実作業で確認できる条件を選ぶ。使用率条件の境界は step3 の fixture、観測の接続は実環境で検証し、両者を報告で区別する。
-- 不具合が出たら会話と実行記録を根拠に改善する。システム内エージェントの仕事を Omni Agent が代行した場合は、その事実と引き継ぎ候補を記録する。
+- Run relevant Front, shared-library, and relay tests, plus the frontend build. Add checks for implementation risks; exhaustive coverage for its own sake is unnecessary.
+- Inspect state through Nautobot/nctl and local environment notes, then deploy and restart changed services. Update Front's introduction post to match its new entrance and execution contract.
+- Request one real routine through Front's normal entrance. Exercise real delegation, reassessment after replies, progress recording, condition-based termination, reporting to the requester, and inspection in the UI.
+- Choose conditions demonstrable with a short piece of useful work; consuming substantial quota is not itself a verification goal. Test utilization boundaries with step3's fixtures and observation access in the real environment, distinguishing the two in the report.
+- Improve failures using conversation and execution records as evidence. If the Omni Agent performs work belonging to an in-system agent, record that fact and the handoff candidate.
 
-確認: 開始の ack だけで成功にせず、実作業と終了報告を読み返して証明する。未実証のケースは明記する。
+Verify: read back actual work and the final report as evidence, rather than treating a startup ack as success. State which cases remain unproven.
 
-## step6 — 文書・後片付け・報告
+## step6 — Documentation, cleanup, and report
 
-- 残った旧スケジュール依存を整理し、起動手順、Front の guide/tool 説明、画面・API 文書、`devdocs/README_DEV.md`、ignored の環境メモを更新する。
-- `report.md` に変更概要、検証結果、実行の証拠、残件を簡潔に記録する。機器情報・資格情報・ローカルの詳細証拠は ignored ファイルへ置く。
-- 変更した各リポジトリと必要な親 submodule pointer を commit/push する。
+- Remove remaining dependencies on the old schedule. Update startup instructions, Front's guide/tool documentation, UI/API documentation, `devdocs/README_DEV.md`, and ignored environment notes.
+- Write a concise `report.md` covering changes, verification results, execution evidence, and remaining work. Keep machine details, credentials, and detailed local evidence in ignored files.
+- Commit and push each changed repository and any necessary parent submodule pointers.
 
-## 実装の手掛かり
+## Implementation hints
 
-以下の `pj-agdev/` 配下のパスは、変更箇所を探す入口。再利用・置換の選択は任せる。
+The following paths under `pj-agdev/` are starting points for locating changes. Reuse or replacement is discretionary.
 
-- `devenv/routine/{dispatch.py,trigger.sh,rtschedule}` と `devenv/launchd/`: 旧発火・編集機構。ジョブ名は `com.agdev.routine-dispatch` と `com.agdev.routine-gui`。旧 `rtnotes`/`imgprompt` 個別ジョブは環境メモでは退役済みなので、実状態を見て整理する。
-- `agfront/src/agfront/{instance.py,listener.py,zulip_listener.py}`: 現在は `front-` prefix と、mention から元会話へ戻る処理。`front` と `character_talk` の両 guide に旧 routine 案内がある。
-- 既存 `[selfnote][rootchat]` は委譲元、`[served]` は処理済み応答、`[work]` は Work の関係を記録する。Front が Front 自身の run を作る構造では、開始元との関係と委譲先の帰属が混ざらないよう確認する。既存の「他者が投稿すると起動」「自己投稿は起動しない」慣習は開始処理の落とし穴。
-- `agdevworld/agentroom/src/agentroom/budget.py` と同 README の `/budget`: `ok`、`windows[].percent`、`resets_at`、`read_at`、`stale` を提供する。`/cost` のドル換算は枠の使用率ではない。キャッシュと取得失敗の区別は既存実装にある。
-- 同ディレクトリの `routines.py`、`ops.py`、`closing.py`、`close.py`、`server.py` と frontend の `src/routineState.ts`、`src/operationDashboard.ts`: 現在は `#front`、`routine-<name>`、`front-routine-<name>-<stamp>`、schedule を前提とする。`cost.py` にも会話のチャンネルを `front` とする箇所がある。
-- `devdocs/episodes/agdevworld/front_desk/p4/` の report/tests 関連記述: 再利用された委譲先、解決済みトピック、archive 済みチャンネルを実際に扱った知見がある。新形式の互換実装は不要だが、同じ失敗を調べる手掛かりになる。
-- 主な変更先は `pj-agdev` の Front と agdevworld。共有 listener の変更が必要なら共有ライブラリと依存 pin も更新する。`pj-clusterintent` は状態把握と、必要になった配備設定の変更に利用する。
+- `devenv/routine/{dispatch.py,trigger.sh,rtschedule}` and `devenv/launchd/`: the old trigger and editing machinery. Job names are `com.agdev.routine-dispatch` and `com.agdev.routine-gui`. Environment notes say the old individual `rtnotes`/`imgprompt` jobs are already retired; inspect actual state when cleaning up.
+- `agfront/src/agfront/{instance.py,listener.py,zulip_listener.py}`: currently uses the `front-` prefix and returns from mentions to the home conversation. Both the `front` and `character_talk` guides contain old routine instructions.
+- Existing `[selfnote][rootchat]` records delegation origin, `[served]` records handled replies, and `[work]` records Work relationships. When Front creates its own run, distinguish the requesting conversation's relationship from ownership of delegated work. The existing conventions “another author posts to start work” and “self-posts do not start work” are startup pitfalls.
+- `agdevworld/agentroom/src/agentroom/budget.py` and the `/budget` section of its README: provides `ok`, `windows[].percent`, `resets_at`, `read_at`, and `stale`. Dollar equivalents from `/cost` are not window utilization. The existing implementation handles caching and distinguishes read failures.
+- `routines.py`, `ops.py`, `closing.py`, `close.py`, and `server.py` in the same directory, plus frontend `src/routineState.ts` and `src/operationDashboard.ts`: currently assume `#front`, `routine-<name>`, `front-routine-<name>-<stamp>`, and a schedule. `cost.py` also has places that assume a conversation's channel is `front`.
+- Reports and test-related notes in the cross-project `devdocs/episodes/agdevworld/front_desk/p4/`: practical findings from reused delegation destinations, resolved topics, and archived channels. Compatibility code for old formats is unnecessary, but these findings help investigate recurring failures.
+- Most changes belong in Front and agdevworld within `pj-agdev`. If the shared listener needs changes, update the shared library and dependency pins too. Use `pj-clusterintent` for state inspection and any deployment configuration changes that become necessary.
