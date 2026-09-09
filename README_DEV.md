@@ -289,6 +289,74 @@ instance name lives in that node's ignored `.local/instance.toml` — and
 `operation_room` p1 guessed both and produced 66 phantom stalled rows. **A
 consumer must keep a missing block as *unknown*, never as "no prefixes".**
 
+## How an agent is asked to run a particular way
+
+Since `runtime-profile` (2026-09-09) a request may name a *way of executing*
+— "run it using agy" — and there is a public name for one that is not the
+recipient's internal profile. `ag.exec-options.v1`
+(`pyagag/docs/exec-options-v1.md`) keeps the two apart:
+
+- an **execution option** is public: a name an agent advertises in its own
+  introduction, with the **usage pool** it consumes and the **work** it
+  covers;
+- a **profile** is private, the `agents.toml` name it maps to. Nobody outside
+  the agent may name one, and no consumer's code contains one.
+
+The introduction carries a fenced `agag-exec` block beside the roster's,
+generated from the running instance — so it is a small menu, never a dump of
+`agents.toml`, and it cannot advertise a profile that is not configured.
+**A post with no block is *unknown*, never "does not support it"** — the
+roster block's rule, for the roster block's reason. Two agents that predate
+the contract (agforge, arxivsage) read as unknown today, and that is correct.
+
+**Selection is a topic-local command**, addressed to the topic's owner:
+
+    @**<their Zulip name>** use <option>
+    @**<their Zulip name>** use default
+
+posted **on its own** — a mention inside a sentence is discussion, and a
+mention inside a code fence is not a mention, which is how this paragraph
+quotes it without firing it. A message that is only commands is
+**configuration**: the setting is applied and *no model runs*. The owner
+answers with one deterministic line of its own — a reaction would leave the
+poster as the last speaker and the topic would match every sweep forever
+(the ComfyUI notifier reacts for the opposite reason: it is not the owner).
+A confirmation names nobody; a **refusal names the poster**, because an agent
+that asked for a name nobody publishes will otherwise ask again. A refused
+name never becomes the topic's setting.
+
+`agentchat options` prints what every agent publishes; `agentchat use
+<channel> <topic> <option> --to "<name>"` posts the command. Both are how an
+agent discovers and asks — an option name is one agent's vocabulary, so a
+further delegation means discovering *that* agent's options and translating
+the intent again, never forwarding a name.
+
+**The selection is frozen at each serving's start.** A command posted while a
+run is in flight lands on the next serving, callbacks included. The store is
+the topic itself: there is no selection file, so a listener restart
+re-derives the same answer and "why did this run on agy" is answerable by
+reading the conversation. A child conversation an agent opens for work
+(autolab's `workrun-` topic) carries a **snapshot** of what the parent was
+set to, `[selfnote][exec] <option> from <channel>/<topic>#<id>`, written
+before the visible description — so a later re-plan reaches the tasks it
+opens now and leaves the running ones alone, and a child overrides by
+carrying its own command. **A callback's remote topic is never the execution
+context**: the selection is read from home.
+
+The **pool** is the provider whose account the harness spends
+(`anthropic`, `antigravity`, `openai`, `google`), which is what lets "until
+agy's usage exceeds 70 %" be matched to a window: `agfront.budget` prints the
+same name beside each harness in `tools/budget.md`. A harness whose account
+follows its model (agcode) says `pool unknown` and matches no option — an
+unobservable condition, not one at 0.
+
+Proven live on 2026-09-09: Front read the board, selected `agy` in a
+`workplan-` topic, and autolab planned *and executed* the mission on it —
+`superdirector` and `supercoder` records both `profile: agy`, the task's
+`exec_source: inherited` from the plan's message — while another topic of the
+same agent, served the same minute with no command, ran on the
+`claude_code` defaults. See `devdocs/episodes/pyagag/runtime-profile/`.
+
 # Adopted Policies for Development of In-System Agents
 
 ## Favorable
@@ -308,6 +376,11 @@ Unexplained Chainsaw
 ## Agent ≠ Model
 - The backend model/harness is a swappable parameter of an agent, never its identity.
 - Every agentic run records which backend served it. See devpolicy/agent_records.md for the common record.
+- Since `runtime-profile` a run also records **what was asked for** — the
+  public execution option and where the selection came from — beside what
+  actually ran. The option is a request; `profile`/`harness`/`model` stay the
+  fact. Which way an agent is asked to run is a parameter of the
+  conversation, never of the agent.
 
 # Other policies
 
