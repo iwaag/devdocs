@@ -60,6 +60,9 @@ the whole `work-<label>` channel of every owned autolab mission.
    Front's name; the room files it by the roster prefix (step 3).
 6. **A topic in an archived channel cannot be resolved** — HTTP 400 on the
    move; it is *kept*, and the request closes over it (step 3).
+7. **A ✔ topic can have an open twin** — a post under the bare name after
+   the resolve; the twin is what is open, and a ✔ folds it in (follow-up in
+   [step 3](report3.md)).
 
 ## Left standing
 

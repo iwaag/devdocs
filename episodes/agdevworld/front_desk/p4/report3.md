@@ -87,3 +87,20 @@ shown *kept*).
   of archived channels and would close leaving them *kept*; whether those
   August conversations should be closed at all is the human's call, not the
   button's.
+
+## Follow-up (2026-09-09, after the phase report)
+
+**A ✔ topic with an open twin read as *already ✔*.** The agent room listed
+`front-routine-publish-2026-09-08T17:09Z` as open, and its finish ✔ offered
+nothing: Front had resolved the run and then posted its last reply under
+the bare name, which Zulip makes a second, open topic (the
+`resolve_leaves_a_stray_twin` shape). Discovery merged both names and took
+the ✔ one as live. Now `Reader.history` records posts found under the bare
+name of a topic whose ✔ name also answered; such a topic is **open**, its
+`last_post_id` is the twin's own last post (a resolve moves the twin's
+posts, never one already under ✔), and the action reads *will be marked ✔
+— N posts made under the bare name after it was resolved opened a twin;
+folding it in*. A held ✔ topic is asked only when the channel's topic list
+carries both names, so the common case costs no read. Pinned by two tests
+in `test_scope.py`; the three run topics of 2026-09-08 each preview as one
+ready action now. agdevworld commit after `028bb90`.
