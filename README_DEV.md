@@ -73,6 +73,14 @@ agent-created fixture that Front has reached successfully.
   front writes a file rather than calling `nctl`, and p3 relocated the
   record without adding reconciliation to it.
 
+**Plane is gone from this system entirely (`refactor` p3, 2026-09-10).** It
+was the external task manager three agents kept their work records in; p1
+moved autolab's records into its conversations, p2 forge's, p3 cagent's, and
+then removed the client (`agag.plane`), the Nautobot agent identity fields,
+the `tasks / plane` screen, the provisioning credentials and the deployment
+itself. Nothing in the realm reaches a second system for a work record any
+more: **a conversation is the record**, and a message id is its name.
+
 ## autolab agent(pj-agdev/agautolab)
 
 - Responds to request for explaining/observing/developing projects.
