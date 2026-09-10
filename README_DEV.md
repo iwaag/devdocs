@@ -37,8 +37,11 @@ realm's organization owners to it — a new agent's entrance is watched by the
 humans who own the realm, never by the account that provisioned it. The owner-class identity is the **path**
 in `AGAG_ZULIP_ADMIN_ENV`; autolab receives the dedicated provisioner path
 and can run the whole chain from a project workplan (`agag_builder` p3).
-`agecho` is the minimal p1 fixture; runsmoke1's `main/agping/` is the p3
-agent-created fixture that Front has reached successfully.
+`agecho` was the minimal p1 fixture and runsmoke1's `main/agping/` the p3
+agent-created one that Front reached successfully. **Both are retired**
+(`refactor` p3 ex1 for agecho): they proved a generated agent can be found and
+talked to, and an agent kept alive only to keep proving that costs every
+board a row and every sweep a read.
 
 ## cagent (pj-clusterintent)
 
@@ -215,6 +218,14 @@ and stays open.
 - It never edits the knowledge tree or runs a study. An honestly unanswerable,
   reasonable in-scope question becomes a deduplicated Markdown note in its
   ignored `tostudy/` queue for the study workflow to consume.
+- **Since `refactor` p3 ex1 it publishes one execution option**, `agy`, beside
+  its default, on both of its serving routes — the `entrance-` topics and the
+  own-channel redirect. The redirect is the one worth not forgetting: without
+  the menu there, a selection posted at the door is answered with a lecture
+  about topic names while the setting silently does not land. Its committed
+  configuration had only `sonnet` and the test `stub`, and `stub` is the
+  `fake` harness: a menu built from it would have advertised a choice that
+  answers nothing.
 
 A **sage** is the reusable pattern behind this domain-specific agent: one
 agag instance owns a narrow, externally maintained knowledge tree, cites what
@@ -244,6 +255,16 @@ to the responsible workflow rather than pretending to maintain the source.
   conversation as it stood when the run was served, not from the topic as it
   looks afterwards, because a generation takes minutes and anybody may post
   meanwhile.
+- **Since `refactor` p3 ex1 forge publishes execution options**: `agy` and
+  `agy-claude` beside its default, covering *everything a request is made
+  of* — the entrance reply, asset planning, generation, and the run that
+  collects after a ComfyUI callback. The `assetplan-` topic's selection is
+  snapshotted into the `assetrun-` topic it opens (`[selfnote][exec]`), so a
+  callback's collecting run continues on what the request was asked for:
+  home decides, never the notifier's topic. **An option is not the media
+  model.** It chooses the harness that reads and plans a request; which
+  image, video or music model makes the asset is decided in the plan and
+  named by the toolset, and the menu says so.
 - **Since `refactor` p2 (2026-09-10) forge's record is its conversations.**
   There is no Plane issue behind an asset request: the plan is a visible post
   in the `assetplan-` topic, and `[selfnote][asset]`, `[doc]`, `[tools]`,
@@ -323,6 +344,19 @@ walked for open work, and both name what they retired rather than letting a
 card quietly stop being drawn. It is a flag, not a deletion: un-✔ the topic
 and the agent is back.
 
+**A retirement has a node half, and `refactor` p3 ex1 found out the hard way.**
+Removing a placement from desired state stops the production inventory
+carrying an agent, so nothing redeploys it — and the systemd user unit it
+already installed stays *enabled*, so the next boot starts the listener, which
+re-posts the introduction under the freed bare name of the resolved topic and
+opens a **twin**. Two topics, one resolved and one not, and the un-resolved
+one is what the boards read: a retirement quietly undone by a deployment.
+That is how `agecho` came back. `ansible_agdev/playbooks/agent/retire_agag_agent.yml`
+is the inverse of `setup_agag_agent.yml` — stop, disable, remove the unit —
+and it stops there, touching neither the bot account nor the flag. Folding an
+existing twin needs `resolve_topic` on the twin's own last message;
+`agentchat resolve` answers "already resolved" and leaves it.
+
 Since `operation_room` p2 the post also carries a fenced **roster block**
 (`ag.agent-roster.v1`, `pyagag/docs/agent-roster-v1.md`): the Zulip name the
 instance is mentioned by, the channel whose every topic it answers, and the
@@ -350,8 +384,27 @@ The introduction carries a fenced `agag-exec` block beside the roster's,
 generated from the running instance — so it is a small menu, never a dump of
 `agents.toml`, and it cannot advertise a profile that is not configured.
 **A post with no block is *unknown*, never "does not support it"** — the
-roster block's rule, for the roster block's reason. Two agents that predate
-the contract (agforge, arxivsage) read as unknown today, and that is correct.
+roster block's rule, for the roster block's reason. **Since `refactor` p3 ex1
+every agent in this realm publishes one except cagent**, which predates the
+contract and correctly reads as unknown.
+
+**The `pool` in that block is derived, not written down** (p3 ex1 step 3,
+`agag.execpool`). Filtering option *names* against the configured profiles
+kept a name from being advertised without a profile behind it; the pool beside
+the name was a string in a tuple that nothing compared to a harness. Four
+agents said `pool: anthropic` for their default and were right *by
+coincidence* — one line in a machine's `agents.local.toml` moving a role to
+`agy` would have left every published default lying while the code stayed
+correct. So the pool is resolved for **every role the option covers**
+(`AgentSpec.exec_roles`) through the option-to-profile mapping, `agents.toml`
+and the instance overlay, and what is published is the resolved value. Three
+rules follow: several pools are joined with `+` rather than rounded to one,
+because an agent whose planning and task work resolve differently really does
+spend two accounts and a threshold must be judged against both; a harness
+that is not installed is a runtime failure of that one option, never an
+unpublishable contract, so derivation never checks availability; and the
+agent's own declaration is compared against the derivation and every
+disagreement is logged at startup and before an introduction is posted.
 
 **Selection is a topic-local command**, addressed to the topic's owner:
 
