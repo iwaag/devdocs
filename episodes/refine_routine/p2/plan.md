@@ -92,10 +92,14 @@ Verify by reading the actual work, not the finish block's claim.
 - **Nothing stops a running run.** Developer interrupt and forced cancel are
   a later phase (p1's "Left"). If the window resets before 30 % is reached,
   the condition is still "the current window reaches 30" and the run keeps
-  delegating. The reset time of the window read at the start is therefore
-  the practical horizon of this experiment; if it passes with the condition
-  unmet, stop by hand — resolve the run topic or stop the listener — and
-  record that as the outcome rather than letting it run on.
+  delegating, so the developer stopping it by hand — resolving the run topic
+  or stopping the listener — is the only brake, and that outcome is recorded
+  as the result rather than hidden.
+- **agy's reset time is rolling while the window is empty.** Two reads
+  thirteen minutes apart both answered `read_at + 5 h` exactly, at 0 % used:
+  the CLI reports the reset of a window that has not started. The horizon
+  becomes real once the first agy work lands, and a reset time read before
+  that says nothing. Record the reset time again after the first mission.
 - **Front's own pool is not the one being judged.** Front's servings spend
   the anthropic weekly window, which stood at 50 % (all models) and 77 %
   (Fable) on the last good read, while the `claude_code` budget read itself
