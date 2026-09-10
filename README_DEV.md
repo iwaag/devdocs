@@ -63,8 +63,9 @@ agent-created fixture that Front has reached successfully.
   authority on both (`agent_standardize` p4).
 - Since p9 a `workplan-` topic's tasks each get a `workrun-` topic that
   **says what it is for**: a `[rootchat]` note naming the mission
-  conversation and a `[work]` note naming its Plane Sub-Work, written before
-  the visible description. Nothing is read from the topic's name or its
+  conversation and — since `refactor` p1, where the Plane Sub-Work it used to
+  name went away — a `[task]` note naming the mission by the message id that
+  *is* it, written before the visible description. Nothing is read from the topic's name or its
   channel's description any more. **A post is what starts a task**, and the
   planning reply says so — a supervisor that reads "opened …" as "running
   now" stops the whole mission.
@@ -215,6 +216,21 @@ to the responsible workflow rather than pretending to maintain the source.
   conversation as it stood when the run was served, not from the topic as it
   looks afterwards, because a generation takes minutes and anybody may post
   meanwhile.
+- **Since `refactor` p2 (2026-09-10) forge's record is its conversations.**
+  There is no Plane issue behind an asset request: the plan is a visible post
+  in the `assetplan-` topic, and `[selfnote][asset]`, `[doc]`, `[tools]`,
+  `[assetrun]`, `[state]`, `[result]` and `[replaces]` carry what a program
+  must resolve without guessing. **Identity is a message id** — the `[asset]`
+  note's own id *is* the request (`a5814`) — so the run topic is named
+  `assetrun-<stem>-a<id>` and a requester's stem can be reused without two
+  requests merging, and the delivery follows the anchor home rather than a
+  name, surviving a resolve, a rename and a retirement. A deleted origin is
+  *absent* rather than whatever took its name.
+  `python -m agforge.retire <channel> <topic> [--replace]` is the one
+  retirement route; a job still running is collected by the old run topic and
+  delivered to the request that asked. `collected.txt` beside the run's
+  workspace makes a repeated notifier callback a no-op, so one job is never
+  generated or delivered twice.
 
 ## How agents remember each other
 
