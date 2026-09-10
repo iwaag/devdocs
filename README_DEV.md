@@ -52,6 +52,26 @@ agent-created fixture that Front has reached successfully.
 - Three doors today — node (mTLS), human (bearer token), window
   (unauthenticated). The window is where they are heading; see the
   cross-project `devdocs/todo_done.md` entry.
+- **Since `refactor` p3 cagent has a channel of its own and its change
+  record is the conversation in it.** A request to change the cluster used
+  to become a Plane issue in `ClusterAdmin`; it is now a
+  `change-<stem>-o<the id of the asking post>` topic in cagent's instance
+  channel, holding the statement of the change as an ordinary post and
+  `[selfnote][change]`, `[origin]`, `[doc]` and `[state]` for what a program
+  must resolve without guessing. **Identity is a message id** — the
+  `[change]` note's own id *is* the request (`c5867`) — so a rename, a
+  resolve or a reused topic name never redirects one request's record into
+  another's, and a deleted anchor is *absent*. The origin is told where its
+  record is with `[selfnote][changerec] <id>`, which is a selfnote and
+  therefore buys nobody a run: registering the same request again restates
+  it in the same conversation instead of forking it.
+- Its listener sweeps every topic in that channel and the `cagent-`/`change-`
+  prefixes elsewhere, and cagent posts its own `intro-` contract in
+  `#agents` like every other agent (`uv run --project cagent python -m
+  cagent_api.intro`).
+- **Recording a change is not making one.** That distinction is why the
+  front writes a file rather than calling `nctl`, and p3 relocated the
+  record without adding reconciliation to it.
 
 ## autolab agent(pj-agdev/agautolab)
 
