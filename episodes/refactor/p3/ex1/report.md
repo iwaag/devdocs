@@ -85,8 +85,9 @@ Three distinctions the shape needed:
 - **Unavailable is not invalid.** Derivation never checks availability: an
   uninstalled CLI is a runtime failure of one option, never an unpublishable
   contract, and never a reason to take an unrelated conversation down.
-- **A degraded derivation says so.** An unreadable config leaves the
-  declarations standing and reports *why*, rather than "no mismatch".
+- **A degraded derivation says so.** After the review correction below, an
+  unreadable config retains the options with `pool: unknown` and reports why.
+  Requesters no longer see unchecked declarations as resolved pools.
 
 Proved on the real instance: forge's overlay was edited to send `generator`
 to `agy`, and the published default became `anthropic+antigravity` with the
@@ -187,7 +188,7 @@ three retired, and every row a `done` receipt.
   Out of this plan's scope; it is the one agent left that predates the
   contract.
 - **Forge's ComfyUI callback collection under an inherited option is fixture
-  coverage only.** The live badge went through SwarmUI, which is synchronous,
+  coverage only.** The live badge was rendered locally with Pillow,
   so no notifier callback was involved. The plan permits it, and the
   behaviour is not unclear — the collecting run is an ordinary serving of the
   same topic, and the autolab callback above proves the identical
@@ -215,3 +216,33 @@ The shape they share is the one worth carrying forward: **a declaration nobody
 checks stops being true silently**, and the fix is never to check harder — it
 is to derive the fact from the thing that will actually run, and let the
 declaration be the assertion that gets tested.
+
+## Review corrections (2026-09-12)
+
+- **Unreadable configuration now publishes `pool: unknown`**, retaining the
+  option names and logging the failure. The previous fallback exposed the
+  original declarations without exposing their uncertainty to the requester.
+  Regression tests cover malformed/missing configuration, a malformed overlay,
+  and recovery after repair. pyagag `5036ee9`.
+- **Retirement propagates stop failures.** The playbook explicitly detects a
+  missing unit, stops/disables an existing one without suppressing errors,
+  and verifies inactive/failed state with `MainPID=0` after removal/reload,
+  before optionally deleting the checkout. Ansible `0f5d10c`.
+- **The badge was generated with Pillow.** Its retained `r5998` generator
+  workspace contains `generate_badge.py`, importing `PIL.Image` and
+  `PIL.ImageDraw`, and the matching plan. Corrected the SwarmUI attribution
+  here and in report5; ComfyUI callback coverage remains fixture-only.
+
+Verification: pyagag **534**, agfront **109**, agautolab **242**, agforge
+**241**, arxivsage **16** tests passed. Retirement's five disposable-boundary
+cases (normal stop, absent unit, stop failure, bus failure, lingering process)
+and the four existing Ansible conformance cases passed; playbook syntax-check
+passed. The retirement tests run real Ansible task conditions and filesystem
+operations with a fake systemd boundary, not a live remote-node retirement.
+
+All four option-publishing agents' locks and local environments were updated
+to pyagag `5036ee9`. Their local listeners were restarted after checking that
+none had an active harness child. Normal menus are unchanged; no new agent
+request or introduction post was needed. Nautobot status was healthy. The
+retirement playbook is ready for the next invocation; no node was retired
+again solely to test this correction.

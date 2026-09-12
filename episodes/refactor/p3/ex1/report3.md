@@ -67,10 +67,11 @@ conversation down. Availability is collected alongside and reported
 separately, and a test in every repository pins that an uninstalled CLI
 produces **no** wrong-declaration diagnostic.
 
-**A degraded derivation says so.** A configuration this instance cannot read
-leaves the declarations standing, and `pool_diagnostics()` then returns *why*
-rather than an empty tuple. Reporting "no mismatch" for a file nobody could
-open would be the same silent pass the derivation exists to end.
+**A degraded derivation says so.** Following the review correction, a
+configuration this instance cannot read leaves the options available with
+`pool: unknown`, and `pool_diagnostics()` returns why. The original fallback
+kept declared pools and logged the failure, which hid the uncertainty from
+the requesting agent; that fallback has been removed.
 
 Pool vocabulary stays provider-level, which is this environment's convention:
 one account per provider. Nothing found two accounts behind one provider, so

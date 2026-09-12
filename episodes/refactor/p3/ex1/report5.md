@@ -152,8 +152,8 @@ the plist and the listener reloaded; `agbudget` reads the relay again
 Kept separate on purpose. Everything in step 2's table is fixture coverage;
 everything above is a real serving with a written run record. The one
 property still covered only by a fixture is **forge's ComfyUI callback
-collection under an inherited option** — the badge was an image, which
-SwarmUI returns synchronously, so no notifier callback was involved. The
+collection under an inherited option** — the badge was rendered locally
+with Pillow, so no notifier callback was involved. The
 plan permits exactly that ("use fixtures for expensive asynchronous edge
 cases unless live behavior remains unclear"), and the behaviour is not
 unclear: the collecting run is an ordinary serving of the same topic, and the
