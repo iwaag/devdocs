@@ -60,45 +60,53 @@ The plan's success criterion is **zero opening-serving delegations** and a
 callback that serves `routine_run`, measured through the ordinary entrance
 with a small routine that actually delegates.
 
-**Not yet performed.** This session runs under Claude Code's auto mode,
-whose safety classifier denies every outbound Zulip write — `agentchat
-send`, channel creation, subscription — regardless of the configured
-allowlist. The measurement needs three of them: create a small
-`routine-anchorcheck` channel with its guide, post a request at Front's
-ordinary entrance, and then read the result. Nothing about the repair
-depends on it; the measurement does.
+**Done, in step 5** — see [report5.md](report5.md) for the full trace. It was
+held until then because the deployment of steps 2-4 had to be in place first
+and because this session's auto mode was, at the time this report was first
+written, refusing every outbound Zulip write.
 
-The measurement is prepared and is held for the permission to make it:
+The fixture is `#routine-anchorcheck`: a routine whose guide asks for exactly
+one delegation — one question to the arXiv sage — and then the end of the
+run. Three fresh requests were made at `#front`, worded differently, with no
+hint about anchoring.
 
-- **routine**: a new `#routine-anchorcheck` (channel folder `routine`,
-  Developer and Front subscribed), whose `guide` asks for exactly one
-  delegation — one question to the arXiv sage in an `entrance-…` topic of
-  its own channel, per its published introduction — and then the end of the
-  run. One delegate, one callback, one cheap `sonnet` answer at the far end.
-- **request**: posted as the Developer into a fresh `#front` › `front-…`
-  conversation, in ordinary words, with no hint about anchoring.
-- **what is read afterwards**: whether the opening serving posted anywhere
-  but the `front-` conversation and the run topic (`agentchat read --all`
-  on the delegate topic shows the `[selfnote][rootchat]` note and whom it
-  names); which role served the callback (`agfront/.local/agent/<role>/`
-  run records and the listener log's `mention in … serves …` line); and
-  whether the run wrote entries and ended itself.
-- **sample**: the plan asks for a count, so the request is made more than
-  once — three runs unless the first two disagree.
+| | request | run opened | delegations by the opening serving | the run's own delegation is anchored to |
+|---|---|---|---|---|
+| A | 6528 | `routinerun-20260912T1811Z` | **0** | the run (note 6534) |
+| B | 6547 | `routinerun-20260913T1815Z` | **0** | the run (note 6553) |
+| C | 6566 | `routinerun-20260913T1900Z` | **0** | (see report5 — a topic-name collision, repaired through B2) |
 
-Until that is run, this step is: **repair applied, unproven.** It is
-recorded here as unproven rather than as done, because a guide edit that
-nobody measured is exactly what p1 named as the thing not to call a fix.
+**Zero of three**, against p2's one of one. The callbacks served
+`routine_run` in the run topic:
+
+```
+mention in 'arxivsage-agstudio1'/'entrance-anchorcheck' serves routine-anchorcheck/routinerun-20260912T1811Z
+mention in 'arxivsage-agstudio1'/'entrance-anchorcheck-tree' serves routine-anchorcheck/routinerun-20260913T1815Z
+```
+
+Front's own reply in run A states the causal link the guide now explains,
+unprompted:
+
+> That's the whole of my work here — the run will do its own delegating to
+> the sage from its next serving, and its report will land back in this
+> conversation when it ends.
+
+So B1 is **measured and passing**, and **B3 stays unimplemented**: the plan
+and p1's policy both say the guard waits for the guidance to fail in a
+measured run, and it did not.
 
 ## Revisions
 
 | | |
 |---|---|
 | `pj-agdev/agfront` before | `21b1f7c` |
-| guide changed in | this step's commit (below) |
+| the guide change | `53bbfb9` |
+| measured on | `842d7b1` (agfront) over pyagag `ed65b4e` |
 
 ## Assistance
 
-None so far. The step is one file edit; the measurement it is waiting on
-will be made through the ordinary entrance, and any intervention during it
-will be recorded here separately from what Front did on its own.
+One file edit, and then three ordinary requests at the ordinary entrance.
+The interventions during the measurement — creating the test routine,
+posting the requests, and confirming one post Front asked permission for —
+are recorded in [report5.md](report5.md) separately from what Front did on
+its own. None of them touched the anchoring this step measures.
