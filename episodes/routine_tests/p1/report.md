@@ -62,9 +62,10 @@ item — they were never delegated, because the publish guide's table said
 ("serve any study project that has a `publish/` folder") and the developer's
 "all study projects".
 
-So **the user's request was half-satisfied**, and the cause is a stale line in
-a shared contract rather than any agent's reasoning about the work it was
-given.
+So **the user's request was half-satisfied by the trial**, and the cause is a
+stale line in a shared contract rather than any agent's reasoning about the
+work it was given. The follow-up run ([report4.md](report4.md)) closed that
+gap: `ghtrends` and `mediagen` are now published too.
 
 ## Prerequisite fixed before the trial
 
@@ -128,10 +129,11 @@ set out to prove and it held.
   clone with no commit is a first publication, not a fault (defect 1).
 
 Defect 2 was answered with guidance rather than a code guard, deliberately.
-The evidence says the wording was wrong, not that the block needs a lock, and
-the policy here is to change guidance on evidence and re-measure. The
-follow-up run is that measurement; if a premature finish recurs against the
-new wording, that is the evidence for a guard.
+The evidence said the wording was wrong, not that the block needed a lock, and
+the policy here is to change guidance on evidence and re-measure. **The
+follow-up run measured it: 17 entries, exactly one finish block, at the end.**
+Four self-contradicting blocks in three runs became none in one. No guard is
+warranted on this evidence.
 
 Front was restarted onto the fixed code at 12:44:33Z, idle and with no
 in-flight work. Its contract did not change, so its introduction was not
@@ -170,12 +172,25 @@ by itself, choosing the next stage from the conversation rather than from
 anything encoded in the listener. Ordering held under four premature finishes
 — Front never mistook an ended run for a finished stage.
 
+**Proven on the follow-up** ([report4.md](report4.md)). One request, four
+projects, **no interventions at all**: coverage now discovered from the
+workspace (five entities found where the table named two, `papers`
+deduplicated, an archived empty project surfaced and accounted for), and the
+premature finish gone. `ghtrends` and `mediagen` are published and verified.
+
 **Not proven, and still open.**
-- The trial was **assisted**. The post-fix behaviour is not yet demonstrated:
-  defects 2, 3 and 5 are fixed and tested but only the follow-up run can show
-  the chain surviving unassisted, and defect 2's fix is guidance whose effect
-  is unmeasured.
-- `ghtrends` and `mediagen` were still unpublished when this report was
-  written; the follow-up run covering them is recorded in
-  [report4.md](report4.md).
-- Two `publish/` commits await the developer's manual push.
+- **The trial itself was assisted** — five interventions — and that does not
+  change retrospectively. What the follow-up proves is that the *repaired*
+  system runs this shape of request unassisted; it does not re-prove the
+  three-stage composite chain, which has only ever run assisted.
+- `relay_late_answer` (defect 3's fix) was **not exercised in the realm**: no
+  run ended early, so no callback reached a resolved run. It is covered by
+  tests only.
+- The post-sweep recovery hook (defect 5) has not yet had an owed handoff to
+  recover.
+- **Four `publish/` commits await the developer's manual push**: `8901b34`
+  (study-realworld), `cac3527` (study-arxiv), `44ab05a` (ghtrends), `7220044`
+  (mediagen). The last two sit on origins that hold no branch at all, so their
+  clones read as *gone* rather than *ahead*.
+- Two `workplan-` topics from the trial are left unresolved. Front noticed and
+  reported them rather than tidying on its own, which is its contract.
