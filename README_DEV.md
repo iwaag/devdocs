@@ -181,6 +181,37 @@ Three things the realm taught about starting and stopping:
   instead": an owned topic is always served as itself. The report is posted
   into the origin directly by the listener, so no root note ever points from
   the requester to the run.
+- **The report is Front's own speech, so delivering it silences the requester
+  too** — and a request made of more than one routine then had nobody left to
+  notice (`routine_tests` p1). The delivery is followed by
+  `[selfnote][delivered] <run>` in the requester's conversation; a note buys
+  nobody a run, but it makes "a report landed here and nothing has served this
+  conversation since" a question the chat can answer, which
+  `continue_deliveries` asks after every run serving, on both routes, at
+  startup and after every full sweep. The serving it buys is ordinary, and
+  what happens next — open the next run, tell the developer, stop because the
+  work failed — is decided by Front in the conversation; no stage is encoded
+  in the listener. An ordinary one-routine request does not loop, because
+  Front's reply is speech and speech spends the note. An **ack** is not speech
+  enough, so a crash between a serving's ack and its reply leaves the handoff
+  owed rather than silently spent.
+- **A finished run is never reopened, and a late answer is not dropped.**
+  Ending a run resolves its topic, and resolving *renames* it, so the callback
+  route used to read the bare name the root note recorded, find nothing, and
+  post — forking a twin without the origin note, whose report could reach
+  nobody. Now a resolved home is left alone; when it is a run, its origin is
+  told an answer arrived after the end and gets the delivered note, so the
+  conversation that can decide about it is served. Both ends closed means
+  there is nobody to tell, and the log says so.
+- **The `ag-routinerun` block ends the run — it is not a progress note.**
+  Three runs in one trial wrote one on their first serving, seconds after
+  delegating, each contradicting itself ("so the run continues", "the run has
+  not ended"), and the listener did what the block says: delivered and
+  resolved, with the work still in flight. `achieved: false` means *this run
+  is stopping without its goal*, never "not done yet". The `routine_run` guide
+  now separates a serving ending from the run ending and gives the test —
+  is there anybody I am waiting for? — and a re-measurement found no
+  premature block at all.
 - **Usage conditions are judged on an observation**, `tools/budget.md` at
   every run serving and `agbudget` on the run's PATH (the relay's `/budget`,
   or a fixture file via `AGFRONT_BUDGET_URL`). "Until N % used" is the
