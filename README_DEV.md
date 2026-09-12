@@ -351,6 +351,62 @@ and a lookup that cannot see past the rename reads an empty topic and drops
 the callback silently — p9 lost a task's completion report to exactly that,
 and the mission stopped for 26 minutes with nothing in any log.
 
+**Retiring a plan renames its conversation, and a rename moves every agent's
+notes.** That sentence has now cost two episodes, so it is here rather than
+in anybody's code comment. `retire_conversation` renames the whole topic —
+every message in it moves, including the root notes *other* agents wrote
+there — and the replacement then takes the freed display name, which is the
+point of retiring. A third party anchored in the retired conversation finds
+nothing of its own under the reused name. Nobody may repair that by copying a
+note: a root note is identified by its sender, so a copy would make the
+record lie about who is party to what.
+
+Since `routine_tests` p2 ex1 the **reader** carries it, through a relation
+the replacing agent already writes:
+
+```
+[selfnote][replaces] <message id>
+```
+
+naming the retired work's anchor **by id**, because an id is the one
+identifier a rename does not touch. A lookup that finds no note of its own
+reads that pointer, resolves the id to the conversation it is in *now*, and
+looks there — **one hop, then stop**. The note found must still be its own; a
+missing, malformed or deleted pointer is *no anchor*, and nothing is guessed
+from the reused display name, which is the one conversation the pointer
+certainly does not mean. The relation is read **whoever wrote it** — it is
+written by the replacing agent for the benefit of agents that wrote nothing
+in the replacement, and filtering it by sender would leave exactly those
+agents unable to read it.
+
+There is also now a way to say an anchor is simply **wrong**:
+
+```
+[selfnote][rootchat-moved] <channel>/<topic>
+```
+
+One rule reads both notes, everywhere: **the newest valid explicit move
+written by this agent wins; otherwise its earliest ordinary root note wins.**
+A later ordinary repeat still never redirects a topic — that default is what
+protects a live conversation from a careless second post, and p2 confirmed it
+by repairing a mis-anchored delegation with an ordinary note and watching the
+callback go to the old home anyway. Only an agent's own move moves its own
+anchor. `agentchat anchor <channel> <topic>` writes it; `agentchat --help`
+says when to use it and when not to. It is a selfnote, so it is invisible in
+every chatlog and buys nobody a run, and because one rule reads it everywhere
+a corrected delegate moves in `threads/` and in restart recovery too.
+
+**A serving's conversation is in its prompt, not only in `chatlog.md`.** Also
+`routine_tests` p2 ex1: twice out of that trial's first two requests Front
+answered a brand-new conversation with *"I don't see a message or request
+from the developer yet"* — one turn, no tool calls — with the request sitting
+verbatim in the file. A conversation that is only a file is a file a run has
+to decide to open, and no wording removes the possibility of a one-turn
+reply. `agag.topics.conversation_context` carries the rendered bytes (the
+same ones written to the file) into the prompt, bounded, saying what it left
+out; Front's three roles, the shared own-channel entrance and forge's plan
+front all use it.
+
 ## How an agent is found
 
 Each agent posts its own introduction to the shared `#agents` channel, under
