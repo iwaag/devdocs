@@ -239,7 +239,11 @@ and stays open.
   and there is no second door. **A ✔ on the watch topic cancels it** — that is
   the whole cancellation gesture, checked before each evaluation and again
   before notifying, because the ✔ may land inside the evaluation meant to be
-  cancelled.
+  cancelled. Since `p1 ex1` that check is a lookup of the watch's **own anchor
+  id**, not a comparison of remembered topic names: a renamed watch is
+  continued under its new name, a renamed *then* resolved one cancels, a
+  deleted anchor ends it locally, and a lookup that got no answer concludes
+  nothing at all.
 - **A watch is a message id.** `[selfnote][watch]`'s own id *is* the request
   (`w6676`), with `[accepted]` (condition, target, destination, requester) and
   `[state]` beside it, and one ordinary visible post saying the same in words.
@@ -255,13 +259,26 @@ and stays open.
   is never reported as a condition that has not held yet; the watch keeps its
   schedule and says so in its own topic once, at the third consecutive failure.
   Routine polling is otherwise silent.
-- **A destination is resolved at send time, from its anchor.** A message link
-  is the preferred form because an id survives a rename; `<channel>/<topic>` is
-  accepted and followed across the ✔ rename. A destination that is gone or
+- **A destination stops being a name at intake.** Since `p1 ex1` both
+  spellings — a message link and `<channel>/<topic>` — are resolved *while the
+  request is being accepted* to a message id in the conversation the requester
+  meant, and that id is what the Zulip record carries, so it survives a lost
+  local store. Delivery follows the id: a rename, a ✔ or somebody taking the
+  freed name cannot move the notification. A destination that is gone or
   already ✔ is a terminal `undeliverable` outcome recorded in the watch topic —
   **Observer never opens a conversation of its own to deliver into**, and
   leaves that watch topic open because a human has to see it. A delivered watch
   is resolved.
+- **Uncertainty is never terminal, and that took a change in pyagag.**
+  `ZulipClient.message()` flattened every failure into "absent", so a timeout
+  reading a destination was indistinguishable from its deletion. `call()` now
+  raises `ZulipRejected` for an answered 4xx and a plain `ZulipError` for a
+  5xx, a timeout or a dropped connection, and `message()`, `conversation_of()`
+  and `topic_history_across_resolve()` take `strict=True` (pyagag `f613feb`;
+  the lenient default is unchanged). Observer stops only on Zulip's own "no":
+  a failed destination read, a failed read-back and a failed send all keep the
+  met result and the pending notification and retry at the ordinary interval,
+  without re-judging the condition.
 - Exactly-once rests on three things in order: the store's delivery record
   (which is why polling never reaches delivery twice), the watch id inside the
   notification (which a read-back recognizes after an ambiguous send), and

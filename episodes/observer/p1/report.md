@@ -42,6 +42,25 @@ reused name never redirects one watch's record into another's — the rule the
 rest of the realm arrived at the hard way, adopted here before it could cost
 anything.
 
+> **Correction (`p1 ex1`, 2026-09-13).** The rule was adopted for the record
+> and not for everything that used it, and the paragraph above overstated
+> what p1 shipped. Three places still read a name: the accepted destination
+> was stored as the requester's text and re-resolved by name at send time, so
+> a renamed destination whose name had been reused was notified *by its
+> impostor*; cancellation compared cached topic names, so renaming a watch
+> topic before resolving it hid the ✔; and `reconcile()` skipped records whose
+> state already matched, which made the stale name permanent. Fixed in
+> `ex1/` — see `ex1/report1.md`, `ex1/report2.md` and the live evidence
+> `w6745` / `w6756` in `ex1/report4.md`.
+
+> **Correction (`p1 ex1`).** p1 also treated *uncertainty* as an answer where
+> it mattered most: a destination that could not be **read** produced a
+> terminal `undeliverable`, and the read-back that guards against an ambiguous
+> send returned the same value for "no delivery there" and "I could not look".
+> A met watch could therefore lose its one notification to a timeout, or
+> produce two. Delivery now stops only on Zulip's own "gone or ✔"; see
+> `ex1/report3.md`.
+
 **Three answers, not two.** `met`, `not_met`, and `unable` — a statement about
 the *look*, not about the world. A target that cannot be read is never
 reported as a condition that has not held yet. Every failure path lands there:

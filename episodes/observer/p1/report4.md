@@ -1,5 +1,13 @@
 # observer p1 — step 4: deployed, proved, written down
 
+> **Read with `../ex1/` beside it.** Three claims below were fixed in `p1
+> ex1` (2026-09-13): the renamed-destination test used a message id from the
+> outset, so it proved nothing about a destination *written as a name*; "an
+> unreadable channel is not a cancellation" was true while a renamed watch
+> topic was nonetheless uncancellable; and the deleted/closed destination
+> being terminal was implemented so that an unreadable one was terminal too.
+> The demonstrations and numbers here stand.
+
 ## Tests
 
 `pytest`, **36 passing**, against a Zulip stand-in whose every method is a
