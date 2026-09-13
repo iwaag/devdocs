@@ -10,9 +10,9 @@ plist restarts a process, it does not make one wake up.
 
 So `worker.py` is a daemon thread started beside the listener, with its own
 Zulip client (the skeleton already does the same for its DM route). Interval
-is `AGOBSERVER_INTERVAL_SECONDS`, default 60 s, measured from the **end** of
-the work so a slow evaluation delays the next look rather than queueing
-another behind it. Evaluation is sequential: one watch at a time, each
+is `AGOBSERVER_INTERVAL_SECONDS`, default 60 s, held as a fixed cadence — the
+wait is what is left of the interval, with a one-second floor so an
+evaluation that overran the whole interval cannot produce back-to-back ticks. Evaluation is sequential: one watch at a time, each
 bounded, which is enough for this phase and makes "why did nothing happen for
 two minutes" answerable from one log.
 
