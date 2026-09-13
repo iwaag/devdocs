@@ -225,6 +225,53 @@ opens it. Completing a run closes that run and its work only — never the
 guide, the channel or another run; the requester conversation is its parent
 and stays open.
 
+## observer (`pj-agdev/agobserver`)
+
+- **Waits, so nobody else has to.** One watch is one topic in its own
+  `agobserver-agstudio1` channel: a condition in ordinary words, what to look
+  at, and where to notify. Observer looks every minute with the **host's own
+  local model**, posts once into the conversation the requester named when the
+  condition holds, and then stops. Waiting therefore costs no account at all —
+  which is the point, and why the polling role is deliberately **not** on its
+  execution menu.
+- **Its introduction is the contract**, like every agent's. `watch-<something
+  short>` is the recommended topic name; every topic in the channel is a watch
+  and there is no second door. **A ✔ on the watch topic cancels it** — that is
+  the whole cancellation gesture, checked before each evaluation and again
+  before notifying, because the ✔ may land inside the evaluation meant to be
+  cancelled.
+- **A watch is a message id.** `[selfnote][watch]`'s own id *is* the request
+  (`w6676`), with `[accepted]` (condition, target, destination, requester) and
+  `[state]` beside it, and one ordinary visible post saying the same in words.
+  The same rule the rest of the realm arrived at the hard way: a name is
+  reusable, an id is not.
+- **The acknowledgement names nobody**, and that is load-bearing rather than
+  polite. The requester is waiting for the *notification*; naming them in the
+  acceptance would buy them a paid run to read "understood". Measured live on
+  2026-09-13: Front opened a watch, Observer accepted it, and Front's listener
+  did not stir until the notification arrived.
+- **The answer is three-valued.** `met`, `not_met`, and **`unable`** — a
+  statement about the *look*, not about the world. A target that cannot be read
+  is never reported as a condition that has not held yet; the watch keeps its
+  schedule and says so in its own topic once, at the third consecutive failure.
+  Routine polling is otherwise silent.
+- **A destination is resolved at send time, from its anchor.** A message link
+  is the preferred form because an id survives a rename; `<channel>/<topic>` is
+  accepted and followed across the ✔ rename. A destination that is gone or
+  already ✔ is a terminal `undeliverable` outcome recorded in the watch topic —
+  **Observer never opens a conversation of its own to deliver into**, and
+  leaves that watch topic open because a human has to see it. A delivered watch
+  is resolved.
+- Exactly-once rests on three things in order: the store's delivery record
+  (which is why polling never reaches delivery twice), the watch id inside the
+  notification (which a read-back recognizes after an ambiguous send), and
+  writing the state note *after* delivery, so a crash between them leaves the
+  watch owed rather than silently finished.
+- The listener's own triggers cannot wait — sweeps react to posts and
+  `on_sweep` fires on registration — so the due-watch trigger is a worker
+  thread started beside the listener, not a plist setting. See
+  `devdocs/episodes/observer/p1/`.
+
 ## agfront(pj-agdev/agfront)
 
 - Responds to any requests from Human and sends messages to other agents.
