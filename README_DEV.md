@@ -288,6 +288,44 @@ and stays open.
   `on_sweep` fires on registration — so the due-watch trigger is a worker
   thread started beside the listener, not a plist setting. See
   `devdocs/episodes/observer/p1/`.
+- **The introduction says what the requester does while it waits** (`p2`
+  step 1): finish the serving once the request is posted, name the
+  conversation that serves *you* as the destination, and leave the job's
+  identity, its output location and the next action behind, because the run
+  the notification wakes is a new run that remembers nothing. A job
+  condition is written as **"it has ended"**, with what failure looks like,
+  since a condition only success can meet waits forever on a crash. Only
+  what is reachable from Observer's host can be looked at — a path on
+  another machine is not, and an HTTP endpoint usually is.
+- **One watch per thing you are waiting for.** A condition covering two jobs
+  was judged `met` while its own evidence said one of them was still
+  running (`p2` step 3, `w6866`): correct by luck of timing, and a slower
+  job would have woken the requester to collect a result that did not exist.
+  The `observe` guide now says every part must hold in the same look, that
+  the parts are enumerated in the evidence, and that a verdict must agree
+  with its own evidence — a "but" in the evidence has already answered the
+  question. Two later two-job watches judged correctly across seven looks,
+  but a conjunction is still the hardest thing a small model is asked to do
+  here.
+- **An evaluation's cost follows the condition, not just the queue.** p1
+  measured 11–22 s on single-target conditions; a two-job condition reading
+  two histories and a queue took 30–120 s. Sequential evaluation is the
+  ceiling, so a complex condition makes every *other* watch wait too.
+
+## How a run finds all of this
+
+`agentchat intro` lists every agent on the `#agents` board with its own
+one-line pitch, and `agentchat intro <agent>` prints one introduction
+verbatim as it is posted now (pyagag `1691328`). A serving already gets the
+whole board snapshotted into `tools/agents.md`; this is the same content
+read live, and the entry point for a run that only wants one contract.
+
+`agentchat --help` also tells a run what to do about anything slow — a
+download, a long job, somebody's answer — namely that an agent on the board
+may take that on, and that holding a run open to watch spends the run on
+nothing. It deliberately **names no agent**: which agent waits is what the
+board says, not what the tool says, the same rule that keeps routing
+vocabulary out of every consumer's guide.
 
 ## agfront(pj-agdev/agfront)
 
