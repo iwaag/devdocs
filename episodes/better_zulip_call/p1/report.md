@@ -28,6 +28,13 @@ was spent on what. Messages are keyed by id with the topic each is in now,
 which is what lets every consumer follow a conversation through a rename, a
 resolve or a reused display name.
 
+The per-process shape is deliberate: it keeps deployment simple, lets each
+consumer continue when another service is down, and isolates each credential's
+account-specific visibility and quota. The tradeoff is duplicated initial
+history reads and duplicated event intake in every process. A shared collector
+could remove that duplication, but would add a deployment dependency and is
+outside this phase.
+
 **The relay** (`agdevworld/agentroom`) reads with one credential — the
 mirror's, `Opsroom Observer` — and writes with the Developer's, and does
 nothing else with it. `/agents`, `/work`, `/ops`, `/routines`, `/frontdesk`
@@ -101,10 +108,13 @@ is.
 
 - A tool outside `agag.zulip` — the browser, `curl` — shares the Developer's
   quota and knows nothing of the budget's pause.
-- The pre-write check reads listings: new posts, new topics, moves and
-  resolves in the scoped channels are seen; an edit or a deletion of an
-  older message in an unchanged topic is not. Full isolation from concurrent
-  Zulip users is not claimed.
+- A remembered completion plan now invalidates an edit or deletion already
+  received by its mirror, including an older evidence message in a topic whose
+  maximum id did not change (`p1 ex1`). Ignoring such an event was a defect,
+  not an event-lag limitation. The pre-write remote check is still a topic
+  listing: an older edit or deletion whose event has not reached the mirror
+  and whose listing is unchanged remains temporarily invisible. Full isolation
+  from concurrent Zulip users is not claimed.
 - The persisted queue resumes only within Zulip's queue lifetime; a longer
   outage is a deep resync (62 calls here).
 - A serving's own reads are unchanged; a run's `agentchat` reads from a
