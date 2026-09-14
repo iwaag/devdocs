@@ -59,6 +59,7 @@ after a pause. The client's ledger keys every call by purpose.
 
 | scenario | step 1 baseline (2026-09-14 morning) | now (step 7, deployed) |
 |---|---:|---:|
+| idle listening, all callers, per hour (beyond long polls) | 708 | **0** (measured over twenty quiet minutes) |
 | cold board reload (`/agents` + `/work`) | 36 Developer calls | **0** |
 | warm board reload | 0 (30 s cache) | **0**, no cache, and any change is in the next read |
 | completion preview | 12–59 Developer calls | **0** (a few hydrations once per archived channel) |
@@ -87,7 +88,8 @@ conversation → Front was served **in the same second** and replied → the
 relay's preview reached the watch topic (already ✔) at zero calls → the
 close read two listings, resolved the conversation, and a second client saw
 it gone at once. Every listener on this host filled its mirror in 62 calls
-at deployment and resumed its queue on restart.
+at deployment and resumed its queue on restart. Twenty quiet minutes
+afterwards carried 432 long polls and no other call at all.
 
 One defect was met live and fixed the same hour: the notifier's new queue
 path read *any* mention as a command, where the old narrow had only ever
