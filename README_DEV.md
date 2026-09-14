@@ -43,6 +43,39 @@ agent-created one that Front reached successfully. **Both are retired**
 talked to, and an agent kept alive only to keep proving that costs every
 board a row and every sweep a read.
 
+## Reading Zulip through mirrors (`better_zulip_call` p1, 2026-09-14)
+
+Every process on this host that reads the realm holds a **mirror**
+(`pyagag` `agag.mirror`): a persisted, event-updated copy of the realm's
+public conversations on that process's own credential — one event queue
+registered for all public channels, one paged read of the realm to fill the
+store (62 calls, a second, for this realm), and events from then on. The
+relay's boards and completion previews, every listener's intake and
+recovery, cagent's topic listener and the Observer's schedule are answered
+from the copy; Zulip is asked for what the copy cannot say (a topic in an
+archived channel, once), for the check right before a write or a
+notification, and for the writes themselves. A restart within Zulip's queue
+lifetime resumes the queue and reads nothing.
+
+Listening is `agag.listen`: an intake thread follows the mirror's change
+feed into a durable queue beside the store (`listener.sqlite`), one executor
+serves the queue, and neither waits for the other — a long run no longer
+stops the polling, a burst on one conversation is one serving, and downtime
+is recovered from the index rather than by sweeping every channel. The
+served note and the root note keep exactly the meaning they had; the
+listener's recovery reads them off the index.
+
+Rate limits are honoured **per credential** at the transport
+(`agag.zulip.Budget`): a 429 to any client on a credential pauses every
+client on it, in the process and — through `<credentials file>.ratelimit`
+beside the env file — in every process built from that file. Tools outside
+`agag.zulip` (a browser, `curl`) are outside that.
+
+The ComfyUI notifier's command intake is an event queue too; the
+`is:mentioned` narrow it used to poll every five seconds (78 % of the
+realm's API traffic on 2026-09-14) is read once at start and after a queue
+expiry. The whole measurement is `devdocs/episodes/better_zulip_call/`.
+
 ## cagent (pj-clusterintent)
 
 - Responds to requests for explaining/observing/changing desired state and/or actual state of the cluster.
@@ -68,10 +101,11 @@ board a row and every sweep a read.
   record is with `[selfnote][changerec] <id>`, which is a selfnote and
   therefore buys nobody a run: registering the same request again restates
   it in the same conversation instead of forking it.
-- Its listener sweeps every topic in that channel and the `cagent-`/`change-`
-  prefixes elsewhere, and cagent posts its own `intro-` contract in
-  `#agents` like every other agent (`uv run --project cagent python -m
-  cagent_api.intro`).
+- Its listener serves every topic in that channel and the `cagent-`/`change-`
+  prefixes in any public channel (through `agag.listen` and a mirror on its
+  own credential since `better_zulip_call` p1), and cagent posts its own
+  `intro-` contract in `#agents` like every other agent (`uv run --project
+  cagent python -m cagent_api.intro`).
 - **Recording a change is not making one.** That distinction is why the
   front writes a file rather than calling `nctl`, and p3 relocated the
   record without adding reconciliation to it.
@@ -123,9 +157,13 @@ unreported for one round of p10.
 ## Opsroom Observer (not an agent)
 
 `Opsroom Observer` is a Zulip bot with no listener, no runs and no
-conversation: it is the credential the operation room's state engine reads the
-realm with (`agdevworld/agentroom`, `operation_room` p2). It exists so a
-~240-call sweep does not come out of the quota the agents' own listeners spend.
+conversation: it is the credential the agdevworld relay's **mirror** reads
+the realm with (`agdevworld/agentroom`, `operation_room` p2; since
+`better_zulip_call` p1 every read the relay makes — the agent room, the ops
+board, the routines, the Front Desk, every completion preview — comes from
+that one persisted copy, and the Developer's credential only writes). It
+exists so the relay's reading never comes out of the quota the agents' own
+listeners or the Developer spend.
 It is **read-only by operation** — Zulip has no read-only API key — and its one
 write to the realm is subscribing to public channels, which an event queue
 requires and a read does not. It posts **only** in `#ops-testbed`, which no
@@ -170,7 +208,7 @@ the conversation that asked, names the run, and resolves the run topic.
 
 Three things the realm taught about starting and stopping:
 
-- **A topic Front opens alone is never served by the owner sweep** (last
+- **A topic Front opens alone is never served by the owner route** (last
   speaker is Front), so the listener starts a run right after the serving
   that opened it, and at startup for one opened just before a crash. A run
   is *unstarted* while it holds only Front's speech and no serving ack; an
@@ -188,7 +226,8 @@ Three things the realm taught about starting and stopping:
   nobody a run, but it makes "a report landed here and nothing has served this
   conversation since" a question the chat can answer, which
   `continue_deliveries` asks after every run serving, on both routes, at
-  startup and after every full sweep. The serving it buys is ordinary, and
+  startup and after every recovery the listener makes. The serving it buys is
+  ordinary, and
   what happens next — open the next run, tell the developer, stop because the
   work failed — is decided by Front in the conversation; no stage is encoded
   in the listener. An ordinary one-routine request does not loop, because
@@ -284,8 +323,9 @@ and stays open.
   notification (which a read-back recognizes after an ambiguous send), and
   writing the state note *after* delivery, so a crash between them leaves the
   watch owed rather than silently finished.
-- The listener's own triggers cannot wait — sweeps react to posts and
-  `on_sweep` fires on registration — so the due-watch trigger is a worker
+- The listener's own triggers cannot wait — the listener reacts to posts
+  and its recovery runs at startup and after a resync — so the due-watch
+  trigger is a worker
   thread started beside the listener, not a plist setting. See
   `devdocs/episodes/observer/p1/`.
 - **The introduction says what the requester does while it waits** (`p2`
