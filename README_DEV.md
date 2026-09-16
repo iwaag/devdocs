@@ -383,27 +383,83 @@ vocabulary out of every consumer's guide.
   a routine's channel is a conversation of Front's own, served by the
   `routine_run` role (see *Routines* above).
 
-## arXiv sage (`arxivsage`)
+## archsage — the knowledge council (`archsage`; `argue` p1, 2026-09-16)
 
-- Answers from the public `study-arxiv-trend` tree: current papers on LLM
-  agents and agent harnesses, their summaries, runnable manuals, and local-test
-  reports. Its own Zulip channel accepts questions only in `entrance-…` topics.
-- It never edits the knowledge tree or runs a study. An honestly unanswerable,
-  reasonable in-scope question becomes a deduplicated Markdown note in its
-  ignored `tostudy/` queue for the study workflow to consume.
-- **Since `refactor` p3 ex1 it publishes one execution option**, `agy`, beside
-  its default, on both of its serving routes — the `entrance-` topics and the
-  own-channel redirect. The redirect is the one worth not forgetting: without
-  the menu there, a selection posted at the door is answered with a lecture
-  about topic names while the setting silently does not land. Its committed
-  configuration had only `sonnet` and the test `stub`, and `stub` is the
-  `fake` harness: a menu built from it would have advertised a choice that
-  answers nothing.
+**One deployed agent, one Zulip account (`archsage`, user 24), many logical
+sages.** archsage runs on the frontier profile (Claude Fable 5.1 through
+claude_code) and designs the knowledge and research a desire needs: which
+existing knowledge bears on it, which research questions would take it
+further, which domain nobody covers — in which case it defines a new sage
+(`archsage sage add`). A **sage** is a directory `sages/<name>/` holding
+`sage.toml`, a domain `guide.md` and the clone of one study's published
+knowledge (`mainstudy/`, refreshed by `service/sync_knowledge.sh`); it runs
+on the shared `sage` role (Sonnet 5) with **one tool**, `sagetree`, a
+bounded reader that refuses every path outside its tree and writes only
+into the sage's study queue (`tostudy/`). An empty tree is a valid state
+for a newly planned study: the sage says so instead of inventing findings.
 
-A **sage** is the reusable pattern behind this domain-specific agent: one
-agag instance owns a narrow, externally maintained knowledge tree, cites what
-it read, says when that tree does not answer, and leaves researchable unknowns
-to the responsible workflow rather than pretending to maintain the source.
+Addressing is a **selector**: `@**archsage** sage:arxiv …` in an argue, or
+`sage:arxiv …` as the first word of a post in `#archsage-agstudio1`; a bare
+mention or post asks the council. Every sage reply begins with
+`**[sage:<name>]**`, added by the posting layer. A request for a sage costs
+no archsage run; a name nobody publishes is refused in one line. The
+introduction lists the sages, rendered from the directory at post time.
+Dispatch between roles never goes through Zulip (a listener ignores its own
+posts): archsage consults a sage from inside its run with `archsage ask`.
+
+**The boundary is a bounded reader, not a sandbox.** Under claude_code a
+`Bash(sagetree:*)` grant admits a compound command; the transcript shows
+an escape as a command that is not `sagetree`. archsage's broader access
+is explicit in its `agents.toml`.
+
+**arxivsage is retired** (`argue` p1 step 4): its listener, plist and
+Nautobot rows are gone and its `intro-` topic is ✔; `sages/arxiv` is its
+knowledge (`study-arxiv-trend`) in the new structure, with the same study
+queue contract (`sage` p1). The channel and repository stay as history.
+
+## Argues (`argue` p1, 2026-09-16)
+
+An **argue** is `#argue › argue-<stem>`: a conversation in which a human
+develops a desire — vague and far-reaching at first — with every agent.
+Front opens one from an ordinary conversation (`agentchat argue open`) and
+is the only agent served automatically there, with the `argue` role and
+**no hand-off mention**; every other agent takes part only when **named**,
+and answers in the same topic. The contract is `pyagag` `agag.argue`, so
+every participant means the same thing by it:
+
+- **A mention is an invitation** that costs a run; nobody names the last
+  speaker by reflex. `@**<bot>** <kind>:<name>` addresses one logical
+  speaker of an account. An invitation is outstanding until a reply under
+  the matching speaker header answers it — judged from the conversation, so
+  several invitations in one post, other posts in between and a restart all
+  get the same answer. The participant writes `[selfnote][served]` into the
+  argue topic afterwards, and `agag.listen` judges every mention route by
+  the newest unanswered mention above that mark, not by the last post.
+- **The human's desire** is `[selfnote][desire] <message id> by <user id>`,
+  written by Front's listener only for a human's own post in the argue —
+  Front's draft is not the submission, a human's "yes, that is it" is.
+  While it is missing Front asks when the human speaks; nothing polls.
+- **The argue's identity** is the id of its `[selfnote][argue] from
+  <channel>/<topic>` note. Resolving the topic ends discussion dispatch and
+  nothing else.
+- **Participants**: cagent, Observer, autolab, forge and archsage each have
+  a mention route that answers an argue invitation and ignores every other
+  mention, a read-only `argue` role, and `agent/guides/argue/role.md`. Observer's
+  is its first mention route; a `front-` topic is not an argue, so Front
+  thanking it still buys no run.
+- **How it ends** is Front's judgement, from the conversation and the
+  advice — study first (a new study, or a research plan in an existing one)
+  when exploring would widen or firm up the idea, else a project. `agproject
+  open <slug> --kind project|study --doc …` creates the `pj-<slug>` channel
+  (humans, autolab, Front; its own folder), posts the goal / research plan,
+  and asks autolab in `workplan-setup-<slug>` to prepare the workspace —
+  setup only, no `workrun-`, no routine; `agproject plan <study> --doc …`
+  posts one plan into an existing study. Front's outcome reply ends in an
+  `ag-argue` block (`outcome`, `target`, `complete: true`) that the listener
+  **checks against the realm** — channel, document, autolab's answer —
+  before it writes `[selfnote][outcome]`, tells the origin conversation and
+  resolves the argue. Running the study or developing the project is the
+  next chapter and belongs to whoever the outcome names.
 
 ## forge agent(pj-agdev/agforge)
 
