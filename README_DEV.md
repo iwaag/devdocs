@@ -370,6 +370,9 @@ vocabulary out of every consumer's guide.
 ## agfront(pj-agdev/agfront)
 
 - Responds to any requests from Human and sends messages to other agents.
+- Since `argue` p2 it also **renders**: a presentation role and a job worker
+  of its own turn recorded speech into character dialogue in memo topics
+  (see *Memos* below). No new account: the memo posts are Front's.
 - It can also be asked to **supervise**: stay with a request until the agent
   doing the work finishes, answering what it asks along the way. Since
   `agent_standardize` p7 that is not a long run but several short ones — Front
@@ -460,6 +463,65 @@ every participant means the same thing by it:
   before it writes `[selfnote][outcome]`, tells the origin conversation and
   resolves the argue. Running the study or developing the project is the
   next chapter and belongs to whoever the outcome names.
+
+## Memos, and how a discussion is shown (`argue` p2, 2026-09-18)
+
+**A memo is a conversation that is read and never answered.** A conversation
+whose channel is `memo` (or `memo-…`) is presentation only (pyagag
+`agag.memo`): nothing written there starts anything — not a post in an
+owned-looking topic, not a real `@**bot**` mention, not a notifier command,
+not a copied `[selfnote]`, not a rename or a resolve, not a restart with work
+already queued. The channel is the distinction because it is decidable
+before the first message, survives every rename, and costs no read; a `✔`
+could not be, since the ComfyUI notifier accepts commands under `✔` on
+purpose. The one rule is asked at `agag.listen`'s intake, mention route,
+recovery and again at execution time, in `serve_topic`, in the mirror's note
+index and `own_notes` / `mentions`, by `agentchat send` (no root note there),
+by the notifier's two intake paths and by the relay's ops board. **A consumer
+with an intake of its own must ask it too.** A memo names what it presents
+with `[selfnote][memosource] <message id>` — never `rootchat`, which takes
+part in callback routing, `threads/` and completion discovery.
+
+**The discussion carries no character; the character dialogue is a
+rendering of it.** Until p2 the Front Desk run (`character_talk`) was handed
+every character's lore and wrote an `ag-dialogue` block into its own reply,
+so lore sat in the context of every judgement and delegation. Now:
+
+- Front's discussion roles — `front`, `desk` (the Front Desk), `argue`,
+  `routine_run` — get no settings and no dialogue contract; a reply is posted
+  as written. Human input is verbatim, under the human's own account.
+- Front's **presentation** role (`present`; `agfront.present`) re-voices
+  recorded speech: its input is a snapshot (the posts, the context before
+  them, who each speaker is, one pinned settings revision), its output one
+  validated block, and it has no `agentchat`, no shell and no way to write
+  into a discussion. `archsage` and `sage:<name>` are different speakers on
+  one account; a speaker without a character is a `plain` turn, shown as
+  written under its own label.
+- `agfront.render` is a worker beside Front's listener, on the same mirror,
+  with its own checkpoint and store (`.local/render/`): triggered by new
+  agent speech in a Front Desk conversation or an argue, coalesced after a
+  quiet period, one durable job per content (anchor + message ids + content
+  fingerprint + settings revision + renderer version). The result is an
+  `ag-memo` record in `#memo › <source topic>-s<anchor>`, and **the memo is
+  the truth**: a job whose record is already there is finished without a
+  run, which is how a crash between the post and the local "done" heals.
+  Three attempts, then one `failed` record; nothing re-arms it but a request.
+  The first start renders nothing that already exists.
+- **Another interpretation is explicit**: `[selfnote][render] <settings
+  revision>` written into the *source* by a human account (the relay writes
+  it as the Developer). Earlier interpretations stay, with the revision their
+  portraits are retained under. An edited source is visible as `stale` by
+  fingerprint and is re-rendered only on request.
+
+**The Arguing Room** (`agdevworld` `/?view=argue`) is where a human starts,
+reads and continues an argue; the Front Desk is the same scene with another
+adapter. The relay's `/argues` routes name an argue by its anchor message id
+and locate it where that message is now; every read — source, memo results,
+status — is the mirror's. The composer always posts into the source
+conversation, whichever view (dialogue or original) is showing, and a post
+with no rendering yet is shown as written, so nobody waits for a rendering
+to read or reply. Resuming a ✔'d argue resumes the discussion and nothing
+downstream.
 
 ## forge agent(pj-agdev/agforge)
 
