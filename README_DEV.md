@@ -587,6 +587,89 @@ resumed only on a second, explicit press.
   workspace makes a repeated notifier callback a no-op, so one job is never
   generated or delivered twice.
 
+## Explicit replies and journaled servings (`explicit_reply` p1, 2026-09-20)
+
+**An agent's reply is what its run marks, not whatever it printed.** Until
+this phase a reply into the served conversation was the run's whole final
+output, and the only boundary between the agent thinking and the agent
+speaking was a guide sentence ("no notes to yourself"); Front's #7222 went
+to Zulip as two paragraphs of thought and then the reply, and the Arguing
+Room voiced both. Now (`pyagag` `agag.reply`):
+
+- The run puts what it wants said inside a fenced `ag-reply` block; several
+  blocks are one post, in order; a reply may carry code fences (open the
+  mark with four backticks). Everything outside the mark is the run's own,
+  kept in the transcript and never posted. Machine blocks (`ag-argue`,
+  `ag-routinerun`, `ag-continue`) are read from the whole output by their
+  own splitters and never posted.
+- No mark, an empty mark or an unclosed one is a **failed reply**, not
+  silence and not "post it all": the run is asked once more for the reply
+  alone with its previous output in front of it (`repair_prompt`; every
+  action and machine block has already happened), and if that fails too
+  the conversation gets one visible line saying this run produced no reply.
+- `TopicResult` separates model `output` (under the contract), literal
+  `sections` (deterministic lines, a canonical block echoed as the record)
+  and system `notices` (appended after the reply). Structured-output roles —
+  Front's `present`, generators, `observe`, `workrun_supercoder`, Observer's
+  intake — keep their own contracts.
+- The mark is described once, after every conversational guide, by
+  `prompt_with_guide(…, reply=True)`; the prose prohibitions came out of the
+  guides. Every consumer's conversational roles use it: Front's four,
+  autolab's director and bmining, forge's plan front, cagent's front,
+  archsage and its sages, the shared entrance and argue participants.
+
+**A serving is a journaled record, and delivery is exactly-once**
+(`agag.serving`, `agag.delivery`, in each listener's `listener.sqlite`):
+received → acked → executed → prepared → delivered, with `failed` and
+`interrupted` as the exits. The reply text is on disk before it is sent; an
+ambiguous send is settled by reading the conversation back for the bot's
+own post of that text; a `DeliveryError` leaves the text prepared and the
+listener retries the *delivery* with bounded backoff, never the run;
+exhausted or refused, the entry stays in the queue as `failed` with its
+reason (visible in `entries("failed")`, the status file's `last_error` and
+the log) and is re-armed by the next post. **One completion rule**: speech
+by others past the input boundary the last delivered serving processed —
+asked after the reply, before a resolve (input that arrived during a
+cancelling run is answered first), at restart recovery and by `owed()`;
+the bot's own ack is never evidence that anything was answered. A restart
+marks an unreplied record `interrupted` and hands it to the next serving as
+`context.previous`. The reply and delivery outcome are written beside the
+run identity (`reply` in the `ag.agent-run.v1` record).
+
+**Handoffs are bound to requests.** The reply names the requester read from
+the processed input, never a speaker looked up at send time; a third party
+who posts during the run is answered by the next serving. A `Conversation`
+may carry an anchor (`front/front-1 #7225`, the id of the post the serving
+was started for); runs get it as `AGENTCHAT_HOME_ANCHOR`, `agentchat send`
+writes it into the root note, and `agag.zulip.locate` finds a conversation
+by it before its name — the reply's destination is located at delivery
+time, so a topic renamed or resolved mid-run is answered where it is now
+(a `✔` name included; no twin), and one that is gone is a terminal failure
+out loud. The served mark on the mention route is written by the listener
+after a *confirmed* delivery, bound to the mention that triggered the
+serving, so a mention arriving mid-run stays owed and a restart between the
+home reply and the mark writes the mark without a rerun.
+
+**The context to continue is carried, not reconstructed**
+(`agag.continuation`). Every serving of a conversational role gets a block
+between `===== BEGIN CONTINUATION =====` and `===== END CONTINUATION =====`
+derived from the record: what arrived since the last delivered reply, the
+agent's own goal / conditions / next as it last wrote them in an
+`ag-continue` block (kept as `[selfnote][continuation]` in the served
+conversation; any newer post overrides it and the view says so), where each
+request made elsewhere stands (awaiting, answered and not yet dealt with,
+dealt with, finished, unreadable — from the root notes and the served
+marks), an interrupted previous serving of the same input, and what the
+carried conversation left out. Front builds it from the thread snapshots
+it already reads for `threads/`.
+
+The phase's fixtures are `pyagag/tests/test_serving_lifecycle.py`,
+`test_reply.py`, `test_handoff_binding.py`, `test_continuation.py` and
+`test_end_to_end.py` (request → delegation → callback → final response with
+a restart: 0 lost, 0 duplicated, one run per serving, recovery in well
+under a second). `devdocs/episodes/agentchat/explicit_reply/p1/` is the
+record.
+
 ## How agents remember each other
 
 Since `agent_standardize` p8 an agent that speaks in another agent's
