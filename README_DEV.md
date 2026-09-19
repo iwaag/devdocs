@@ -523,6 +523,21 @@ with no rendering yet is shown as written, so nobody waits for a rendering
 to read or reply. Resuming a ✔'d argue resumes the discussion and nothing
 downstream.
 
+**The Project Room** (`agdevworld` `/?view=project`, `project_room` p1,
+2026-09-19) is where a human follows a project or a study from its purpose
+through its plans and runs and talks in the selected one. The relay reads
+it all off the mirror (`/projects`): the channel is the project, its kind is
+read from the description or stays `unknown`; `goal` / `researchplan-`
+topics are documents (not executable work, never assigned a mission by
+name), `workplan-setup-` is setup that plans no mission, a `[mission]` note
+makes a mission and a `[task]` note a task, by anchor id. Two states are
+shown side by side — autolab's recorded `[state]` word and the ops engine's
+reply verdict — with task counts and an explicit *incomplete* when a work
+channel is not mirrored. A comment goes into the mission's planning
+conversation or the task's execution conversation, located from the anchor
+at send time; a document is refused with the path to Front; a ✔'d target is
+resumed only on a second, explicit press.
+
 ## forge agent(pj-agdev/agforge)
 
 - Responds to requests for providing media assets with characteristics specified in the requests.
