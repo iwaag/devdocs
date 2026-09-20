@@ -2,77 +2,77 @@
 
 ## Goal
 
-mediagen の一般知識をローカルで実践し、forge が通常の依頼から再利用できるツール・ワークフロー・ガイドに育てる。最初の題材は `test_theme.md` の GUI/HUD 用アイコン五種類。納品後の一部差し替えまで実証する。
+Put mediagen's general knowledge into local practice and turn it into tools, workflows and guides that forge can reuse through ordinary requests. Start with the five GUI/HUD icons in `test_theme.md`, and demonstrate replacing part of the set after delivery.
 
 ## Implementation stance
 
-- 実験環境での破壊的な改修を前提とし、後方互換性・移行用 shim は不要。不要になった実装やガイドは整理する。
-- 構成、利用技術、実験順序は実装者が判断する。以下は到達点とヒントであり、固定の実行経路ではない。新しい agent、study 種別、汎用基盤は必要になった時点で追加する。
-- forge が知識を探し、方法を選ぶ。外側で選別した資料だけを渡す構造にしない。索引・検索・参照の手間を減らすことに注力する。
-- ローカル情報・認証情報は既存方針どおり ignored な `.local/` に置く。商用サービスは代替案に含めてよいが、新規契約・未承認の課金は提案と実行を分ける。通常の実験や作り直しに追加の承認段階を設けない。
+- This is an experimental environment undergoing breaking changes. Backward compatibility and migration shims are unnecessary; remove obsolete implementation and guides.
+- The implementer chooses the structure, technologies and experiment order. The steps below describe outcomes and hints, not a fixed execution route. Add agents, study types or general infrastructure when needed.
+- forge discovers knowledge and chooses methods. Do not restrict it to documents selected externally; reduce the effort of browsing indexes, searching and reading instead.
+- Keep local facts and credentials in ignored `.local/` files under the existing policy. Commercial services may be proposed as alternatives; distinguish proposals from new contracts or spending that has not been authorised. Do not add approval stages for ordinary experiments or rebuilding.
 
-## step1 — 現状把握と検証条件の設定
+## step1 — Inspect the current state and define the trial
 
-- 前提資料と関連実装を読み直し、mediagen の公開知識、既存の生成実験、forge のツール・権限・納品経路を確認する。サービスの現状は `pj-clusterintent/nctl/README.md` に従い nctl／Nautobot で把握する。
-- 対象知識の取得元・revision と、forge から現在参照できる範囲を記録する。既にある実験や道具を活用する。
-- アイコンの寸法、想定表示サイズ、背景外の透過、納品形式を具体化する。未指定事項は妥当な仮定を置いて記録し、不要な確認待ちにしない。
-- p1 は静的アイコンを中心とする。ボタンの hover／pressed／disabled は必要なら追加し、必須にはしない。
+- Re-read the prerequisite documents and relevant implementation. Inspect mediagen's published knowledge, existing generation experiments, and forge's tools, grants and delivery route. Use nctl/Nautobot to understand current services, following `pj-clusterintent/nctl/README.md`.
+- Record knowledge sources, revisions and what forge can currently access. Reuse existing experiments and tools.
+- Specify icon dimensions, intended display size, transparency outside the background tile and delivery format. Make and record reasonable assumptions for unspecified details rather than waiting for unnecessary clarification.
+- Focus p1 on static icons. Add hover/pressed/disabled button states if useful, but do not make them mandatory.
 
-完了: 最初に試す要求、評価条件、使える知識・道具が明確になっている。
+Done: the initial request, evaluation criteria, available knowledge and tools are clear.
 
-## step2 — ローカライズ工程と知識の置き場所を作る
+## step2 — Establish the localisation work and its knowledge storage
 
-- まず既存の autolab プロジェクト機構を使い、publish を持たないローカライズ作業として目的・配置・運用を `README_PROJECT.md` に記す。既存 study は `main/` 自体が公開可能な知識を置く契約なので、publish の省略だけでローカル情報を混ぜない。
-- 一般知識の参照元、再利用可能なコード・ワークフロー・ガイド、環境設定、実験証跡を配置する。共有可能な手順は版管理し、ホスト固有の値は外出しする。
-- autolab が実験と実装、cagent が環境把握と必要な環境変更、forge が利用者としての受け入れを担う。連携は既存の会話・workplan／workrun を使う。
-- 成功手順だけでなく、不得意な条件、失敗した方法、要件を緩める案、商用サービスを含む代替案とトレードオフも残す。一般化できた発見は mediagen に還元する。
+- Start with autolab's existing project mechanism. Describe the purpose, layout and operation of localisation without publishing in `README_PROJECT.md`. The existing study contract keeps `main/` publish-ready; omitting publication alone does not make it a place for local facts.
+- Arrange references to general knowledge, reusable code/workflows/guides, environment configuration and experimental evidence. Version reusable procedures and keep host-specific values separate.
+- autolab owns experiments and implementation; cagent owns environment discovery and necessary environment changes; forge performs acceptance as the consumer. Coordinate through existing conversations and workplan/workrun routes.
+- Retain limitations, failed methods, relaxed requirements, alternatives including commercial services, and their tradeoffs alongside successful procedures. Return generalisable findings to mediagen.
 
-完了: 次の実行者が、知識・実行方法・制約・実験結果を辿れる。
+Done: the next worker can find the knowledge, execution methods, constraints and experimental results.
 
-## step3 — アイコン制作の方法を発見する
+## step3 — Discover an icon production method
 
-- 画像生成、ベクトル描画、画像処理、テンプレート合成などから有望な方法を試す。全方式の総当たりは不要。
-- 第一候補は、角丸背景・グラデーション・余白を共通テンプレートで描画し、果物を描画または生成して合成する方法。全体を画像生成する方法や、全体を SVG 等で描く方法も比較候補にする。生成モデルを使わない結論でもよい。
-- 五種類の識別性、画風・余白・大きさの統一、実用サイズでの見やすさ、処理時間、手直しの量を確認する。大きなプレビューだけで評価しない。
-- 有望な手順を再実行可能にし、繰り返し現れた機械的処理からツール化する。パラメータ、編集元、依存関係、使い方、既知の制約を残す。
-- 実現が難しい場合は試行を際限なく続けず、何が難しく、どの変更で改善できるかを提案する。要件変更を元の要求の達成と混同しない。
+- Try promising methods from image generation, vector drawing, image processing and template composition. Exhaustively testing every method is unnecessary.
+- The first candidate is a shared template for the rounded background, gradient and margins, combined with drawn or generated fruit. Consider generating the whole icon or drawing it entirely in SVG as alternatives. A method that uses no generative model is acceptable.
+- Check whether all five fruits are recognisable, whether style/margins/scale agree, and whether the icons read at their intended display size. Measure execution time and manual correction effort; do not judge only large previews.
+- Make promising procedures repeatable. Turn recurring mechanical steps into tools, and document parameters, editable sources, dependencies, usage and known limitations.
+- If the requirements prove difficult, avoid endless attempts: explain the difficulty and propose changes that could help. Do not count changed requirements as fulfilment of the original request.
 
-完了: 五枚の制作と一枚の差し替えに使える候補手順、または根拠のある代替提案が得られる。代替提案だけの場合、最終的な納品実証は未達として扱う。
+Done: a candidate procedure supports producing five icons and replacing one, or there is an evidence-based alternative proposal. A proposal alone does not satisfy the final delivery demonstration.
 
-## step4 — forge の知識アクセスと実行への引き継ぎを実装する
+## step4 — Implement forge's knowledge access and execution handover
 
-- mediagen の知識とローカライズ成果へ forge がアクセスできるようにし、用途・制約・検証状況・詳細への参照を持つ軽量な索引を用意する。未検証・未実装の項目も、その状態が分かるようにする。
-- 計画と実行の両方で forge が資料を検索・参照できるようにする。最初の toolset 選択後も別の知識や方法へ進めるようにし、選択外の資料を不可視にしない。実際の role のツール権限・PATH でも到達できることを確かめる。
-- プロジェクト要件の参照元を明示して渡し、一般知識・ローカル知識・プロジェクト要件・assetplan／assetrun の個別指示を区別して読めるようにする。
-- 採用した資料の revision、ワークフロー、実行条件を記録する。計画後に資料が更新された場合は、何を使って実行したかを追跡可能にする。未採用資料へのアクセスまで固定する必要はない。
-- 非同期処理では投入済みジョブの条件と回収先を維持する。既存の待機・通知・再開の仕組みを活用する。
+- Give forge access to mediagen's knowledge and the localisation outputs. Provide a lightweight index of uses, constraints, verification status and references to details. Make unverified or unimplemented entries recognisable as such.
+- Let forge search and read during both planning and execution. It must remain able to explore other knowledge or methods after its initial toolset selection. Verify access under the actual role grants and PATH.
+- Pass explicit references to project requirements. Make general knowledge, local knowledge, project requirements and individual assetplan/assetrun instructions distinguishable.
+- Record the revisions of adopted references, the workflow and execution conditions. If sources change after planning, keep the actual execution traceable. There is no need to pin access to sources that have not been adopted.
+- For asynchronous work, retain the submitted job's conditions and collection destination. Reuse the existing waiting, notification and resumption mechanism.
 
-実装の手掛かり:
+Implementation hints:
 
-- `pj-agdev/agforge/src/agforge/toolsets.py`: 現在は toolset の一覧・名前解決・コピーを担当。
-- `assetplan_topic.py` / `assetrun_topic.py`: 計画時の選択と実行 workspace の構築箇所。現在は toolset 名を記録し、実行時に配置する。待機中は `plan.md` と `tools/` を保持する。
-- `record.py` / `anchor.py`: 会話を正本にする要求・実行記録。新たな別管理台帳を作る前に利用を検討する。
-- `agent/guides/` / `agent/toolsets/` / `agents.toml` / `role_run.py`: 判断のガイド、利用方法、role の権限・実行環境。
-- 画像 toolset には画像生成と Pillow の利用案内がある。`transform.py` はリサイズ・形式変換・再アップロードを持つ。既存の道具から始めてよい。
-- `pj-agdev/agautolab/agent/project_pattern.md`: study／gentest の既存契約。speech toolset のように本文が空の項目もあるため、一覧にあることと実行可能なことを区別する。
+- `pj-agdev/agforge/src/agforge/toolsets.py`: currently lists, resolves and copies toolsets.
+- `assetplan_topic.py` / `assetrun_topic.py`: planning-time selection and execution workspace construction. Currently record toolset names and place their files at execution time; preserve `plan.md` and `tools/` while waiting.
+- `record.py` / `anchor.py`: request/run records whose authority is the conversation. Consider extending these before adding another ledger.
+- `agent/guides/` / `agent/toolsets/` / `agents.toml` / `role_run.py`: decision guidance, usage information, role grants and execution environment.
+- The image toolset already explains image generation and Pillow. `transform.py` supports resizing, format conversion and re-uploading. Start with existing tools where useful.
+- `pj-agdev/agautolab/agent/project_pattern.md`: existing study/gentest contracts. Some toolsets, such as speech, have empty bodies; distinguish being listed from being usable.
 
-完了: forge 自身が資料を探して方法を選び、通常の計画・実行に必要な情報を引き継げる。
+Done: forge can find references, choose a method and carry the necessary information into ordinary planning and execution.
 
-## step5 — 通常の依頼経路で実証する
+## step5 — Demonstrate the ordinary request route
 
-- `test_theme.md` の依頼を通常の `assetplan` → `assetrun` で行い、五枚の個別ファイルとセットのプレビューを納品する。画像仕様・見た目・ダウンロード可能性を確認する。
-- 続けて「一種類だけ差し替え」「背景色または出力サイズの変更」を依頼し、変更しない部分の一貫性と編集元の再利用を確認する。
-- 新しい依頼・実行でも再現する。知識探索と方法選択の記録を見て、偶然の一回成功や Omni Agent の手作業への依存がないか確認する。
-- 該当経路の自動テストを追加・更新する。重点は知識への到達、要件・採用版の引き継ぎ、納品。非同期経路を使う場合は再開と重複通知も検証する。
-- 困難な要求への応答も確認し、未達理由と要件変更・別手段の提案ができることを見る。実装で解決できる失敗は改善して再試行する。
+- Run the `test_theme.md` request through ordinary `assetplan` → `assetrun`, delivering five individual files and a set preview. Check specifications, appearance and downloadability.
+- Follow with requests to replace one fruit and change the background colour or output size. Check consistency of unchanged parts and reuse of editable sources.
+- Repeat through a new request/run. Inspect discovery and method-selection records for dependence on a lucky first success or manual help from the Omni Agent.
+- Add or update relevant automated tests, focusing on knowledge access, requirement/revision handover and delivery. If the chosen route is asynchronous, also verify resumption and duplicate notifications.
+- Check responses to difficult requests: explain unmet requirements and propose requirement changes or other methods. Fix implementation failures and retry where feasible.
 
-完了: 通常経路で納品・修正・別実行での再利用が通る。Omni Agent が代行した箇所は報告に明記し、引き継ぎ候補として残す。
+Done: ordinary requests support delivery, revision and reuse in a separate run. Document any work performed for an agent by the Omni Agent as a handoff candidate.
 
-## step6 — 運用への反映と報告
+## step6 — Operational handover and report
 
-- 更新・再検証の手順を短く記す。モデル・ワークフロー・依存関係が変わった時や失敗時に、関係する能力を再確認できればよい。p1 で自動監視基盤まで作る必要はない。
-- 環境問題は cagent、実装問題は autolab、一般知識の不足は mediagen に返す経路をガイドに記す。
-- 必要な配置・サービス反映と紹介文・開発文書の更新を行う。変更したリポジトリは commit・push する。
-- `report.md` に採用方式、参照版、実証した要求と結果、限界、残課題を簡潔に残す。環境固有の証跡は `.local/` を参照する。
+- Write short update and re-verification instructions. It is sufficient to re-check affected capabilities when a model, workflow, dependency or environment changes, or a run fails. p1 does not require automated monitoring infrastructure.
+- Document routes for environment problems to cagent, implementation problems to autolab and gaps in general knowledge to mediagen.
+- Apply necessary deployment/service changes and update introductions and developer documentation. Commit and push changed repositories.
+- In `report.md`, briefly record the adopted method, reference revisions, demonstrated requests and results, limitations and remaining work. Refer to `.local/` for environment-specific evidence.
 
-完了: 一つの能力について、知識取り込み → 環境適用 → forge での発見・利用 → 納品 → 修正・再利用が実証され、次の能力にも使える進め方が残っている。
+Done: one capability has demonstrated knowledge import → environment adaptation → discovery and use by forge → delivery → revision and reuse, with a process that can be applied to the next capability.
