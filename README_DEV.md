@@ -587,6 +587,23 @@ resumed only on a second, explicit press.
   workspace makes a repeated notifier callback a no-op, so one job is never
   generated or delivered twice.
 
+- **Since `study_import` p1 (2026-09-20) forge finds its own knowledge.**
+  `agforge knowledge list | show | search | path` reaches the sources named
+  in its ignored `.local/knowledge.toml`: mediagen's `main/` (general,
+  publish-ready) and mediagen's `localize/` (what runs here, one INDEX row
+  per capability with a state). Every index row is shown, unverified ones
+  with their state; the planner reads what it likes and cites
+  `<source>/<path>` in the plan, which is recorded with a
+  `[selfnote][knowledge] mediagen@<rev>, localize@<rev>` note beside
+  `[tools]`; the run's workspace gets `knowledge.md` saying whether a source
+  moved since. Precedence when inputs disagree: the chat's words >
+  `required_items.md` > local > general. `localize/` is a study-pattern
+  extra folder with no `publish/`; its README says how to re-verify a
+  capability and where each kind of problem goes (environment → cagent,
+  script → autolab workplan, missing general finding → mediagen tip).
+  First capability: `hud_icons` (drawn Pillow route, verified; the generated
+  and whole-icon routes recorded as weaker or failed).
+
 ## Explicit replies and journaled servings (`explicit_reply` p1, 2026-09-20)
 
 **An agent's reply is what its run marks, not whatever it printed.** Until
