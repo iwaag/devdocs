@@ -125,3 +125,18 @@ Two things only you can say:
 2. Whether the content-policy reading in `GOAL.md` (your advice supersedes the round-1
    "no digestion / no sustained fear" rule for this scene) is yours. If not, step 5 is
    where it gets revised.
+
+## Addendum (2026-09-23) — the Developer's answer to item 2
+
+The Developer answered at once: **the round-1 rule itself is inappropriate**, not only
+for this scene — 「生々しい残酷描写はしないが、恐怖や消化という目の前の現実ははっきりと明記する必要があります」
+("no graphic, cruel depiction, but fear and digestion — the reality in front of the
+player — must be stated clearly"). Relayed to Front (#8191) as the Developer's own
+words; Front opened a doc-only task 4 in the same mission; autolab replaced the
+scene-scoped exception with the project-wide rule (Japanese original and translation)
+in `GOAL.md`, added a follow-up entry in `direction/REFERENCES.md` that supersedes the
+"Omni Agent's reading" entry while keeping it as history, and reworded the README
+pointer. Commits `main` `f9f8d40`, `direction` `3bbb341`; no code or asset touched.
+One transient glitch: autolab's plan-tracker edit failed with "Nothing to change" on a
+no-op PATCH and it retried on Front's nudge (four extra runs). Item 1 (the play
+evaluation) is still the Developer's to give.
