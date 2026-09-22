@@ -1,79 +1,79 @@
-# Adventure game p1 — 人間の企画・評価を軸に制作サイクルを実証する
+# Adventure game p1 — Demonstrate a production cycle guided by human direction and evaluation
 
-原点: [braindump.md](braindump.md)。
+Source: [braindump.md](braindump.md).
 
-## 目的と進め方
+## Goal and approach
 
-人間が構想を伝える → 必要な調査・アセット・制作方法を整理する → MVPを制作する → 人間が遊んで評価する → 次のargueから改善する、という一巡を実環境で検証する。ゲームの内容、規模、章構成、技術、アセット数はこの計画では決めない。長期開発全体の達成と、p1で確認できた範囲を区別する。
+Verify one cycle in the actual environment: the human expresses a concept → identify the necessary research, assets and production methods → build an MVP → the human plays and evaluates it → improve it through the next argue. This plan does not decide the game's content, scale, chapter structure, technology or asset count. Distinguish what p1 demonstrates from fulfilment of the broader long-term development goal.
 
-- 企画の重要事項、MVPの範囲、表現・品質の妥協、成果の採否、継続・方向転換・終了、検証の成否は、人間がエージェントの助言を受けながら決める。Omni AgentやFrontが人間の構想・返答・プレイ評価・承認を作って代行しない。
-- 人間の判断が必要になったら、成果物と選択肢・影響を示して返答を待つ。未回答を承認と扱わず、その判断に依存しない調査や実装は進めてよい。通常の技術選択や実装手順まで毎回確認する必要はない。
-- 非公開の実験環境での破壊的フェーズとする。後方互換性は不要。実装者は構造・技術・作業順を選び、必要なコード・ガイド・使い捨て状態を置き換えてよい。セキュリティ強化や一律の非破壊・承認手順を追加しない。秘密とホスト固有情報は既存方針どおりignoredな`.local/`に置く。
-- Frontは対話と引き継ぎ、autolabは調査・開発、forgeはアセット制作、cagentは環境確認・変更を担うことを出発点とする。固定の工程エンジンは前提にしない。Omni Agentは観測と基盤修正を行い、内部エージェントの仕事を代行した場合は内容を報告に残す。
+- The human decides important creative choices, MVP scope, compromises in expression and quality, acceptance of results, whether to continue, change direction or stop, and whether the trial succeeds, with advice from agents. Neither the Omni Agent nor Front may invent or substitute for the human's concept, responses, play evaluation or approval.
+- When human judgement is needed, present the artefacts, options and consequences, then wait for a response. Silence is not approval. Research and implementation independent of that decision may continue; routine technical choices and implementation steps do not require repeated confirmation.
+- This is a breaking phase in a private experimental environment. Backward compatibility is unnecessary. Implementers choose structure, technology and work order, and may replace code, guides and disposable state as needed. Do not add security hardening or blanket non-destructive or approval procedures. Keep secrets and host-specific facts in ignored `.local/` files under the existing policy.
+- Start with Front handling discussion and handoffs, autolab handling research and development, forge producing assets, and cagent inspecting and changing the environment. A fixed workflow engine is not assumed. The Omni Agent observes and repairs infrastructure; record any work it performs on behalf of an in-system agent.
 
-## step1 — 現行環境と会話の往復を確認する
+## step1 — Check the current environment and conversation round trips
 
-- 前提資料と関連実装・最新報告を読み、Nautobotまたは`pj-clusterintent/nctl`でサービス状態と観測時刻を確認する。既存環境を使い、必要な箇所だけ更新・再起動する。
-- 実行段階では人間に検証開始と会話先を案内し、通常の会話で返信、他エージェントへの依頼、結果の返却を確認する。機械的な試験投稿は試験と明示し、人間の企画発言として扱わない。
-- Arguing RoomとProject Roomで閲覧・投稿・返答確認ができることを確認する。実際の企画の最初の往復と兼ねてよい。阻害する不具合は修正し、変更に応じたテストを行う。
+- Read the prerequisite documents, relevant implementation and latest reports. Inspect service state and observation timestamps through Nautobot or `pj-clusterintent/nctl`. Reuse the existing environment and update or restart only what is needed.
+- During execution, tell the human that the trial is starting and where to participate. Verify replies, delegation to other agents and delivery of results through ordinary conversations. Label mechanical test posts as tests; do not treat them as the human's creative input.
+- Verify reading, posting and receiving replies in the Arguing Room and Project Room. These checks may coincide with the first real planning exchanges. Fix blocking defects and run tests appropriate to the changes.
 
-到達点: 人間が議論に参加でき、依頼と返答を追える。未確認部分は明記されている。
+Done: the human can participate in discussion and follow requests and replies. Unverified parts are explicit.
 
-ヒント: `explicit_reply/p1`は返信・継続処理を更新済みだが実投稿検証が残る。`project_room/p1`も実環境の投稿往復が未検証。nctlのconvergedだけではこの往復は証明できない。
+Hints: `explicit_reply/p1` updated reply and continuation handling but leaves live posting checks pending. `project_room/p1` also leaves live posting round trips unverified. nctl reporting converged does not prove these exchanges work.
 
-## step2 — 人間とargueで企画と検証範囲を決める
+## step2 — Decide the concept and trial scope with the human in argue
 
-- 人間自身に構想を伝えてもらい、Frontが必要に応じてautolab、forge、archsage、cagentなどを議論に招く。ジャンル内の表現形式や物語、世界観、遊び方を事前に埋めない。
-- MVPで体験したいこと、評価したい点、今回の時間・費用の目安を人間と決める。エージェントは候補や難しさを説明し、重要な未決事項を見える形で残す。
-- 必要なアセット、調査課題、利用候補の知識・ワークフローを整理する。「実証済み」「試す必要あり」「未調査」を根拠とともに区別し、必要なら制作前に小さな実験を提案する。
-- 反復制作・素材の継続改善を観測できる範囲を相談する。簡単なワンショット制作で終わる企画なら、その検証上の限界を伝え、範囲の選択は人間に任せる。
+- Have the human express their own concept. Front invites autolab, forge, archsage, cagent or others as useful. Do not prefill the presentation format, story, setting or gameplay within the genre.
+- Agree with the human on the intended MVP experience, evaluation points, and approximate time and cost budget for this trial. Agents explain options and difficulties and keep important unresolved decisions visible.
+- Identify required assets, research questions, and candidate knowledge and workflows. Distinguish verified methods, methods needing trials, and unexplored areas with supporting evidence. Propose small experiments before production where useful.
+- Discuss a scope that allows iterative production and continued asset improvement to be observed. If the concept would end with a simple one-shot build, explain the limitation for this trial and leave the scope decision to the human.
 
-到達点: 人間が選んだ企画・MVP範囲・評価観点と、未解決の技術課題が会話から辿れる。
+Done: the conversation records the human's chosen concept, MVP scope and evaluation criteria, together with unresolved technical questions.
 
-## step3 — プロジェクトを作成し、制作への引き継ぎを成立させる
+## step3 — Create the project and complete the handoff into production
 
-- 合意した内容からプロジェクトのフォルダ・チャンネルと作業場所を作成する。先行調査が必要なら既存studyまたは新しいstudyへ渡し、ゲーム側との関係を記録する。
-- 企画の判断理由、採用した資料、未決事項、評価観点を次の担当が読める場所に残す。`game`パターンの`main/`・`direction/`・`devlog/`は出発点として利用できる。
-- 作業場所の準備後、誰が何を依頼し、どの計画から実行するかを明示する。人間が制作開始を決めた範囲はFrontが通常のworkplan/workrun経路へ引き継ぎ、各タスクで同じ承認を取り直さない。
-- Project Roomで目的、計画、実行、成果へのリンクを辿れることを実データで確認する。
+- Create the project folder, channel and workspace from the agreed direction. If preliminary research is needed, route it to an existing or new study and record its relationship to the game.
+- Preserve the reasons behind creative decisions, adopted references, unresolved questions and evaluation criteria where the next worker can read them. The `game` pattern's `main/`, `direction/` and `devlog/` are available as a starting point.
+- After workspace preparation, make clear who requests what and which plan leads into execution. For the scope the human has agreed to start, Front hands work into the ordinary workplan/workrun route without seeking the same approval again for each task.
+- Verify with real data that Project Room links lead from purpose to plans, execution and results.
 
-到達点: 準備完了で止まらず、合意した調査・制作が開始され、人間が進捗を確認できる。
+Done: work proceeds beyond setup; the agreed research and production begin, and the human can follow progress.
 
-ヒント: `agfront/src/agfront/project.py`の`agproject open`は`pj-<slug>`と同名folderを作るが、setupのみで制作を開始しない。`researchplan-`も文書だけでは実行されない。autolabでは`plan.md`だけでなくタスクが必要。
+Hints: `agproject open` in `agfront/src/agfront/project.py` creates `pj-<slug>` and its matching channel folder, but performs setup only and does not start production. A `researchplan-` document alone does not execute work either. autolab needs tasks as well as `plan.md`.
 
-## step4 — 調査・アセット制作・実装を進め、遊べるMVPを渡す
+## step4 — Research, produce assets, implement and deliver a playable MVP
 
-- 内部エージェントが通常の依頼経路で調査、実験、アセット制作、ゲームへの組み込みを進める。既存手法が足りなければ小さな実験を行い、成功条件・失敗・代替案を残す。
-- 素材の用途、編集元、生成・加工方法、採用版、ゲーム内での使用箇所を必要な範囲で記録する。画像単体の出来だけでなく、実際の表示・操作・物語の文脈で確認する。
-- 企画や品質の重要な変更が必要なら、人間に比較できる試作品や選択肢を提示する。エージェントによる技術検査と、人間による表現・体験の採否を分けて記録する。
-- 起動方法、操作方法、既知の制限、成果の版を添えてMVPを渡す。ビルド成功や完了報告に加え、渡した成果物が実際に起動でき、必要な素材を含むことを確認する。
+- In-system agents use ordinary request routes for research, experiments, asset production and integration into the game. When existing methods are insufficient, run small experiments and record success conditions, failures and alternatives.
+- Record asset purpose, editable sources, generation and processing methods, adopted versions and in-game uses as needed. Check assets in their actual display, interaction and story context as well as inspecting individual images.
+- When important changes to the concept or quality are needed, present comparable prototypes or options to the human. Record agents' technical checks separately from the human's acceptance of expression and experience.
+- Deliver the MVP with launch and control instructions, known limitations and the delivered version. Beyond a successful build or completion report, verify that the delivered artefact actually launches and contains the required assets.
 
-到達点: 人間が触れるMVPと、その制作・調査・素材の根拠が揃う。未達なら理由を示し、人間が次の進め方を判断する。
+Done: the human receives a usable MVP and supporting production, research and asset evidence. If this is not achieved, explain why and let the human decide how to proceed.
 
-ヒント: forgeの`knowledge list/show/search/path`はmediagenと`localize/`を参照できる。`study_import/p1`では素材の部分変更と再利用を実証済み。ただし生成物から共通知識への還元は自動ではなく、必要な知見をautolabのworkplan等へ戻す。古いasset_pipeline報告のPlaneや手動runcreate経路は現行手順として使わない。
+Hints: forge's `knowledge list/show/search/path` can access mediagen and `localize/`. `study_import/p1` demonstrated partial asset changes and reuse. Returning findings from generated work into shared knowledge is not automatic; route useful findings back through an autolab workplan or another appropriate route. Do not use Plane or manual runcreate routes from old asset_pipeline reports as current procedures.
 
-## step5 — 人間のプレイ評価を次のargueで受け取り、改訂する
+## step5 — Receive the human's play evaluation in the next argue and revise
 
-- 人間に実際に遊んでもらい、感想、採用したい点、変えたい点、継続の意向を本人の言葉で受け取る。返答待ちならこのstepを未完了として止め、Omni AgentやFrontの感想で置き換えない。
-- 次のargueで同じプロジェクト、評価対象の版、過去の判断と調査結果を参照する。人間と変更範囲・優先順位・再評価の観点を決める。
-- 合意した変更を計画へ戻し、必要な追加調査、素材の修正、実装を行う。既存成果の再利用と変更理由が辿れるようにする。別のゲームを一から作り直して継続性の検証を済ませない。
-- 改訂版を再び人間に渡し、改善したかを本人に評価してもらう。人間が終了を選んだ場合は従い、反復まで到達しなかった事実を残す。
+- Have the human actually play, then receive their impressions, what they want to retain or change, and whether they want to continue, in their own words. If their response is pending, leave this step incomplete and wait; do not substitute the Omni Agent's or Front's impressions.
+- In the next argue, refer to the same project, the evaluated version, earlier decisions and research findings. Agree with the human on the scope and priority of changes and the criteria for re-evaluation.
+- Feed agreed changes back into the plan and carry out necessary additional research, asset revisions and implementation. Make reuse of existing results and reasons for changes traceable. Building a different game from scratch does not complete the continuity trial.
+- Return the revised version to the human and have them judge whether it improved. If the human chooses to stop, respect that decision and record that the trial did not reach the full iteration.
 
-到達点: 人間の評価 → 次のargue → 計画更新 → 改訂版 → 人間の再評価を、同じプロジェクトで一巡する。
+Done: the same project completes human evaluation → next argue → updated plan → revised version → human re-evaluation.
 
-## step6 — 制作サイクルの成否を人間と確認し、報告する
+## step6 — Review the production cycle with the human and report
 
-- 企画から改訂までの会話、計画、成果物の版、評価を繋いで報告する。ゲームとしての成否と、開発サイクルとしてどこまで機能したかを人間と確認する。
-- 所要時間・費用、止まった引き継ぎ、失われた判断、素材の再利用、研究から制作への導入、Omni Agentの代行箇所を簡潔に記録する。全自動化率は合格条件にしない。
-- 実際に観測した問題から必要な基盤・ガイドを改善し、影響箇所を再検証する。想定だけで禁止事項や専用基盤を増やさない。
-- `report.md`に実証範囲と残課題を記載し、人間の評価待ちは未完了とする。p1の一巡を長い物語・大量素材・長期間の開発実証と言い換えない。変更したリポジトリと必要なsubmodule参照をcommit/pushする。
+- Report the linked conversations, plans, artefact versions and evaluations from concept through revision. Review with the human both the game's success and how far the development cycle worked.
+- Briefly record time and cost, stalled handoffs, lost decisions, asset reuse, adoption of research into production, and work performed by the Omni Agent on behalf of others. Full automation is not an acceptance criterion.
+- Improve infrastructure and guides based on observed problems, and re-check affected behaviour. Do not add prohibitions or dedicated infrastructure solely for hypothetical problems.
+- Write the demonstrated scope and remaining gaps in `report.md`; pending human evaluation remains incomplete. Do not present p1's single cycle as proof of long stories, large asset volumes or sustained long-term development. Commit and push changed repositories and necessary submodule references.
 
-到達点: 人間の判断を含む検証結果と、次の制作・基盤改善に使える具体的な知見が残る。
+Done: the record includes the human's judgement and concrete findings useful for subsequent production and infrastructure improvements.
 
-## 参照先
+## References
 
-- `devdocs/README_DEV.md`、`pj-agdev/.local/devenv.md`、`pj-clusterintent/.local/localenv_memo.md`、`pj-clusterintent/nctl/README.md`。
-- `devdocs/episodes/argue/p1/report.md`、`argue/p2/ex1/report.md`、`project_room/p1/report.md`、`agentchat/explicit_reply/p1/report.md`（後者3件も`devdocs/episodes/`配下）。
-- `devdocs/episodes/agforge/study_import/p1/report.md`、`pj-agdev/agautolab/agent/project_pattern.md`、`pj-agdev/agautolab/agent/guides/workplan_superdirector/guide.md`。
+- `devdocs/README_DEV.md`, `pj-agdev/.local/devenv.md`, `pj-clusterintent/.local/localenv_memo.md`, `pj-clusterintent/nctl/README.md`.
+- Under `devdocs/episodes/`: `argue/p1/report.md`, `argue/p2/ex1/report.md`, `project_room/p1/report.md`, `agentchat/explicit_reply/p1/report.md`.
+- `devdocs/episodes/agforge/study_import/p1/report.md`, `pj-agdev/agautolab/agent/project_pattern.md`, `pj-agdev/agautolab/agent/guides/workplan_superdirector/guide.md`.
 
-報告の実証範囲はその時点のものとして読み、実行時のコード・会話・環境で更新する。
+Treat each report's demonstrated scope as evidence from that point in time, and update it against the code, conversations and environment at execution time.
