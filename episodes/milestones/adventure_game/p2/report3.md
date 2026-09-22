@@ -66,11 +66,23 @@ role-specific paragraph:
 - Evidence: the ordinary run topics and forge's `assetrun-` records; departures and
   unresolved conflicts are what the guides tell each role to state.
 
-## Pending until the human pushes
+## Live checks after the human's push (2026-09-23)
 
-- `agrefs sync protoprey-refs` in each of the four consumers, and a delegated result
-  that names its reference — that is step 4's first mission.
-- Independent retrieval from agautolab1.
+The Developer pushed `a3c8196` ("first advice") on 2026-09-23 — and reorganised the
+tree as they saw fit (`human_advice.md`, `todo.md`, `preds/wolf/{images,texts}/`; the
+scaffold's suggested folders and README are gone, which is exactly the freedom the
+contract gives them).
+
+| Check | Result |
+|---|---|
+| `agrefs sync protoprey-refs` in agfront, agautolab, agforge, archsage | each resolved `a3c8196` (`a3c81968de…`) and laid out its own snapshot |
+| `agrefs show …:preds/wolf/images/catch.jpg` | `binary: image/jpeg, 1344x768, 637,975 bytes, at <path>` |
+| Independent retrieval on agautolab1 (plain `git clone` through the ansible key) | HEAD `a3c8196`, tree `113e2785…` = the tree of the human's clone; 14 files; `sha256` of `catch.jpg` and `catch.txt` byte-identical to the snapshot here |
+| Embedded generation parameters (the Developer asked whether agents can read them) | readable: EXIF `UserComment` (UTF-16) holds SwarmUI `sui_image_params` — prompt, negative prompt, model `oneObsession_v22`, seed, steps, cfgscale — for all five images |
+| The five images viewed by the Omni Agent | discovery (low-angle wolf walking the forest path), catch (open jaws from below, tongue, teeth, saliva), carry (side view, jaws slightly open, drool), swallow (muzzle raised to the moon, eyes closed), rest (wolf asleep in a cave mouth) — the phases of the event, as the advice describes them |
+
+The delegated-result check (a result that names its reference) is step 4's first
+mission, recorded in report 4.
 
 ## Not done, on purpose
 
