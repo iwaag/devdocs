@@ -604,6 +604,28 @@ resumed only on a second, explicit press.
   First capability: `hud_icons` (drawn Pillow route, verified; the generated
   and whole-icon routes recorded as weaker or failed).
 
+## Human-authored references (`adventure_game` p2, 2026-09-22)
+
+The human keeps the things agents build *from* — stories, images, templates,
+runnable examples — in a repository of their own, edited in a folder outside
+every agent workspace and published by `git push`. Agents never write there.
+A reference is named `<source>@<revision>[:<path>]` and every agent reads it
+with the shared `agrefs` (pyagag, `agag.refs`): `list`, `sync`, `show`,
+`path`, `search`, `revision`, `changes`. A snapshot is `git archive` of one
+commit, kept immutable under the instance's `.local/refs/<source>/<sha>/`, so
+several revisions coexist and a running task keeps the one it adopted; the
+source name → URL map is the ignored `.local/refs.toml`, and a run is handed
+`AGREFS_HOME` beside `AGENTCHAT_ZULIP_ENV`. `show` describes a binary (kind,
+pixel size, bytes, path) rather than pretending to read it; the harness's
+own image reader over `agrefs path` is the visual access. Front carries the
+identity into `GOAL.md` and workplans, autolab records the adopted commit in
+`direction/REFERENCES.md` and names paths per task, forge can steer SwarmUI
+with a reference (`agforge image generate --init-image`), and archsage reads
+references apart from its sages' trees — a project's input, never a study's
+finding. Creative direction from a reference outranks technical knowledge;
+the requester's words outrank both. Originals are the human's; agents write
+derivatives in their own workspaces and say where they departed.
+
 ## Explicit replies and journaled servings (`explicit_reply` p1, 2026-09-20)
 
 **An agent's reply is what its run marks, not whatever it printed.** Until
