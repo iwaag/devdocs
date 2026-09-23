@@ -31,7 +31,14 @@ What the two forest examples establish, as read from the originals: a **micro po
 
 `<id>` is `snake_case`, new (not `flower_pond` or `mashroom_waterfall`). `NOTES.md` states the reference revision (`protoprey-refs@6e017fb`) and which example files were read, the generation settings (model, prompt, seed, steps, guidance, size) of the kept image, how many attempts were made and why the kept one was chosen, elapsed time, and notable departures from the references. Provenance for the image and texts is "newly produced by forge" plus the request id.
 
-**Production route.** [filled after step 4's check: the ComfyUI Flux2 route forge can execute — the command, where the Developer's workflow is, how the result is fetched.] The Developer's guidance is the starting point for scenery: Flux2 dev, the `tools/image_flux2_text_to_image.json` graph, 1344×768. Image-to-image is optional. Choose the place yourself — a forest location that does not duplicate the pond or the waterfall — and inspect your own output before delivering: viewpoint at ground level, the miniature scale legible, atmosphere consistent between image and text, no text, UI or watermark in the image, no people.
+**Production route.** Your SwarmUI image tool cannot load Flux2 (checked: every backend fails to load `flux2_dev_fp8mixed`). The Developer's route is available as a localised capability you can find with `agforge knowledge list`: `localize/flux2_scenery/` (state `verified`, 2026-09-23). Read its README first (`agforge knowledge show localize/flux2_scenery/README.md`). It runs the Developer's own graph through ComfyUI, synchronously, about 40 s per 1344×768 render on an empty queue:
+
+```
+uv run --with requests python "$(agforge knowledge path localize/flux2_scenery/generate.py)" \
+  --prompt "<your prompt>" --out <dir> [--seed N] [--width 1344 --height 768] [--steps 8] [--guidance 4]
+```
+
+It prints one JSON line with the output path and the settings used; the PNG keeps the ComfyUI `prompt` metadata like the references. The Developer's guidance is the starting point for scenery: Flux2 dev, the `tools/image_flux2_text_to_image.json` graph, 1344×768. Image-to-image is optional. Choose the place yourself — a forest location that does not duplicate the pond or the waterfall — and inspect your own output before delivering: viewpoint at ground level, the miniature scale legible, atmosphere consistent between image and text, no text, UI or watermark in the image, no people.
 
 Record attempts and elapsed time in the plan and the delivery. If a part of the route is not available to you, say which part, and what you would need, rather than substituting a different route silently.
 
