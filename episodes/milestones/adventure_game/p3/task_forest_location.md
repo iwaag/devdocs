@@ -20,7 +20,16 @@ Please ask forge (`#agforge-agstudio1`, an `assetplan-protoprey-forest-location`
 
 What the two forest examples establish, as read from the originals: a **micro point of view** — camera at ground level, the player miniature (flowers, mushrooms and pebbles tower; a bee is torso-sized); a 1344×768 Flux2 dev render (`flux2_dev_fp8mixed`, `mistral_3_small_flux2_bf16`, Turbo LoRA, 8 steps, guidance 4, euler), with prompts like "micro pov, very low angle, bottom view, waterfall on left, forest, rocks, dirt, very tall wild flowers on right, moss, a few tall mashrooms seen from below, trees, depth of field, tall plants"; discovery prose of five paragraphs that walks the reader into the place through the body (sound before sight, mist on skin, a droplet bursting against the legs) and ends on an open question; revisit prose of two paragraphs that conveys familiarity — the same place recognised, feet placed with knowledge — without retelling the discovery.
 
-**The content example and the delivery shape** are the implemented format in `autodev/protoprey` [filled after step 2: the `docs/ADDING_A_LOCATION.md` contract — folder, file names, image size and format, the two text files, id / display name / biome, provenance note]. Deliver exactly that: one view image (PNG, 1344×768), `discovery.md` and `revisit.md` in English, the location identity (id in `snake_case`, display name, biome `forest`), and a short provenance note — reference revision, generation settings (model, prompt, seed, steps, size), attempts made, and notable departures from the references.
+**The content example and the delivery shape** are the implemented format in `autodev/protoprey` (`docs/ADDING_A_LOCATION.md` at `528605c` or later; the four human locations under `data/locations/<id>/` and `assets/locations/<id>/` are the worked examples). Deliver exactly one folder `<id>/` holding:
+
+```
+<id>/view.png        1344x768 PNG, ground-level (micro) point of view like the two forest examples
+<id>/discovery.txt   English, about five paragraphs (~3,000 characters), one paragraph per line
+<id>/revisit.txt     English, about two paragraphs, one paragraph per line
+<id>/NOTES.md        display name, biome `forest`, provenance per file, generation settings and attempts
+```
+
+`<id>` is `snake_case`, new (not `flower_pond` or `mashroom_waterfall`). `NOTES.md` states the reference revision (`protoprey-refs@6e017fb`) and which example files were read, the generation settings (model, prompt, seed, steps, guidance, size) of the kept image, how many attempts were made and why the kept one was chosen, elapsed time, and notable departures from the references. Provenance for the image and texts is "newly produced by forge" plus the request id.
 
 **Production route.** [filled after step 4's check: the ComfyUI Flux2 route forge can execute — the command, where the Developer's workflow is, how the result is fetched.] The Developer's guidance is the starting point for scenery: Flux2 dev, the `tools/image_flux2_text_to_image.json` graph, 1344×768. Image-to-image is optional. Choose the place yourself — a forest location that does not duplicate the pond or the waterfall — and inspect your own output before delivering: viewpoint at ground level, the miniature scale legible, atmosphere consistent between image and text, no text, UI or watermark in the image, no people.
 
