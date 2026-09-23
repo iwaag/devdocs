@@ -1,126 +1,126 @@
-# Robust workflow p1: 解決のための意見と作業方針
+# Robust workflow p1: Proposed solutions and work approach
 
-本稿は [braindump.md](braindump.md) とその議論を受けた AI による提案であり、実装済みの仕様や確定した原因を記すものではない。
+This is an AI-authored proposal based on [braindump.md](braindump.md) and the discussion that followed. It does not describe an implemented specification or confirmed root causes.
 
-## 目指す状態
+## Desired outcome
 
-Front に依頼した後、Omni Agent が停止点を探して促さなくても、仕事が進む。進めない場合には、何が起き、何を待ち、誰が次に判断・操作すべきかが依頼元に届く。問題が復旧した場合にも、失敗の事実と復旧の経緯が残り、次の改善に使える。
+After a request reaches Front, work progresses without the Omni Agent having to locate stalls and prompt agents to continue. If work cannot proceed, the requester learns what happened, what is being awaited, and who needs to decide or act next. Even after recovery, the failure and the recovery history remain available to inform further improvements.
 
-この目的に対して、braindump の「システムを簡素化し、ミスしやすい工程とガイドのルールを減らす」を第一方針とすることに賛成する。Observer による検知・復帰・不具合記録を並行して整え、開発途上でも仕事を継続できるようにする。
+To achieve this, I support the braindump's primary approach: simplify the system and reduce both error-prone steps and guide rules. Develop Observer's detection, recovery, and incident recording alongside those changes so that work can continue while the workflow is still being developed.
 
-## 現時点で分かっていること
+## What the existing evidence shows
 
-[adventure_game p3 step 2 のレポート](../../milestones/adventure_game/p3/report2.md)には、次の事例が記録されている。
+The [adventure_game p3 step 2 report](../../milestones/adventure_game/p3/report2.md) records the following cases.
 
-| 事例 | 記録から言えること | 追加で確認すること |
+| Case | What the record establishes | What still needs investigation |
 |---|---|---|
-| workplan を開いた直後に resolve し、別トピックを作成 | 元の会話では autolab がすでに処理を開始しており、二重の会話ができた | resolve を選んだ入力・ツール結果と、その後の復旧手段 |
-| task 4 を開始したと報告したが、開始投稿がなく24分停止 | 報告と実際の操作が一致せず、Front は停止に気づかなかった | 未実行、操作失敗、結果の誤読のどれだったか |
-| task 5 を開始せずに結果を待った | 次の処理を起動する責任が果たされなかった | 引き継ぎ時に何が見えており、誰の行動を期待していたか |
-| task 4 の内容を task 3 の会話で作業した後、task 4 に開始投稿が必要になった | 実作業とタスクの開始・記録の境界が分かりにくい | タスク間の責任分担と、不要な中継を減らせるか |
+| A workplan was resolved immediately after being opened, and another topic was created | autolab had already started processing the original conversation, leaving two conversations | The input and tool results that led to the resolve, and the available recovery operations |
+| Front reported starting task 4, but no start post existed, causing a 24-minute stall | The report did not match the actual action, and Front did not notice the stall | Whether the action was omitted, failed, or its result was misread |
+| Front waited for task 5's result without starting it | Responsibility for triggering the next operation was not fulfilled | What was visible at the handoff and whose action was expected |
+| Task 4's content was worked on in task 3's conversation, but task 4 still required a start post | The boundaries between actual work, task initiation, and task records were unclear | How responsibility was divided between tasks and whether unnecessary relays can be removed |
 
-これらはレポートに基づく観察であり、当時の全実行ログを再調査して原因を確定したものではない。[phase report](../../milestones/adventure_game/p3/report.md)では、すでにガイドへの追記と、Omni Agent の促しなしでの再試行が提案されている。本 episode では、その追記が効くかだけでなく、追記を必要にした構造を調べる。
+These observations come from reports; they are not root-cause findings from a fresh examination of all execution logs. The [phase report](../../milestones/adventure_game/p3/report.md) already describes guide additions and proposes another trial without Omni Agent prompting. This episode should investigate both whether those additions work and the structure that made them necessary.
 
-## 解決に向けた意見
+## Proposed solutions
 
-### 1. モデルより先に、実際に与えられた仕事を調べる
+### 1. Examine the actual task given to the agent before attributing failure to the model
 
-モデルの能力不足と結論づける前に、入力、ガイド、利用可能なツール、権限、実行環境、操作結果を調べる。Omni Agent が操作できることは、そのエージェントも操作できる証拠にはならない。
+Before concluding that the model lacks capability, examine the input, guides, available tools, permissions, execution environment, and operation results. The Omni Agent's ability to perform an operation does not establish that the in-system agent can perform it.
 
-人間には「次のタスクを開始するだけ」に見えても、エージェントには複数のトピック、承認、開始条件、返送先、終了条件を横断する仕事になっている可能性がある。モデルを固定したまま、この負担を減らした場合の改善を測る。モデルの寄与を完全に否定する必要はないが、モデル変更を最初の解決策にはしない。
+What looks to a human like "just start the next task" may require the agent to coordinate multiple topics, approvals, start conditions, return destinations, and completion conditions. Keep the model fixed and measure the improvement from reducing that burden. There is no need to rule out the model's contribution entirely, but changing models should not be the first remedy.
 
-### 2. 引き継ぎの責任を明確にし、判断を伴わない中継を減らす
+### 2. Clarify responsibility for handoffs and reduce relays that require no judgment
 
-原因候補に「責任の分散」と「引き継ぎ状態の見えなさ」を加えたい。
+Add "distributed responsibility" and "poor visibility into handoff state" to the candidate causes.
 
-まず Front、autolab、forge の間で、計画、承認、開始、結果確認、次タスクへの移行を誰が担うかを、実際の会話に沿って整理する。特に、承認済みの範囲内で autolab が自分のタスクを順に進められるなら、Front が毎回開始投稿を中継する必要性を見直す。
+First, use actual conversations to map who handles planning, approval, initiation, result review, and progression to the next task across Front, autolab, and forge. In particular, if autolab can advance through its own tasks within an approved scope, reconsider whether Front needs to relay a start post for every task.
 
-ただし、成果の受け入れ、追加費用、範囲変更などの判断が含まれる境界は区別する。人間による受け入れが必要な仕事を、工程削減の名目で自動承認してはいけない。既存の承認が何を許可したかを引き継ぎ、同じ許可の再取得を減らす。
+Distinguish boundaries that involve decisions such as accepting a delivery, incurring additional costs, or changing scope. Work requiring human acceptance must not be automatically accepted merely to reduce steps. Carry forward what an existing approval authorizes so that the same permission does not need to be obtained again.
 
-具体的な担当変更は調査後に決める。すべての業務を固定手順に落とすことを目指すのではなく、エージェントが判断する価値のない接続作業を減らす。
+Decide specific ownership changes after investigation. The aim is to reduce coordination work that offers little value for agent judgment, rather than turn every activity into a fixed procedure.
 
-### 3. 操作の事実を読めるようにする
+### 3. Make the facts of an operation inspectable
 
-「開始した」という自然言語の報告だけでは、開始の証拠にならない。一方、投稿 ID があるだけでも、受信側が実行を開始した証拠にはならない。
+A natural-language report saying "started" is not evidence that execution began. A post ID alone is also insufficient to establish that the recipient started executing.
 
-少なくとも、依頼が投稿されたか、受信側が受け付けたか、実行中か、結果が生成されたか、依頼元へ届けられたかを追えることが必要である。正常な人間待ちと、観測できない状態も区別する。
+At a minimum, it should be possible to trace whether a request was posted, accepted by its recipient, is being executed, produced a result, and delivered that result to the requester. Legitimate waiting for a human and an inability to observe the state must also be distinguishable.
 
-既存のメッセージ ID、rootchat、タスク記録、serving journal を優先して使い、同じ事実を別台帳へ手入力する工程を増やさない。まず既存記録をつないで読める道具を用意し、それでも分からない境界にだけ最小限の記録を追加する。ツールが返した失敗や不確実な結果も、成功時と同じ依頼から辿れるようにする。
+Prefer existing message IDs, rootchat notes, task records, and the serving journal. Avoid adding steps that manually copy the same facts into another ledger. First provide tools that connect and read the existing records, then add only the minimum records needed at boundaries that remain unclear. Failures and uncertain results returned by tools should be traceable from the same request as successful outcomes.
 
-これは Tool Giving として進める。すべての局面で特定コマンドを順番どおり呼ばせるガイドを追加するより、必要な状態と証拠を少ない操作で得られるようにする。
+Approach this as Tool Giving. Make the necessary state and evidence available through fewer operations, rather than adding guides that require a specific sequence of commands in every situation.
 
-### 4. Observer の監視対象を、Front の登録忘れから独立させる
+### 4. Make Observer's coverage independent of Front remembering to register a watch
 
-Front が毎回 watch を登録する方式だけでは、開始投稿と同じように監視登録を忘れ得る。進行中の依頼や未完了の引き継ぎから監視対象を拾える方法を検討する。
+If every watch depends on Front explicitly registering it, Front can omit the watch just as it can omit a start post. Explore ways to discover observation targets from ongoing requests and incomplete handoffs.
 
-Observer の仕事は、時間の経過だけで停滞を決めることではない。「何が次に起こるはずか」と証拠を照合し、未開始、処理中、承認待ち、実行失敗、返送漏れ、観測不能を判別することにある。記録だけで分かる事実をツールで取得し、会話の意味を読む必要がある箇所でエージェントの判断を使う。
+Observer should compare evidence with what is expected to happen next, rather than infer a stall from elapsed time alone. It needs to distinguish work that has not started, work in progress, pending approval, execution failure, missing result delivery, and an unobservable state. Use tools to obtain facts that records establish directly, and agent judgment where the meaning of a conversation needs interpretation.
 
-現行の observe ロールは観測と判定に限定されている。復帰と不具合記録まで担当させることは役割の拡張であり、ガイドに一文足すだけで済むとは考えない。次の責任分担を出発点とする。
+The current observe role is limited to observation and judgment. Assigning recovery and incident recording is an expansion of its role, not something to treat as a one-sentence guide addition. Use the following division of responsibility as a starting point.
 
-- Observer が停止の根拠、対象の依頼、直前の操作、期待する次の行動を示す。
-- 元の担当エージェントが、その会話の承認範囲と現在の状態を読んで再開する。
-- 再配達など、意味上の判断を必要としない復旧は、既存の配達・再試行機構で行う。
-- 復帰できなければ、依頼元に理由と必要な判断を届ける。
-- Observer が検知・復帰要求・復帰結果を同じ不具合記録につなぎ、復帰を確認して監視を終える。
+- Observer identifies the evidence of the stall, the affected request, the preceding operation, and the expected next action.
+- The original responsible agent reads the conversation's authorization scope and current state, then resumes the work.
+- Recovery that requires no semantic judgment, such as redelivery, uses the existing delivery and retry mechanisms.
+- If recovery is not possible, the requester receives the reason and the decision needed.
+- Observer connects detection, the recovery request, and the recovery outcome in one incident record, confirms recovery, and ends the watch.
 
-復帰要求そのものが新たな実行を起こすため、単なる催促の反復は避ける。同じ失敗への重複通知や二重開始を識別できるようにし、復帰できない場合の試行の上限と報告先を決める。返送先が失われた場合にも、停止が元の会話の中だけに埋もれない表示・報告経路が必要になる。
+A recovery request can itself trigger another execution, so repeated nudges alone are insufficient. Make duplicate notifications and duplicate starts for the same failure identifiable, and define retry limits and a reporting destination when recovery fails. If the return destination is lost, a display or reporting route must still make the stall visible outside the original conversation.
 
-### 5. ガイドは、実装・道具・責任分担を直した後で整理する
+### 5. Consolidate guides after correcting implementation, tools, and responsibilities
 
-ガイドの長さだけでなく、同じ概念の説明が役割ごとにずれていないかを見る。例えば、Front のガイドには resolve が戻せる rename だという説明がある一方、Desk のガイドには resolved な会話は finished だという説明がある。通常の終了と誤操作時の扱いを区別しないと、復旧判断がぶれる。
+Look beyond guide length to differences in how roles explain the same concept. For example, Front's guide describes resolve as a reversible rename, while the Desk guide describes a resolved conversation as finished. Recovery decisions can become inconsistent if ordinary completion and accidental resolution are not distinguished.
 
-これは両ガイドが同一実行で矛盾して渡されると確認したものではない。実際に各ロールへ渡るガイドと生成されたコンテキストを調べ、実装の挙動も含めて整合させる。
+This does not establish that both guides are supplied as conflicting instructions in the same execution. Inspect the guides and generated context actually supplied to each role, and align their explanations with implementation behavior.
 
-各指示について、現在も必要な契約なのか、過去の実装の制約なのか、すでに道具が保証していることなのかを判断する。不要になったものを削り、共通の契約は一か所で管理する。ガイドの修正自体を否定せず、観測された原因に効く最小限の説明を、再試行で評価する。
+For each instruction, determine whether it is a contract that is still needed, a restriction from a past implementation, or something the tools already guarantee. Remove obsolete instructions and maintain shared contracts in one place. Guide changes remain a valid remedy: evaluate the smallest explanation that addresses an observed cause through another trial.
 
-## 提案する作業順序
+## Proposed work sequence
 
-### Step 1: 失敗の再構成と基準値の記録
+### Step 1: Reconstruct failures and establish a baseline
 
-adventure_game p3 の三つの停止・誤操作を対象に、会話、実行 transcript、ツール結果、listener の記録を照合する。当時のガイドと現在のガイドを区別し、入力の欠落、誤った説明、ツール不具合、権限不足、未実行、誤報告を切り分ける。
+For the three stalls or erroneous actions in adventure_game p3, correlate conversations, execution transcripts, tool results, and listener records. Distinguish the guides in effect at the time from the current guides, and separate missing inputs, incorrect explanations, tool defects, insufficient permissions, omitted actions, and inaccurate reports.
 
-同時に、Front から成果の返送までの責任分担と、現在の正常経路を整理する。稼働環境は Nautobot または nctl で把握し、クラスタ状態の健全性と会話フローの健全性を別々に扱う。
+At the same time, map responsibilities and the current successful path from Front's request through result delivery. Use Nautobot or nctl to understand the running environment, and assess cluster health separately from conversation workflow health.
 
-成果物は、証拠への参照を持つ失敗分析、引き継ぎの一覧、確認できなかった点、現在の手順数・停止時間・介入回数とする。ローカル環境固有の値や秘密は共有文書に記載しない。
+Deliver a failure analysis with evidence references, a handoff inventory, unresolved questions, and baseline counts for steps, stall duration, and interventions. Keep local environment details and secrets out of shared documents.
 
-### Step 2: 実行環境と操作手段の不整合を直す
+### Step 2: Correct mismatches between the execution environment and available operations
 
-指示された操作を、対象エージェントと同じ資格情報、ツール許可、作業ディレクトリ、環境変数、配備済みバージョンで実行できるか確かめる。不要な権限拡張はせず、必要な操作を担当に与えるか、操作可能な担当へ責任を移す。
+Check whether instructed operations can be performed using the target agent's credentials, tool grants, working directory, environment variables, and deployed versions. Provide necessary operations to the responsible agent or move responsibility to an agent that can perform them, without unnecessary permission expansion.
 
-不具合を発見したら、再現する最小ケースとともに直す。代替手段で作業を完了した場合も、元の操作の失敗と代替した事実を残す。
+Fix defects with a minimal reproducing case. If an alternative method completes the work, preserve the failure of the original operation and the fact that a substitute was used.
 
-### Step 3: 最も多くの引き継ぎミスを生む境界を一つ簡素化する
+### Step 3: Simplify one boundary responsible for frequent handoff errors
 
-第一候補は、承認済み計画から個別タスクを開始して次へ進む境界とする。ただし Step 1 の証拠で優先順位を変えてよい。
+The first candidate is the boundary between an approved plan, starting its individual tasks, and advancing to the next task. Evidence from Step 1 may change that priority.
 
-担当の集約、関連操作の一体化、操作結果の明確化を比較し、不要な中継が最も減る案を選ぶ。対応するガイドと他エージェント向けの紹介文を同時に更新し、古い手順を残さない。
+Compare consolidating ownership, combining related operations, and making operation results clearer. Choose the option that removes the most unnecessary relays. Update the corresponding guides and introductions for other agents together, removing obsolete procedures.
 
-### Step 4: 同じ失敗を Observer が検知・復帰できるようにする
+### Step 4: Enable Observer to detect these failures and coordinate recovery
 
-まず Step 1 で確認した失敗に対象を絞る。監視対象の発見、根拠の取得、担当への復帰要求、復帰結果の確認、不具合記録までをつなぐ。
+Initially limit the scope to failures confirmed in Step 1. Connect target discovery, evidence collection, recovery requests to the responsible agent, recovery verification, and incident recording.
 
-導入時には、正常な長時間実行や人間待ちを停滞と誤判定しないかも確認する。必要な記録が読めない場合は観測不能として扱い、正常や未開始だと推測して再実行しない。
+During rollout, also check that legitimate long-running work and waiting for a human are not misclassified as stalls. Treat unreadable records as an inability to observe; do not assume the work is healthy or has not started and rerun it on that basis.
 
-### Step 5: Omni Agent の促しなしで検証する
+### Step 5: Verify without Omni Agent prompting
 
-通常経路と意図的な失敗の両方を試す。実案件の成果を損なわない小さな検証用依頼で、次を確認する。
+Test both the normal path and deliberately introduced failures. Use small verification requests that do not damage real project deliverables to check the following.
 
-| ケース | 確認する結果 |
+| Case | Expected outcome |
 |---|---|
-| 複数タスクを順に進める通常依頼 | 承認された範囲を進み、結果が依頼元へ届く |
-| 開始操作が抜ける | 未開始を検知し、元の担当が再開する |
-| 投稿後に返答・配達が失敗する | 既存の処理を重複実行せず、返送を回復するか失敗を知らせる |
-| 必要な操作の権限・コマンドがない | 根拠付きで問題が残り、成功として報告されない |
-| トピックの rename・誤 resolve | 元の依頼との関係を保持し、二重の仕事を作らず復旧または報告する |
-| 正常な長時間実行・人間待ち | 不要な再実行や催促を起こさない |
-| Observer が対象を読めない | 観測不能を明示し、無根拠な復帰を行わない |
+| An ordinary request with several sequential tasks | Work progresses within the approved scope, and results reach the requester |
+| A start operation is omitted | The missing start is detected, and the original responsible agent resumes the work |
+| A reply or its delivery fails after posting | Delivery is recovered or failure is reported without duplicating existing work |
+| A required command or permission is unavailable | The problem remains recorded with evidence and is not reported as success |
+| A topic is renamed or accidentally resolved | The link to the original request is preserved, and recovery or reporting occurs without creating duplicate work |
+| Legitimate long-running work or waiting for a human | No unnecessary reruns or nudges occur |
+| Observer cannot read its target | The inability to observe is explicit, and no unsupported recovery action is taken |
 
-測定するのは、完了率、検知までの時間、復帰までの時間、誤検知、重複実行、Omni Agent の介入回数、追加実行コストとする。時間の目標値と試行回数は、基準値を得た後、検証を始める前に決める。一度成功しただけで安定したと結論づけない。
+Measure completion rate, time to detection, time to recovery, false positives, duplicate execution, Omni Agent interventions, and additional execution cost. Set timing targets and trial counts after establishing the baseline and before starting verification. One successful trial is not sufficient to establish reliability.
 
-Omni Agent は試験の準備と観測を担い、試験中の停止点の発見・催促・代理操作は in-system agents に任せる。介入が必要になった場合は失敗として数え、誰の何を代行したかを handoff candidate として記録する。人間が本来行う承認や評価は、救済介入と分けて数える。
+The Omni Agent prepares and observes the tests, while in-system agents locate stalls, issue prompts, and perform recovery during each trial. Count any necessary intervention as a failure and record whose work was performed on their behalf as a handoff candidate. Count ordinary human approvals and evaluations separately from rescue interventions.
 
-## p1 の完了判断
+## Completion criteria for p1
 
-代表的な失敗の原因が証拠で説明され、少なくとも一つの接続境界が簡素化され、その変更に対応して不要なガイドが削除されていること。さらに、通常経路と合意した失敗ケースで、Omni Agent の救済なしに完了・復帰するか、理由と次の担当を伴う停止報告が依頼元へ届くことを完了条件にする。
+Representative failures have evidence-supported explanations, at least one handoff boundary has been simplified, and instructions made unnecessary by that change have been removed. In addition, the normal path and agreed failure cases must either complete or recover without Omni Agent rescue, or deliver a stop report to the requester that identifies the reason and the next responsible party.
 
-復旧成功と原因解消は別々に記録する。Observer が救済しただけの不具合は改善候補として残し、繰り返し起きるものから設計・道具・ガイドを改める。この循環によって、生産性を保ちながら Easier Next Time を進める。
+Record successful recovery separately from elimination of the cause. Defects that Observer merely rescued remain improvement candidates. Use recurring incidents to prioritize changes to design, tools, and guides. This cycle advances Easier Next Time while keeping work productive.
