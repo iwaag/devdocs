@@ -131,9 +131,18 @@ more: **a conversation is the record**, and a message id is its name.
   conversation and — since `refactor` p1, where the Plane Sub-Work it used to
   name went away — a `[task]` note naming the mission by the message id that
   *is* it, written before the visible description. Nothing is read from the topic's name or its
-  channel's description any more. **A post is what starts a task**, and the
-  planning reply says so — a supervisor that reads "opened …" as "running
-  now" stops the whole mission.
+  channel's description any more.
+- **autolab progresses an authorized mission itself** (`robust_workflow`
+  p1). "You may start" starts task 1, and the requester's acceptance of task
+  N starts task N+1 — autolab posts one visible line naming nobody and a
+  `[selfnote][start]` (pyagag `agag.selfnote.start_note`), which is the one
+  note that makes its own listener serve a conversation only it has spoken
+  in. The per-task start post Front used to relay is gone, and with it the
+  stall class behind adventure_game p3's 24 minutes. `hold.flag` (the
+  requester asking the next task to wait) marks it `held`; a post there
+  starts it. A task's report reaches the requester through the parent
+  conversation's root note (`agag.zulip.parent_rootchat`) even though the
+  requester never posted in that task.
 
 **A project channel files itself (2026-09-04).** A `pj-<slug>` channel is
 still opened by a human, but every serving of it now files it in the
@@ -351,6 +360,47 @@ and stays open.
   measured 11–22 s on single-target conditions; a two-job condition reading
   two histories and a queue took 30–120 s. Sequential evaluation is the
   ceiling, so a complex condition makes every *other* watch wait too.
+
+- **It also watches requests nobody registered** (`robust_workflow` p1,
+  `agobserver.monitor`). Every couple of minutes it traces every open
+  `#front › front-…` conversation off its mirror (no Zulip call) and lists,
+  in code, what is owed and overdue: a task with no start after its
+  predecessor finished, a post nobody's listener acknowledged, an answer the
+  asker was never served, a failure notice, a ✔ on live work, a long
+  silence. The last two are judged by the `triage` role on the local model.
+  A stall is asked about **in the conversation the request came from** —
+  Front owns it and has every tool to recover — at most twice, ten minutes
+  apart, and verified on the next look; failing that, or with nobody to ask,
+  it is reported to the realm's owners by name. Each is one
+  `incident-<kind>-<id>` topic in Observer's channel, closed as *rescued*
+  (the cause stays open) or *reported*. An incident topic is not a watch.
+  The bot keeps itself subscribed to every public channel, because a ✔ in a
+  channel it has not joined never reaches its mirror.
+
+## Request progress, operation failures and resolving (`robust_workflow` p1, 2026-09-24)
+
+- `agentchat trace [<message id>]` (pyagag `agag.trace`) follows a request
+  from any message through every conversation opened for it — the topics
+  whose root note names it, whoever wrote the note — and gives each one
+  state from its posts: `not_started`, `queued`, `executing`,
+  `awaiting_requester`, `awaiting_delivery`, `awaiting_human`, `failed`,
+  `done`, `cancelled`, `unobservable`, plus "owed now". Without an id it
+  traces the conversation the run is serving. An answer is `awaiting_delivery`
+  until the requester takes it up, whatever the owner's own record says.
+  `MirrorReader` answers the same reads from a mirror at no call.
+- A refused or uncertain `agentchat` write leaves `[selfnote][opfail]` in the
+  run's home conversation, so the failure is one read away from the request
+  instead of only in a transcript.
+- `agentchat resolve` refuses while the caller's own newest post there is
+  unanswered (a resolve renames; it stops nothing) — `--anyway` for a
+  conversation known to be finished. `agentchat unresolve` undoes a ✔,
+  folding back a stray post made under the old name and refusing only a
+  conversation of its own. The `send` refusal names `unresolve` instead of
+  telling the caller to open a new topic, which is what forked p3's twin.
+- A listener serves a mention in **somebody else's** ✔'d conversation: a
+  task's closing report is followed at once by its ✔, and until this the
+  report reached the requester only if the listener looked before the rename
+  arrived.
 
 ## How a run finds all of this
 
