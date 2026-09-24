@@ -3,7 +3,7 @@
 Plan: [plan.md](plan.md) step 5. 2026-09-24 (JST), by the Omni Agent as the requester's stand-in
 and trial operator.
 
-## Final version set (fixed before the first trial)
+## Version set fixed before the first trial (attempt 1)
 
 | Component | Revision |
 |---|---|
@@ -76,4 +76,108 @@ renamed incident topic.
 
 ## Results
 
-(filled in as the trials run)
+Three attempts. Attempts 1 and 2 each found defects that needed code, so the acceptance record is
+**attempt 3**, on a revision that did not change during it. The failed attempts are kept below,
+because what they found is most of what this step taught.
+
+### The final revision (attempt 3)
+
+| Component | Revision |
+|---|---|
+| pyagag | `deec513`, installed in all seven consumers, every listener and the relay restarted 2026-09-23 23:01:52Z (venv `direct_url.json` and process start times checked) |
+| agobserver (`pj-agdev`) | `dc21380` (superproject `c24ec32`) |
+| agfront / agautolab / agforge / agdevworld | `243c9dd` / `a507617` / `62d7409` / `e6643b4` |
+| archsage / cagent | `645969a` / `c27f04a` |
+| Models, settings, watchdog | unchanged from the table above |
+
+| Trial | What ran | Result |
+|---|---|---|
+| **A3** normal cycle 1 + combined rename/recovery (rep 1) | 2-task mission; origin renamed after planning; **Front's listener stopped** right after it relayed task 1's acceptance, for 7 min 10 s, while task 1's closing report (in a ✔ topic), task 2's automatic start and task 2's report arrived; then an unrelated request under the origin's old name | Observer: the ✔ on task 1 first judged a deliberate close, then — same incident, same allowance — `undelivered`, asked **in the renamed origin** with an owed note at +6 min 51 s. Front back: its first serving took the answer up and wrote the receipt 15 s after it returned; the mention entries were then correctly *not* served again; task 2's report served by the mention route. **Rescued** on the receipt. The reused name got its own answer; nothing of the mission went there. Mission completed (`eb0e56a`, `067f50a`) |
+| **B3** normal cycle 2: forge → human review → autolab, concurrent with A3 | icon request sent without asking (as told); forge's result arrived while Front was down | `undelivered` asked in B3's origin at +6 min 40 s; receipt 34 s after Front returned; **rescued**. Icon checked and accepted; autolab committed `b60eade` |
+| **C3** normal cycle 3 + combined rename/recovery (rep 2) | 2-task mission; **task 1's topic renamed by hand** while it ran; a human ✔ on task 1 while it waited for acceptance; later the **origin ✔'d by mistake** while task 2 waited | autolab replied under the renamed topic ("destination … is renamed"). The ✔ on task 1 was judged `legit` (the worker was waiting on the human) — nobody asked; Front un-✔'d it when the human said the ✔ was a mistake. The ✔ origin: `origin_closed` **reported to the owners at +7 min 43 s**, nobody asked in the closed conversation; the human un-✔'d it (a human decision), the incident said *moving again*; mission completed (`76ca69b`, `c39561c`) |
+| **D3** monitor failure (rep 2): judgment held, source stale | `triage-stall` armed before C3's task ✔; `mirror-stale` armed for 5 min 40 s | Judgment held from 23:21:53; the relay DM'd **`judgment_stalled` at +5 min 5 s** while looks went on (cycle 13 completed during the hold, 17 requests looked at); released, judged 6 min 39 s after it began. Stale: **`unable_to_observe` DM'd at +1 min 34 s** (the injected staleness has no `stale_since`, so it is reported at the first record; the 300 s bound applies to a real stale feed, fixture), no conclusion and no request during it, *ok again* 2 min after removal |
+| **Monitor stop** (rep 1 on the final revision) | `monitor-stop`: thread ended 23:53:55, process and listener up | Relay DM'd **`stopped` at +5 min 10 s**: "its listener is polling, so the process is alive and the monitor alone is not moving". Restarted: first look resumed with 0 posts and 0 judgments — no replay |
+| **E3** real long wait across the silence threshold; dead worker | 1-task mission; **autolab's listener stopped** 14 s after it acknowledged the task (the run died with it) | `silent` at **+45 min 17 s** after the last sign of work; judged `stall` in 61.7 s on the judge worker; asked in the origin twice (00:39, 00:49); Front each time said it would not poke autolab without the human's say-so and asked the human; **reported to the Developer at +67 min**. Operator ended the fault: autolab's restart served the interrupted task **once**, answered 38 s later, Front relayed it, the incident said *moving again*. Requester accepted |
+
+Normal cycles: **3 / 3** (A3, B3, C3; E3 as well), results at the requester each time, two requests
+running at once in A3/B3.
+
+### Against the targets
+
+| Measure | Target | Final revision |
+|---|---|---|
+| Normal cycles | 3 / 3 incl. forge → autolab and concurrency | **3 / 3** (+E3) |
+| Answer never served → recovery request | (grace 300 s + a look) | **6 min 40 s, 6 min 51 s** |
+| Recovery request → verified by its receipt | — | receipt 15 s / 34 s after Front returned (its listener was down); rescued on the next look (≤ 2 min) |
+| ✔ origin with unfinished work → report | ≤ 8 min | **7 min 43 s** |
+| Monitor thread stopped → visible and DM'd | ≤ 7.5 min | **5 min 10 s** (5 min 24 s in attempt 1, 5 min 12 s at deployment) |
+| Judgment held → visible | ≤ 5.5 min | **5 min 5 s**; looks continued throughout |
+| Source stale → visible | ≤ 5.5 min | **1 min 34 s** (injected; see D3) |
+| Dead worker | candidate at 45 min, report after two requests | **45 min 17 s**; report at 67 min; one serving on restart |
+| False `rescued` | 0 | **0** — both rescues read `done` with a receipt |
+| Duplicate work | 0 | **0**. The interrupted E3 task ran once more after its listener died mid-run (its first run never finished); no completed work was redone |
+| Lost tracked requests | 0 | **0**; 15 tracked at the end, none dropped with work open |
+| Omni Agent rescue interventions | 0 | **0** (see below) |
+| Missing start | ≤ 6 min | not reached by Observer: in attempt 1 the injected skip was recovered by **Front itself** 25 s after it happened (it noticed the start missing in autolab's closing report and posted it); p1's two live detections stand |
+
+**Human decisions and operator actions, recorded apart from rescue.** Requests, acceptances and
+quality checks on the working tree; one ✔ on a task and one on an origin "by mistake" and their
+un-✔ — the human's own actions and decisions; listener stops and fault files — the operator's
+fault injection, each ended by the operator. None of them moved stalled work on the system's
+behalf; every recovery was Front's, asked for by Observer or triggered by its own listener.
+
+**What was time-compressed.** Retention past the 12 h window across a restart, a request whose
+origin is deleted, an unreadable conversation reported after 30 min, a lost store adopting a
+renamed incident topic, cancellation closing an incident as a decision, and a stale mirror with a
+candidate pending: fixtures on controlled clocks only (`agobserver/tests/test_p2_reproductions.py`,
+`test_monitor_health.py`). The 45-minute silence and every other time above ran live.
+
+### Cost and calls
+
+| Period | Runs | Cost |
+|---|---:|---:|
+| Deployment's first looks (Front answering the nine false requests) | 13 | $0.47 |
+| Attempt 1 | 27 | $2.64 |
+| Attempt 2 | 29 | $2.53 |
+| Attempt 3 (final) | 51 | $4.58 (Front 30, $2.80; autolab 15, $1.47; forge 3, $0.31; Observer 3 judgments, $0) |
+
+Zulip calls added by the monitor: 0 reads per look (mirror); posts only for incidents and requests
+(9 in attempt 3 after the monitor's restart); one `subscriptions` read per 10 min. The watchdog
+reads files only; its alerts were 9 DMs over the whole step. Local-model judgments: 29–128 s in
+p1, 29–62 s here once no longer held.
+
+### Attempt 1 (revision `85cea0e` / `059e5a2`) — two defects
+
+- **A** (2-task mission, origin renamed, a skipped start): both task reports reached the renamed
+  origin; the reused name got its own answer; the missing start was recovered by Front in 25 s.
+- **B** (forge → autolab): the task's closing report was **lost**. Front's listener read the task
+  topic's listing, then its messages, while autolab's ✔ moved them in the same second, found
+  nobody speaking and logged "nothing owed". And the monitor could not see it: autolab had
+  started the task itself, so Front had no root note there, and the trace did not follow the
+  parent hop that callback routing follows. Fixed in pyagag `61df5ee` (the mention route judges
+  its trigger by id first; children inherit the parent's requesters). After that deployment the
+  first look found the lost report and asked Front, which relayed it 12 s later — but an
+  owner-route serving left no receipt, so the next look could not verify it; the second request
+  went out 29 s before the next rollout and the incident was **reported to the Developer
+  unnecessarily** (22:38). Fixed in `4475a1b`: the request carries `[selfnote][owed]`, and the
+  serving that processes it writes the served mark after its reply.
+- The monitor-stop fault ran here too: DM at +5 min 24 s.
+
+### Attempt 2 (revision `4475a1b` / `742660d`) — two more
+
+- **A2** with Front down 7.5 min: the ✔ on task 1 was judged a deliberate close and the dismissal
+  then **swallowed the `undelivered` that followed** on the same work (fixed `5a64a63`: a
+  dismissal answers a judged question, never a mechanical one); its "Now undelivered" line was
+  posted twice (`dc21380`). After the fix, asked in the renamed origin, receipt written, rescued.
+- **B2** with the same outage: rescued, but the forge result was **served a second time** by the
+  mention route eleven seconds after the owner route's receipt, because the receipt note had not
+  reached the listener's own mirror yet (pyagag `deec513`: marks it has just written count at
+  once). Both cycles completed.
+
+### What this does not prove
+
+Five trial requests on the final revision, on one small project, by one requester. The judged kinds
+rest on a 27B local model: it judged a human ✔ on a waiting task *legit* here where it judged the
+same shape a *stall* in p1 — both defensible, neither measured. Front's willingness to recover
+(the missing start in attempt 1, the owed answers) is behavior, not a guarantee. The staleness
+path was exercised with an injected flag, not a real expired event queue.
