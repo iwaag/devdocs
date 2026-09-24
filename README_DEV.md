@@ -185,6 +185,12 @@ launchd `com.agdev.agentroom` on agstudio. `/ops` is a running reconstruction
 rather than a per-request read, so a relay somebody has to remember to start is
 a board that is not there when it matters.
 
+**One direct message is the exception** (`robust_workflow` p2): the relay's
+watchdog over Observer's request monitor DMs the realm's owners — humans, no
+agent named, so it buys no run — when the monitor goes into a failing state
+and when it comes back. `#ops-testbed` has no human owner in it, so a post
+there would have reached nobody.
+
 **The observer still never posts.** Since `operation_room` p3 the same relay
 *can* post — `POST /chat`, into a routine's own `guide` or run topics, and
 a run request into a Front Desk conversation — but on a third
@@ -362,22 +368,52 @@ and stays open.
   ceiling, so a complex condition makes every *other* watch wait too.
 
 - **It also watches requests nobody registered** (`robust_workflow` p1,
-  `agobserver.monitor`). Every couple of minutes it traces every open
-  `#front › front-…` conversation off its mirror (no Zulip call) and lists,
-  in code, what is owed and overdue: a task with no start after its
-  predecessor finished, a post nobody's listener acknowledged, an answer the
-  asker was never served, a failure notice, a ✔ on live work, a long
-  silence. The last two are judged by the `triage` role on the local model.
-  A stall is asked about **in the conversation the request came from** —
-  Front owns it and has every tool to recover — at most twice, ten minutes
-  apart, and verified on the next look; failing that, or with nobody to ask,
-  it is reported to the realm's owners by name. Each is one
-  `incident-<kind>-<id>` topic in Observer's channel, closed as *rescued*
-  (the cause stays open) or *reported*. An incident topic is not a watch.
+  `agobserver.monitor`; p2 made it durable and evidence-backed). Every couple
+  of minutes it traces, off its mirror (no Zulip call), every request that
+  came in through `#front` recently **and every request it is already
+  tracking**, and lists in code what is owed and overdue: a task with no
+  start after its predecessor finished, a post nobody's listener
+  acknowledged, an answer the asker was never served, a failure notice, a ✔
+  on live work, the request's own conversation ✔'d with work still open
+  (`origin_closed`), a long silence. The two judged kinds (a ✔, a silence)
+  go to the `triage` role on the local model — on a worker of its own, so a
+  30–130 s judgment never holds the look at everything else.
+  - **Identity is ids.** A request is its origin's first post (`o<id>`); an
+    incident is (request, stalled conversation's anchor), the kind an
+    attribute — a rename, a ✔, a restart or a different blockage of the same
+    work is the same incident with the same two requests; a reused name is
+    another request. A lost store adopts the incident from its
+    `[selfnote][incident]` note.
+  - **Retention is not discovery.** A request stays tracked
+    (`.local/incidents/tracked.json`) while anything opened for it is
+    unfinished or an incident of it is open, whatever its age or name.
+  - **Recovery is a transition on record, never an absence.** *Rescued*
+    needs a fresh look that reads the stalled conversation in the state its
+    kind waited for; a recorded `cancelled`/`replaced` closes it *cancelled*;
+    an unreadable conversation is said once and *reported* after 30 min; a
+    stale mirror concludes nothing and asks nobody. An `undelivered` ask
+    carries `[selfnote][owed] <remote> <answer id>`, and the requester's
+    listener turns it into the served mark once the serving that read the ask
+    has replied — the receipt the next look verifies.
+  - Asked about **in the conversation the request came from** — Front owns
+    it — at most twice, ten minutes apart; with nobody to ask (origin ✔ or
+    gone, its own agent silent) or no progress, reported to the realm's
+    owners by name. `python -m agobserver.withdraw <why> <incident>…` is the
+    operator's correction for an incident opened in error.
+  - **The monitor never reports its own failure.** It writes
+    `agobserver/.local/monitor-health.json` at every look and judgment; the
+    agdevworld relay evaluates it every 30 s (`ok`, `idle`, `disabled`,
+    `missing`, `stopped` — saying whether Observer's process is alive —,
+    `stalled`, `judgment_stalled`, `unable_to_observe`, `degraded`), shows it
+    on `/ops`, the ops board and `/healthz`, and DMs the realm's owners on a
+    change into or out of a failing state.
+  - Trial fault hooks, created only by a person, in
+    `agobserver/.local/faults/`: `monitor-stop`, `triage-stall`,
+    `mirror-stale`.
   The bot keeps itself subscribed to every public channel, because a ✔ in a
   channel it has not joined never reaches its mirror.
 
-## Request progress, operation failures and resolving (`robust_workflow` p1, 2026-09-24)
+## Request progress, operation failures and resolving (`robust_workflow` p1–p2, 2026-09-24)
 
 - `agentchat trace [<message id>]` (pyagag `agag.trace`) follows a request
   from any message through every conversation opened for it — the topics
@@ -386,8 +422,14 @@ and stays open.
   `awaiting_requester`, `awaiting_delivery`, `awaiting_human`, `failed`,
   `done`, `cancelled`, `unobservable`, plus "owed now". Without an id it
   traces the conversation the run is serving. An answer is `awaiting_delivery`
-  until the requester takes it up, whatever the owner's own record says.
-  `MirrorReader` answers the same reads from a mirror at no call.
+  until the requester's **served mark** covers it, whatever the owner's own
+  record says and whatever the requester said since (p2: speech at home is no
+  receipt). A task its owner started itself is owed to the requester of the
+  conversation it was opened for (the parent hop callbacks follow). A root
+  note means the conversation its `#anchor` is in; without one, never a
+  conversation that began after the note was written, and through
+  `[replaces]` to a retired predecessor. Every node carries a stable
+  `anchor`. `MirrorReader` answers the same reads from a mirror at no call.
 - A refused or uncertain `agentchat` write leaves `[selfnote][opfail]` in the
   run's home conversation, so the failure is one read away from the request
   instead of only in a transcript.
@@ -400,7 +442,15 @@ and stays open.
 - A listener serves a mention in **somebody else's** ✔'d conversation: a
   task's closing report is followed at once by its ✔, and until this the
   report reached the requester only if the listener looked before the rename
-  arrived.
+  arrived. Since p2 the mention route judges the post that triggered it **by
+  id** first, so a ✔ that moves the topic between two reads cannot hide it.
+- **Served marks are matched by the post they name** (pyagag
+  `agag.identity`): `[served] <remote> <id>` covers the conversation post
+  `<id>` is in now, so a renamed callback topic is not served again after a
+  restart. A callback serving is anchored in **home** (`AGENTCHAT_HOME_ANCHOR`
+  and the reply's destination are a post in home, not the post that named
+  the agent elsewhere), and a prepared reply redelivered after a restart is
+  re-located by its anchor.
 
 ## How a run finds all of this
 
