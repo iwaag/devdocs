@@ -480,8 +480,11 @@ and stays open.
   from any message through every conversation opened for it — the topics
   whose root note names it, whoever wrote the note — and gives each one
   state from its posts: `not_started`, `queued`, `executing`,
-  `awaiting_requester`, `awaiting_delivery`, `awaiting_human`, `failed`,
-  `done`, `cancelled`, `unobservable`, plus "owed now". Without an id it
+  `awaiting_requester`, `awaiting_delivery`, `awaiting_human`, `answered`,
+  `failed`, `done`, `cancelled`, `unobservable`, plus "owed now". Since
+  `clearer_chat_ui` (2026-09-25) `awaiting_human` means an **explicit**
+  response request is pending in a person's conversation; the agent having
+  merely spoken last there is `answered` (see *What a post is for*). Without an id it
   traces the conversation the run is serving. An answer is `awaiting_delivery`
   until the requester's **served mark** covers it, whatever the owner's own
   record says and whatever the requester said since (p2: speech at home is no
@@ -882,6 +885,45 @@ The phase's fixtures are `pyagag/tests/test_serving_lifecycle.py`,
 a restart: 0 lost, 0 duplicated, one run per serving, recovery in well
 under a second). `devdocs/episodes/agentchat/explicit_reply/p1/` is the
 record.
+
+## What a post is for (`clearer_chat_ui`, 2026-09-25)
+
+A mention says whose turn it is; it never said whether anybody waits for an
+answer. Every post can now say so itself, with one machine line at its end
+(`ag.post.v1`, pyagag `agag.post`, `docs/post-intent-v1.md`):
+
+```
+`ag-post intent=response_request to=8 ask=question seen=11422`
+```
+
+- `intent` is `progress`, `report` or `response_request`; a request names
+  the **user id** it waits for (`to`), optionally `ask=question|confirmation`,
+  and the listener adds `seen=` (the input the serving had read). `re=<id>`
+  names the request a post answers — or, from the asker, withdraws. **No line
+  means unclassified, and unclassified is never "waiting".**
+- A run declares it on its reply fence (```` ```ag-reply intent=report ````);
+  the shared reply guide teaches it once, and a request without `to=` goes to
+  the requester the serving recorded. `agentchat send --intent … --to …
+  --ask … --re …` is the same for direct posts. The line is in the same
+  message as the words, so the journal, redelivery and read-back carry it.
+- Agents never see the raw line: chatlogs, `agentchat read` and Front's
+  evidence say `(asks Developer to answer (question); request #9120)`.
+- **What is still asked** is a read model over the history, the same for
+  every room and consumer (`agag.outstanding`): a request is its message id;
+  its post keeps its intent, its state is `pending`, `overtaken` (the person
+  spoke after `seen`, so their input is owed a serving first), `answered`
+  (by reference, quote-and-reply, or the next post when exactly one is
+  pending), `withdrawn`, `superseded` or `closed`. Only the recipient's
+  speech settles one; progress, acks and third parties never do. An answer
+  is a receipt — approval and acceptance stay where they were.
+- The rooms (Front Desk, Arguing Room, routine chat, Project Room) label each
+  post with an icon and words, list what waits for *you* above the dialogue,
+  and let you pick which question your next post answers (the relay writes
+  `re=`). An old question in the history keeps its label and says it was
+  answered; it never reappears as waiting.
+- Known gaps: the Observer monitor's "please get it moving" posts and the
+  ComfyUI notifier's callback stay unclassified (they address agents or
+  trigger runs, never a person).
 
 ## How agents remember each other
 
