@@ -160,6 +160,36 @@ more: **a conversation is the record**, and a message id is its name.
   room's completion door write the same record. Posting the acceptance into
   the plan for autolab to "note" — two paid runs and no record — is what
   this replaced.
+- **Each mission works in its own copy of the project** (`robust_workflow`
+  p3 ex1, `agautolab.missionspace`). The copy is
+  `.local/missions/<slug>/m<id>/`: one git worktree per repository of the
+  project folder, on branch `autolab/m<id>`, found again by the mission's
+  id. Its pushes are refused. Task runs work there, and planning stays in
+  the project folder, which holds integrated work only. What a planning run
+  writes there is committed as its notes.
+  - A worker's commit is a **checkpoint**. After each serving that changed
+    the copy, `[selfnote][change] checkpoint` records its exact content.
+  - The requester's agreement closes a task: everything in the copy is
+    committed and bound to exact commits (`[change] accepted <repo>=<commit>
+    #<post>`) before anything shared moves.
+  - Then comes integration under a per-project lock. A shared branch that
+    has not moved is fast-forwarded. One that moved is merged when the two
+    sides touched different files. The same file on both sides, conflicting
+    or not, is `returned` and the task stays open: the worker merges the
+    shared branch into its copy and the requester reviews the combined
+    result.
+  - `main`, `direction` and `devlog` are published by the push that
+    integrates them, a compare-and-swap that is never forced. Other
+    repositories are published only when the worker names them in
+    `publish.flag`.
+  - Only then is the task `completed`, so a mission's acceptance never
+    leaves integration outstanding.
+  - A repeat is recognized by ancestry. A close-out cut short is finished
+    from its `accepted` note without another run.
+  - Cancellation, replacement, the last close-out and archiving release the
+    copy: uncommitted work is committed to its branch, the worktrees are
+    removed and the branch is kept. Unattributable dirt found in a project
+    folder at rollout went onto `autolab/set-aside-20260924`.
 
 **A project channel files itself (2026-09-04).** A `pj-<slug>` channel is
 still opened by a human, but every serving of it now files it in the
