@@ -25,6 +25,10 @@ of every report. Now one machine line at the end of a post says it:
   requests only); `ask`: `question` | `confirmation`; `re`: the request(s)
   a post answers or, from the asker, withdraws; `seen`: the input the
   poster had read.
+- `answer=none` (ex1): the post answers no request, even the one the
+  next-post rule would give it; contradicts `re=`. A handler's own
+  `response_request` stands over the run's declared intent
+  (`agag.post.combine`). See `ex1/report.md`.
 - No line = unclassified, never "waiting". A malformed line is removed from
   the text and read as unclassified.
 - One message, one write: the meaning is journaled and redelivered with the

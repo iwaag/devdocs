@@ -901,10 +901,17 @@ answer. Every post can now say so itself, with one machine line at its end
   and the listener adds `seen=` (the input the serving had read). `re=<id>`
   names the request a post answers — or, from the asker, withdraws. **No line
   means unclassified, and unclassified is never "waiting".**
+  `answer=none` says a post answers **no** request (a person's aside while a
+  question waits); it contradicts `re=`. Leaving both out lets the next-post
+  rule decide (ex1).
 - A run declares it on its reply fence (```` ```ag-reply intent=report ````);
   the shared reply guide teaches it once, and a request without `to=` goes to
-  the requester the serving recorded. `agentchat send --intent … --to …
-  --ask … --re …` is the same for direct posts. The line is in the same
+  the requester the serving recorded. A handler's own `response_request`
+  (`TopicResult.meta`, e.g. autolab's task waiting for its requester's
+  agreement) is a requirement: it stands over whatever the run declared, with
+  the handler's `to` and `ask` (`agag.post.combine`, ex1); any other handler
+  intent is only a default. `agentchat send --intent … --to …
+  --ask … --re … | --not-answer` is the same for direct posts. The line is in the same
   message as the words, so the journal, redelivery and read-back carry it.
 - Agents never see the raw line: chatlogs, `agentchat read` and Front's
   evidence say `(asks Developer to answer (question); request #9120)`.
@@ -919,7 +926,9 @@ answer. Every post can now say so itself, with one machine line at its end
 - The rooms (Front Desk, Arguing Room, routine chat, Project Room) label each
   post with an icon and words, list what waits for *you* above the dialogue,
   and let you pick which question your next post answers (the relay writes
-  `re=`). An old question in the history keeps its label and says it was
+  `re=`) — or mark it "not an answer" (`answer=none`), which leaves every
+  question waiting. The choice is shown before sending and kept on a failed
+  send. An old question in the history keeps its label and says it was
   answered; it never reappears as waiting.
 - Known gaps: the Observer monitor's "please get it moving" posts and the
   ComfyUI notifier's callback stay unclassified (they address agents or
