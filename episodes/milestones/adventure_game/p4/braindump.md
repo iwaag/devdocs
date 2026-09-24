@@ -1,0 +1,4 @@
+devdocs/episodes/robust_workflowでワークフローの改善を試みた。
+実際にワークフローが安定しているか実証する必要がある。
+p4でまずは1依頼分開発を進める。
+Deus Ex Machinaがめったに起きず、Omin Agentなしで安定して進められると判断できるまでp4/exNエピソードとrobust_workflowエピソードを往復して安定化を目指す。
