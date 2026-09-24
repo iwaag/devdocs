@@ -143,6 +143,23 @@ more: **a conversation is the record**, and a message id is its name.
   starts it. A task's report reaches the requester through the parent
   conversation's root note (`agag.zulip.parent_rootchat`) even though the
   requester never posted in that task.
+- **A task closes only on its requester's agreement, and the mission's
+  close is the requester's record** (`robust_workflow` p3). The close-out
+  runs only when the serving's processed input holds a requester's post —
+  autolab's own start note never counts (p3 trial G closed a task nobody had
+  accepted). When the last task closes, the mission is done once its
+  requester **records** the acceptance: `agentchat accept <mission id>
+  --evidence <the post that accepted it>` (pyagag `agag.acceptance`) writes
+  `[state] accepted` on each finished task, `[selfnote][acceptance] #<post>
+  by <user>`, `[state] done`, and ✔ — selfnotes only, so nobody runs to
+  acknowledge it, and a repeat or an interrupted attempt ends on the same one
+  record. It refuses, writing nothing, while a task is open, without
+  evidence, or on evidence older than the mission or written by the recorder
+  or the owner. A person without the tool says it in the `workplan-` topic
+  (`accept.flag`, the same operation); `mission_done` and the operation
+  room's completion door write the same record. Posting the acceptance into
+  the plan for autolab to "note" — two paid runs and no record — is what
+  this replaced.
 
 **A project channel files itself (2026-09-04).** A `pj-<slug>` channel is
 still opened by a human, but every serving of it now files it in the
@@ -387,6 +404,20 @@ and stays open.
   - **Retention is not discovery.** A request stays tracked
     (`.local/incidents/tracked.json`) while anything opened for it is
     unfinished or an incident of it is open, whatever its age or name.
+    Unfinished means not `done`/`cancelled` **by record** (p3): a ✔, a quiet
+    wait and a `legit` verdict end nothing. A dismissed incident (a wait
+    judged legitimate) closes as *finished* when the work records its outcome,
+    *cancelled* on a recorded decision, and stays dismissed otherwise.
+  - **A verdict is about the evidence it read** (p3). Each judgment carries a
+    snapshot identity (kind, state, ✔, the newest relevant post in the
+    stalled conversation and in the request's own); a verdict whose snapshot
+    no longer matches is discarded and the current state judged, and a kept
+    `stall` is judged again when its evidence moves — the requests already
+    made still count. The health record says `pending`, the oldest wait,
+    `invalidated` and `churning`; the watchdog reads a backlog or churn as
+    `degraded`. The judgment reads the request's own conversation too (its
+    newest spoken posts) and a long post by both ends; every judgment keeps
+    its exact `prompt.md` and `input.json` beside its transcript.
   - **Recovery is a transition on record, never an absence.** *Rescued*
     needs a fresh look that reads the stalled conversation in the state its
     kind waited for; a recorded `cancelled`/`replaced` closes it *cancelled*;
@@ -413,7 +444,7 @@ and stays open.
   The bot keeps itself subscribed to every public channel, because a ✔ in a
   channel it has not joined never reaches its mirror.
 
-## Request progress, operation failures and resolving (`robust_workflow` p1–p2, 2026-09-24)
+## Request progress, operation failures and resolving (`robust_workflow` p1–p3, 2026-09-24)
 
 - `agentchat trace [<message id>]` (pyagag `agag.trace`) follows a request
   from any message through every conversation opened for it — the topics
@@ -444,6 +475,19 @@ and stays open.
   report reached the requester only if the listener looked before the rename
   arrived. Since p2 the mention route judges the post that triggered it **by
   id** first, so a ✔ that moves the topic between two reads cannot hide it.
+- **A receipt follows what a serving was given, on every route** (pyagag,
+  p3). Each thread handed to a run is recorded in its serving journal
+  (`agag.serving.note_input`: the span of ids, and whether the read reached
+  the beginning); after the reply is confirmed delivered, the newest post
+  naming the agent inside each span gets its served mark — owner route and
+  mention route alike, so an answer an owner serving relayed is not served
+  again for "nothing new". An answer that arrives after the thread was read
+  stays owed; a restart between delivery and receipt writes the receipt
+  without a rerun. A task its owner started for the agent (the parent hop)
+  is one of home's threads. Startup recovery also finds a callback in
+  somebody else's ✔'d conversation, newer than the listener's **horizon**
+  (the newest message its mirror held when this rule first ran), so the
+  realm's older ✔ history is not replayed.
 - **Served marks are matched by the post they name** (pyagag
   `agag.identity`): `[served] <remote> <id>` covers the conversation post
   `<id>` is in now, so a renamed callback topic is not served again after a
