@@ -49,6 +49,6 @@ simplified — the Earth is **static** (the Developer removed rotation from `tod
 
 - The mission is **not yet `done` on record**: Front asked the Developer for acceptance (#11402)
   and waits (trace: `AWAITING_HUMAN`). Closing it is the Developer's act in the Front Desk
-  conversation, not a DEM.
+  conversation, not a DEM. *(Closed 14:00:28 on the Developer's #11410; see report4.)*
 - The rest are in [report2.md](report2.md) (Front as task acceptor, conditional acceptance, one
   redundant serving). Nothing here needed the Omni Agent's hands.

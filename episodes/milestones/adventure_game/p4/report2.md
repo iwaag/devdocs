@@ -38,7 +38,9 @@ itself — the pinned revision, the resources, concept.png as reference only (it
 | 13:27:55–56 | checkpoint `3bf3e90` → accepted → integrated (ff, pushed) → completed | #11395–#11399 |
 | 13:28:12 | Front → Developer: all three tasks integrated (`main` `3bf3e90`), **mission acceptance not recorded, waiting for you** | #11402 |
 | 13:28:22 | Front served the second task-3 callback: "nothing new" | #11406 |
-| — | **mission done**: not yet on record (see below) | trace at 13:50Z |
+| 14:00:21 | Developer: checked it, no problem; resolve the related topics and clean up | #11410 |
+| 14:00:28 | **mission done**: Front records `accepted` ×3, `[acceptance] #11410 by Developer`, `[state] done`, workplan ✔ | #11412–#11417 |
+| 14:00:33 | Front → Developer: acceptance recorded, all related topics ✔ | #11418 |
 
 Request to last integration: **13 min 31 s**, of which 3 min 57 s was the Developer reading the
 plan. No stall, no Observer incident (Observer tracked it: 5 → 6 requests, 0 open incidents),
@@ -48,6 +50,7 @@ no `[opfail]`, no returned change, no fault.
 (state `started`) → three tasks `DONE`. The workplan is not ✔ and has no `[state] done`: the
 mission closes only when the Developer tells Front it is complete (Front then runs
 `agentchat accept 11294 --evidence <that post>`, per its own continuation note #11407).
+It did, at 14:00:28, from the Developer's #11410 — see [report4.md](report4.md).
 
 ## Observations
 
