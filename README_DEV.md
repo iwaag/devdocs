@@ -471,6 +471,47 @@ and stays open.
   - Trial fault hooks, created only by a person, in
     `agobserver/.local/faults/`: `monitor-stop`, `triage-stall`,
     `mirror-stale`.
+  - **The failsafe contract** (`failsafe` p1, 2026-09-26). A worker that
+    stops is a normal event, and the party that stopped cannot report it,
+    so detection is Observer's job and never waits for self-report.
+    - **Only a record ends an obligation**: `done`/`cancelled` words, and
+      `replaced`, which moves it to the successor. A serving's end, an
+      answer classification, a ✔, a `legit` verdict or a sent request end
+      nothing.
+    - **Each conversation carries `execution` (open/ended/unknown) and
+      `holder`** (owner, delegate, requester, human, none, unknown) beside
+      its state. See the trace section below.
+    - **`unheld`** is mechanical. The last serving ended saying the work goes
+      on, and nothing holds it (m11741). It fires after a 300 s grace, is
+      judged by no model, and is silent while a person has been asked
+      since.
+    - **`quiet`** is judged. It fires on the deepest unfinished unit of work
+      whose holder cannot be read, when nothing has moved below the origin
+      for 1800 s and nobody asked a person.
+    - **Reviews never end on a judgment**:
+      - `legit` postpones by 1 h, doubling to 4 h on unmoving evidence;
+      - a wait for `silent`/`quiet` still unmoved after 6 h is reported to
+        the owners;
+      - a judgment without a verdict after 15 min counts as `unclear`.
+    - **Recovery is work, not words.** `unheld`/`quiet` are rescued only by
+      a serving begun after detection that showed work or handed the move
+      on. An ack or another promise is not enough. After a rescue the
+      request stays tracked until its record.
+    - **Requests go where the answer reaches the waiting run.** For
+      `unheld`, `quiet` and `silent` the request goes to the conversation
+      Front holds closest above the stalled work (a `routinerun-` before the
+      Front Desk). It states what is not known (is anything still running?),
+      and it is an aside (`intent=report answer=none`), so Front's reply is
+      handed to the requester, not to Observer.
+    - **Detection targets** (`monitor.DETECTION_TARGET`): `unheld` 420 s,
+      `quiet` 2070 s, `silent` 2970 s.
+    - `tracked.json` keeps each request's obligations (execution, holder),
+      `evidence_at`, `next_review` and `contract`. `monitor-state.json`
+      keeps the rollout horizon `obligations_from`: older requests keep the
+      earlier rules.
+    - `python -m agobserver.hold <why> o<id>` (and `--release`) records that
+      a person has taken a request over. It stays traced and nothing is
+      asked about it.
   The bot keeps itself subscribed to every public channel, because a ✔ in a
   channel it has not joined never reaches its mirror.
 
@@ -494,6 +535,20 @@ and stays open.
   conversation that began after the note was written, and through
   `[replaces]` to a retired predecessor. Every node carries a stable
   `anchor`. `MirrorReader` answers the same reads from a mirror at no call.
+- **Execution and holder are separate facts** (`failsafe` p1, pyagag
+  `agag.trace.Node`).
+  - A listener marks the reply that closes a serving with `end=<ack id>`
+    (`ag.post.v1`). So `execution` is `open` (acked, not ended), `ended`, or
+    `unknown`.
+  - `holder` says who holds the next move of unfinished work:
+    - a child conversation, or an agent the current serving named in the
+      same conversation (the ComfyUI notifier watch), holds it until it
+      answers;
+    - a child waiting only on its requester holds nothing, so a circular
+      wait reads as `none`.
+  - `agentchat trace` prints both under every conversation.
+  - A post Zulip cut (`[message truncated]`) is output, never an answer.
+    `compose` now cuts long posts before their line.
 - A refused or uncertain `agentchat` write leaves `[selfnote][opfail]` in the
   run's home conversation, so the failure is one read away from the request
   instead of only in a transcript.
