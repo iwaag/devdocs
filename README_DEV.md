@@ -803,6 +803,35 @@ finding. Creative direction from a reference outranks technical knowledge;
 the requester's words outrank both. Originals are the human's; agents write
 derivatives in their own workspaces and say where they departed.
 
+**Since `give_context_easier` p1 (2026-09-26) which sources exist is one
+shared catalog**, not a file per agent. `developer/context-catalog` on Gitea
+holds `catalog.toml` (`agag.refs-catalog.v1`): per source a stable `id` (the
+`<source>` in references, never renamed), a display `name`, a `description`
+agents read to choose, `repository` (owner/name, resolved against whatever
+host the catalog was read from), `branch` and `active`/`archived`. The
+catalog URL is a host fact, configured once per host in
+`~/.config/agag/refs.toml` (`agag_agent` writes it on remote nodes from
+`AGREFS_CATALOG_URL`), so every instance on a host — and every instance
+provisioned there later, whose generated roles grant `agrefs` — discovers
+the same set with no per-agent edit. `agrefs list` shows it (with the
+catalog's state: current / last-known / unavailable); a name not yet known
+re-reads the catalog at once, so a newly registered source needs no restart;
+archived sources stay resolvable for old references. cagent's shell-less
+window reads the same library through a `contexts` tool.
+
+The Developer manages contexts from the Front Room: the `▤ contexts` panel
+beside the composer (Front Desk and Arguing Room) lists and searches the
+catalog, and a click inserts `<id>@<full commit>[:<path>]` at the caret —
+resolved at that moment, so a later publication never changes a reference
+already written; a draft's reference moves to a newer version only on
+request. The same panel creates a repository (first README commit, then the
+catalog entry), registers an existing one, edits name and description,
+archives and reactivates, edits Markdown, uploads files and publishes — relay
+operations (`/contexts…`) on the Developer's own Gitea token, no model run.
+A publication names the revision the editor started from and is pushed
+without force: if anyone published in between, nothing is written and the
+panel shows what moved. Ordinary `git push` stays another way to publish.
+
 ## Explicit replies and journaled servings (`explicit_reply` p1, 2026-09-20)
 
 **An agent's reply is what its run marks, not whatever it printed.** Until

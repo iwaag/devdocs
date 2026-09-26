@@ -42,7 +42,7 @@
 Scenarios in `agdevworld/.local/ctx/` (`drive.mjs` + `s1`–`s4`, ignored);
 screenshots in `agdevworld/.local/shots/ctx/`.
 
-- `s1-insert` (all 23 assertions pass): the panel starts hidden and the
+- `s1-insert` (all 20 assertions pass): the panel starts hidden and the
   toggle shows it with the search box focused. An IME composition plus commit
   in the search narrows to one row, and Enter inserts `world-lore@<40 hex>` at
   a caret placed mid-draft (`前半のテキスト。 world-lore@… 後半の文。`), with
