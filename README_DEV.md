@@ -571,8 +571,9 @@ claude_code) and designs the knowledge and research a desire needs: which
 existing knowledge bears on it, which research questions would take it
 further, which domain nobody covers — in which case it defines a new sage
 (`archsage sage add`). A **sage** is a directory `sages/<name>/` holding
-`sage.toml`, a domain `guide.md` and the clone of one study's published
-knowledge (`mainstudy/`, refreshed by `service/sync_knowledge.sh`); it runs
+`sage.toml`, a domain `guide.md` and the clone of one study's knowledge
+repository (`mainstudy/`, usually the study's internal `main`, refreshed with
+`archsage sage sync`); it runs
 on the shared `sage` role (Sonnet 5) with **one tool**, `sagetree`, a
 bounded reader that refuses every path outside its tree and writes only
 into the sage's study queue (`tostudy/`). An empty tree is a valid state
@@ -596,6 +597,57 @@ is explicit in its `agents.toml`.
 Nautobot rows are gone and its `intro-` topic is ✔; `sages/arxiv` is its
 knowledge (`study-arxiv-trend`) in the new structure, with the same study
 queue contract (`sage` p1). The channel and repository stay as history.
+
+### archsage establishes studies (`sage` p2, 2026-09-26)
+
+**A study is archsage's to establish; running it is Front's.** A request to
+create a study, to connect an existing study to a sage or a routine, or to
+give a sage a study goes to archsage in a topic of its own channel
+(`study-<slug>`, opened by the asker with `agentchat send`, so the asker's
+root note is the return path). archsage decides the substance — the research
+plan, the sage's domain, the routine guide — and the tools make it:
+
+- **`agproject`** (pyagag `agag.project`, was agfront's) opens or
+  **continues** a `pj-<slug>` channel: members resolved explicitly (owners,
+  the routine runner and workspace agent from the board, the caller, the
+  board reader `Opsroom Observer`), the plan, and a setup request carrying a
+  fenced **`ag-setup`** block (`ag.project-setup.v1`). A repeat does only
+  what is missing. `agproject status` reads `absent … setup-pending /
+  answered / ready`; a structured setup is `ready` only by autolab's answer
+  line `study layout established: main/ = <repo> at <commit>` (an ack is not
+  an answer). Channels are created with `AGAG_PROVISIONER_ENV` (archsage's
+  comes from its ignored `.local/listener.env`).
+- **autolab lays a study out from the block** before `init_project` could
+  scaffold a plain project: `README_PROJECT.md` generated from the block
+  (`autolab project establish <slug>` rebuilds it), `main/` = `autodev/<slug>`
+  with the plan, `README.md`, `methods/`, `reports/INDEX.md`. No
+  `direction/`/`devlog/`, no `publish/`.
+- **`agroutine create|update|show|list`** (pyagag `agag.routine`) registers
+  `#routine-<name>` in the `routine` folder with the exact description and
+  posts each guide version as the caller, **read back** (Zulip truncates at
+  10,000 characters silently). Registering starts nothing. The board and
+  running listeners see a new channel without a restart.
+- **Sages** (`archsage sage add|update|attach|sync|remove|show`,
+  `archsage queue …`, `archsage intro`): a sage records `project`, `source`
+  (`main` — the internal repository, the default — or `publish`) and the
+  repository. `attach` checks the repository, syncs at once and reports the
+  revision and whether the study has findings; `sync` replaces a tree cloned
+  from another repository (only after the new clone worked). Definitions
+  are runtime state in a private store, `sages/` = `autodev/archsage-sages`
+  (ignored in the public repo; `archsage store restore` rebuilds it); every
+  change is pushed and the introduction re-posted. A queued question is
+  removed only when files in the refreshed tree answer it.
+- **archsage is called back where it delegated**: a mention carrying its
+  root note serves the home conversation (a ✔'d home under its ✔ name) with
+  the answering topic as a thread. Own-channel replies name the asker; a
+  reply declaring `intent=progress` names nobody
+  (`TopicResult.quiet_progress`), so waiting on autolab buys no run.
+
+Reports keep three states apart: **setup complete**, **research complete**
+(a routine run accepted and integrated), **knowledge refreshed** (the sage
+synced to that revision). Research with the setup means Front runs the
+study's routine afterwards, and the guide archsage writes ends with asking
+archsage to refresh the sage. `devdocs/episodes/sage/p2/`.
 
 ## Argues (`argue` p1, 2026-09-16)
 
@@ -630,10 +682,12 @@ every participant means the same thing by it:
 - **How it ends** is Front's judgement, from the conversation and the
   advice — study first (a new study, or a research plan in an existing one)
   when exploring would widen or firm up the idea, else a project. `agproject
-  open <slug> --kind project|study --doc …` creates the `pj-<slug>` channel
-  (humans, autolab, Front; its own folder), posts the goal / research plan,
-  and asks autolab in `workplan-setup-<slug>` to prepare the workspace —
-  setup only, no `workrun-`, no routine; `agproject plan <study> --doc …`
+  open <slug> --kind project --doc …` creates the `pj-<slug>` channel
+  (humans, autolab, Front; its own folder), posts the goal, and asks
+  autolab in `workplan-setup-<slug>` to prepare the workspace — setup only,
+  no `workrun-`, no routine; **a new study is asked of archsage** in its
+  own channel since `sage` p2 (it answers the argue when the study, its
+  routine and its sage exist); `agproject plan <study> --doc …`
   posts one plan into an existing study. Front's outcome reply ends in an
   `ag-argue` block (`outcome`, `target`, `complete: true`) that the listener
   **checks against the realm** — channel, document, autolab's answer —
