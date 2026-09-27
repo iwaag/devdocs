@@ -342,6 +342,14 @@ Three things the realm taught about starting and stopping:
   told an answer arrived after the end and gets the delivered note, so the
   conversation that can decide about it is served. Both ends closed means
   there is nobody to tell, and the log says so.
+- **A run completed from the request's own conversation is ended there**
+  (`progress_panel` p1): the mission's acceptance must be the requester's
+  words, so a routine's last steps often happen in the Front Desk serving,
+  which could not write the run's end. `agrunfinish <channel> <run topic>
+  --achieved|--not-achieved --reason … --report …` (agfront, granted to
+  `front`/`desk`) writes the same end record, delivery, `[delivered]` note
+  and ✔ as a run ending itself. Prose saying a run is complete, or a hand
+  ✔, ends nothing.
 - **The `ag-routinerun` block ends the run — it is not a progress note.**
   Three runs in one trial wrote one on their first serving, seconds after
   delegating, each contradicting itself ("so the run continues", "the run has
@@ -723,6 +731,76 @@ and stays open.
   the agent elsewhere), and a prepared reply redelivered after a restart is
   re-located by its anchor.
 
+## The progress panel (`progress_panel` p1, 2026-09-27)
+
+The Front Desk has a **`▦ progress`** toggle: a panel in the right column
+listing every request in flight in *any* Front conversation, the one open in
+the room pinned first, with a plan meter per plan, a run band under each
+task, the stages still owed, whose move it is, and links to the evidence.
+Record: `devdocs/episodes/progress_panel/p1/`.
+
+- **One interpretation, shared** (pyagag `agag.progress`, `agag.progress.v1`).
+  A card is a request (its origin's first post, `o<id>`, Observer's key);
+  each conversation below it is a unit carrying **work** (trace state and
+  record word), **execution** (the serving the conversation shows and, for a
+  probed owner, the `agag.health.v1` check of *that* ack, with `evidence`
+  `confirmed`/`stale`/`conversation`) and **recovery** (Observer's incident,
+  a person's hold) — never merged. The display states are `planning`,
+  `queued`, `working`, `waiting`, `awaiting_you`, `answered`, `completed`,
+  `cancelled`, `stopped`, `unknown`.
+  - An open serving is `working` only on a fresh check, or on the owner's
+    own work within 30 min (conversation evidence, shown as such); past that
+    it is `unknown`. A check about another ack is not applied; a check older
+    than 120 s is `stale` and never animates.
+  - The **plan meter** is tasks agreed / current total, with in-progress,
+    awaiting-agreement, stopped and no-evidence tasks apart; each `[doc]`
+    revision keeps the total it left, so a moved denominator says why.
+    Planning shows no number. A run has no determinate unit in any record.
+  - **Stages** stay pending until their record: tasks agreed, plan accepted,
+    run ended (the finish block), report delivered (`[delivered]` home),
+    knowledge refreshed (a `sagesync` for the study's project after the
+    research's acceptance, wherever it was recorded). A card is `completed`
+    only when every unit of work is finished by record and every stage is.
+  - `queue_behind`: an unacknowledged post to an agent that is serving
+    something else says what it waits behind — listeners serve one
+    conversation at a time, so concurrent requests are not concurrent
+    execution.
+- **The relay** (`GET /progress[?current=<desk id>]`, agentroom
+  `progress.py`): discovery off the mirror (`front-*` conversations; active,
+  held or tracked ones, and results of the last 24 h, at most 16 cards), no
+  Zulip call; boards reused for 5 s and while the mirror's revision is
+  unchanged; health checks with Observer's own `health.toml` command, only
+  for open servings of the owners it lists, cached per ack for 15 s, within
+  a 5 s budget; Observer's records read as files (its directory is the
+  parent of `AGENTROOM_MONITOR_HEALTH`, or `AGENTROOM_OBSERVER_DIR`).
+  Nothing on this route writes or starts anything.
+- **The trace learned from building it** (pyagag `agag.trace`):
+  - a conversation its owner opens and serves itself (Front's
+    `routinerun-`) reads `executing`/`awaiting_requester`, never
+    `not_started`; the `ag-routinerun` block is the run's end record
+    (`finished`/`ended`); `Node.records` carries `doc`, `acceptance`,
+    `change`, `delivered`, `sagesync`, `state`, `finish`;
+  - **an answer owed to a conversation's owner** (`Node.owed_to`) means that
+    owner holds it: a routine run whose task result waits in Front's queue is
+    not "held by nobody" (the p1 trial's false `unheld`);
+  - **a requester's `[served]` mark anywhere in the request's tree** is its
+    receipt: Front took task results up while serving the request's own
+    conversation, and the mark there was never read (endless `undelivered`);
+  - `silent` is asked about the deepest open unit only; a ✔ on work its
+    record calls finished is not `resolved_live` (the owed delivery is
+    `undelivered`'s).
+- **Records added for it**: archsage's `sage sync`/`attach` inside a
+  serving writes `[selfnote][sagesync] <sage> <revision> project=<slug>
+  findings=<n>`; **`agrunfinish`** (agfront, granted to `front` and `desk`)
+  ends a routine run from the conversation its request was completed in —
+  the same end record, delivery, `[delivered]` note and ✔ a run gives
+  itself. A sentence saying a run is complete, or a hand ✔, ends nothing.
+- **Known limits**: only autolab is probed (Front, archsage, forge, cagent
+  are conversation-only and labelled so); acceptance must be the requester's
+  own post, so every routine run still needs a person's words at the end; a
+  routine guide that names one fixed topic for the sage refresh
+  (`study-growbox`) sends each answer to the request that first used it.
+
 ## How a run finds all of this
 
 `agentchat intro` lists every agent on the `#agents` board with its own
@@ -840,7 +918,9 @@ plan, the sage's domain, the routine guide — and the tools make it:
 
 Reports keep three states apart: **setup complete**, **research complete**
 (a routine run accepted and integrated), **knowledge refreshed** (the sage
-synced to that revision). Research with the setup means Front runs the
+synced to that revision). Since `progress_panel` p1 the last is a record:
+`archsage sage sync`/`attach` inside a serving writes `[selfnote][sagesync]
+<sage> <revision> project=<slug> findings=<n>` into the conversation served. Research with the setup means Front runs the
 study's routine afterwards, and the guide archsage writes ends with asking
 archsage to refresh the sage. `devdocs/episodes/sage/p2/`.
 
