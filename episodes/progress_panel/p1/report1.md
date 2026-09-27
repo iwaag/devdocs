@@ -1,6 +1,6 @@
 # progress_panel p1 — step 1: evidence map and display model
 
-Date: 2026-09-27 (UTC 08:20–08:45).
+Date: 2026-09-27 (UTC 08:28–08:35).
 
 ## Deployment state at the start
 

@@ -1,6 +1,6 @@
 # progress_panel p1 — step 2: a shared progress read model
 
-Date: 2026-09-27 (UTC 08:45–10:00).
+Date: 2026-09-27 (UTC 08:35–08:51).
 
 ## What was built
 

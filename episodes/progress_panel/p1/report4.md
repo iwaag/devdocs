@@ -1,6 +1,6 @@
 # progress_panel p1 — step 4: transitions and observability gaps
 
-Date: 2026-09-27 (UTC 11:05–11:40).
+Date: 2026-09-27 (UTC 09:01–09:07).
 
 ## Read-model tests from recorded conversations
 

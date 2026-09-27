@@ -1,6 +1,6 @@
 # progress_panel p1 — step 3: the panel and its meters
 
-Date: 2026-09-27 (UTC 10:00–11:05).
+Date: 2026-09-27 (UTC 08:51–09:01).
 
 ## What the Front Room shows now
 
