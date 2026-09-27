@@ -151,7 +151,7 @@ Superseded code removed in this phase:
 
 ## Tests
 
-agobserver 168 passed (`test_p3_failsafe.py` 23); agautolab 318 (+1: a
+agobserver 168 passed (`test_p3_failsafe.py` 18); agautolab 318 (+1: a
 cancelled mission keeps its completed task completed).
 
 ## Rollout
