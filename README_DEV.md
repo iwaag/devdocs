@@ -154,8 +154,8 @@ more: **a conversation is the record**, and a message id is its name.
 - **Resumption is not acceptance** (`failsafe` p2). A requester's post
   closes a task only if autolab showed a result before it (a post declaring
   `intent=report`, or a request for confirmation). "Continue", a resume
-  after a stop, or the answer to a question asks for work. The resumed
-  run's `report.md` then only produces a confirmation request. Every run
+  after a stop, or the answer to a question asks for work, and the resumed
+  run's result only asks for confirmation. Every run
   inside a serving keeps a live execution record in
   `agautolab/.local/executions/`, which is what Observer probes. The trial
   faults are `faults/silent-exit` and `faults/freeze-after-tool`.
@@ -201,7 +201,29 @@ more: **a conversation is the record**, and a message id is its name.
   - Only then is the task `completed`, so a mission's acceptance never
     leaves integration outstanding.
   - A repeat is recognized by ancestry. A close-out cut short is finished
-    from its `accepted` note without another run.
+    from its `accepted` note without another run, and its result is never
+    posted twice.
+- **An answer to a shown result is reviewed, never worked again**
+  (`failsafe` p4). Which run a serving is, is the listener's decision from
+  the record: a requester's post after a shown result gets a **review** of
+  that result (`workrun_supercoder/review.md`). The prompt frames the task
+  as done and quotes the shown post. It also gives the checkpoint written
+  with it (what the requester reviewed), whether the copy is still exactly
+  that, and any files outside every repository. The review agrees
+  (`close.flag`), repairs a deficiency, or makes a requested change and
+  shows it; every other post gets the task's work, and cannot close
+  anything. The close is refused while the copy differs from the reviewed
+  checkpoint or holds files outside the repositories, so a changed result
+  needs a new agreement. The task's record is the shown post, word for word
+  (`[change] accepted … +shown=<id> +checkpoint=<id>`), never text the
+  closing run wrote: p4 step 1 found such a text saying "ran once" of a
+  command that had run twice. Files outside every repository are said under
+  every reply and are kept and named at release.
+- **A wrong state note is corrected by one more note**
+  (`python -m agautolab.correct_state <task> --note <wrong> --because …`,
+  p4): refused unless the record shows a `completed` the wrong note
+  overwrote; appends `[state] completed` and `[selfnote][correction]`;
+  unarchives an archived work channel for the two writes only.
   - Cancellation, replacement, the last close-out and archiving release the
     copy: uncommitted work is committed to its branch, the worktrees are
     removed and the branch is kept. Unattributable dirt found in a project
@@ -654,6 +676,17 @@ and stays open.
       wait reads as `none`.
   - `agentchat trace` prints both under every conversation.
   - A post Zulip cut (`[message truncated]`) is output, never an answer.
+- **`agentchat recheck <anchor> --after <ack>`** (`failsafe` p4,
+  `agag.trace.recheck`) re-reads the one conversation that holds stopped
+  work and says whether its **owner** resumed it after the stopped
+  serving:
+  - FINISHED (its record), RESUMED, RESUMING, ASKED (a post waits for its
+    owner), STOPPED or UNREADABLE, each with the next move;
+  - the requester's own acknowledgement or activity elsewhere is never
+    evidence;
+  - Observer's stop requests name the exact command, and Front's guides
+    act on its verdict. p4's three operational trials: two resumes on
+    STOPPED, one abstention on RESUMING, no competing run.
     `compose` now cuts long posts before their line.
 - A refused or uncertain `agentchat` write leaves `[selfnote][opfail]` in the
   run's home conversation, so the failure is one read away from the request
@@ -785,8 +818,9 @@ plan, the sage's domain, the routine guide — and the tools make it:
   `direction/`/`devlog/`, no `publish/`.
 - **`agroutine create|update|show|list`** (pyagag `agag.routine`) registers
   `#routine-<name>` in the `routine` folder with the exact description and
-  posts each guide version as the caller, **read back** (Zulip truncates at
-  10,000 characters silently). Registering starts nothing. The board and
+  posts each guide version as the caller, **read back** (a post Zulip cut
+  before p4, or around the library, ends in `[message truncated]`).
+  Registering starts nothing. The board and
   running listeners see a new channel without a restart.
 - **Sages** (`archsage sage add|update|attach|sync|remove|show`,
   `archsage queue …`, `archsage intro`): a sage records `project`, `source`
@@ -1067,7 +1101,16 @@ Room voiced both. Now (`pyagag` `agag.reply`):
   reply. Everything outside the mark is the run's own, kept in the
   transcript and never posted. Machine blocks (`ag-argue`, `ag-routinerun`,
   `ag-continue`) are read from the whole output by their own splitters and
-  never posted. The guide also says a post holds about 9 000 characters.
+  never posted. **Nothing is cut** (`failsafe` p4): the realm keeps
+  100 000 characters per post (`SETTING_MAX_MESSAGE_LENGTH` in the Zulip
+  deployment's override). `ZulipClient.max_message_length()` learns it
+  from `/register` once, keeps it in `<credentials>.limits` for 6 h, and
+  falls back to the last value learnt, else Zulip's default 10 000. Every
+  send refuses a longer post before sending (`MessageTooLong`, a
+  rejection), and a run's reply over its room (the limit less the
+  listener's lines and 300 for the mention and `ag-post` line) is a failed
+  reply: repaired once for size, then owed, the words kept whole in the
+  journal (`extra.reply_unposted`).
 - No mark, an empty mark or an unclosed one is a **failed reply**, not
   silence and not "post it all": the run is asked once more for the reply
   alone with its previous output and the exact reason in front of it
