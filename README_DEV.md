@@ -143,6 +143,14 @@ more: **a conversation is the record**, and a message id is its name.
   starts it. A task's report reaches the requester through the parent
   conversation's root note (`agag.zulip.parent_rootchat`) even though the
   requester never posted in that task.
+- **Resumption is not acceptance** (`failsafe` p2). A requester's post
+  closes a task only if autolab showed a result before it (a post declaring
+  `intent=report`, or a request for confirmation). "Continue", a resume
+  after a stop, or the answer to a question asks for work. The resumed
+  run's `report.md` then only produces a confirmation request. Every run
+  inside a serving keeps a live execution record in
+  `agautolab/.local/executions/`, which is what Observer probes. The trial
+  faults are `faults/silent-exit` and `faults/freeze-after-tool`.
 - **A task closes only on its requester's agreement, and the mission's
   close is the requester's record** (`robust_workflow` p3). The close-out
   runs only when the serving's processed input holds a requester's post —
@@ -482,7 +490,7 @@ and stays open.
       `holder`** (owner, delegate, requester, human, none, unknown) beside
       its state. See the trace section below.
     - **`unheld`** is mechanical. The last serving ended saying the work goes
-      on, and nothing holds it (m11741). It fires after a 300 s grace, is
+      on, and nothing holds it (m11741). It fires after a 60 s grace (p1: 300 s), is
       judged by no model, and is silent while a person has been asked
       since.
     - **`quiet`** is judged. It fires on the deepest unfinished unit of work
@@ -492,7 +500,7 @@ and stays open.
       - `legit` postpones by 1 h, doubling to 4 h on unmoving evidence;
       - a wait for `silent`/`quiet` still unmoved after 6 h is reported to
         the owners;
-      - a judgment without a verdict after 15 min counts as `unclear`.
+      - a judgment without a verdict after 4 min counts as `unclear` (p1: 15 min).
     - **Recovery is work, not words.** `unheld`/`quiet` are rescued only by
       a serving begun after detection that showed work or handed the move
       on. An ack or another promise is not enough. After a rescue the
@@ -503,8 +511,9 @@ and stays open.
       Front Desk). It states what is not known (is anything still running?),
       and it is an aside (`intent=report answer=none`), so Front's reply is
       handed to the requester, not to Observer.
-    - **Detection targets** (`monitor.DETECTION_TARGET`): `unheld` 420 s,
-      `quiet` 2070 s, `silent` 2970 s.
+    - **Detection targets** (`monitor.DETECTION_TARGET`, since p2 with a
+      60 s look): `unheld` 120 s, `stopped` 240 s, `uncertain` 420 s;
+      `quiet` 2010 s and `silent` 2910 s for owners that are not probed.
     - `tracked.json` keeps each request's obligations (execution, holder),
       `evidence_at`, `next_review` and `contract`. `monitor-state.json`
       keeps the rollout horizon `obligations_from`: older requests keep the
@@ -512,6 +521,40 @@ and stays open.
     - `python -m agobserver.hold <why> o<id>` (and `--release`) records that
       a person has taken a request over. It stays traced and nothing is
       asked about it.
+  - **Health checks and developer reviews** (`failsafe` p2, 2026-09-27).
+    - **An owner can expose its execution health** (`agag.health.v1`,
+      `python -m agag.health`). Observer lists the owners it probes in the
+      ignored `agobserver/.local/health.toml` (`health.example.toml`); today
+      that is autolab. For such an owner a silence is *checked*, not judged:
+      - an open serving with no confirmed progress (a post, or the
+        harness's own events) for 120 s is probed every look (60 s);
+      - so is a serving that ended asking nobody anything on unfinished
+        work, after 300 s with nothing moving and nobody holding the move.
+    - **The probe's verdict drives the incident.**
+      - `running`/`waiting` (a live run, a named tool call or child
+        process) is left alone and stays under review.
+      - `stopped` (the process is gone, nothing was posted or queued) asks
+        Front at once.
+      - Anything else is `uncertain`: Front is asked 180 s after the
+        **first suspicion**, and the developer is told 600 s after it. A
+        repeated claim or the same result again does not move that time.
+    - For such an owner `silent` (2700 s) and `quiet` (1800 s) are not
+      used, and no model judges. `unheld` is now 60 s, and the judgment
+      deadline for the kinds that are still judged is 240 s.
+    - **Every incident that ends rescued or reported is handed to a developer
+      review** (`agobserver.review`). The review is a `review-<owner>-<kind>`
+      topic in Observer's channel, with one post per occurrence:
+      - its timeline, durations and health checks;
+      - what is confirmed and what is a hypothesis.
+
+      Occurrences are grouped by owner and kind, not by a claimed cause.
+      The first, every unrecovered one and every third name the owners. The
+      developer's ✔ on the review is their record and accepts nothing
+      about the work. The next occurrence then opens `…-2`.
+    - Trial aids (created only by a person): `agobserver/.local/timing.json`
+      (accelerated `interval`/`probe_after`/`ask_after`/`escalate_after`,
+      read every look; delete to restore), `faults/probe-fail`,
+      `faults/review-exit`.
   The bot keeps itself subscribed to every public channel, because a ✔ in a
   channel it has not joined never reaches its mirror.
 
@@ -535,6 +578,20 @@ and stays open.
   conversation that began after the note was written, and through
   `[replaces]` to a retired predecessor. Every node carries a stable
   `anchor`. `MirrorReader` answers the same reads from a mirror at no call.
+- **A run's health is its own record** (`failsafe` p2, pyagag
+  `agag.execution`, `agag.health`). `run_harness(live=…)` keeps one JSON
+  record per run:
+  - the serving (ack, conversation), the pid and the deadline;
+  - every event, and the tool calls not yet returned;
+  - the end, written by the runner.
+
+  A claude_code run with a record streams partial messages, so a long
+  generation is progress. `python -m agag.health` reads the record, the
+  process table and the listener's journal, and answers `running`,
+  `waiting`, `stopped`, `ended` or `unknown`, with each fact's time and
+  source and what it could not establish. A record of another serving is
+  never applied. The trace's `Node` also says what the post ending a
+  serving declared (`ending_intent`, `ending_to`).
 - **Execution and holder are separate facts** (`failsafe` p1, pyagag
   `agag.trace.Node`).
   - A listener marks the reply that closes a serving with `end=<ack id>`
