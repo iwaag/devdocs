@@ -569,9 +569,10 @@ and stays open.
       `evidence_at`, `next_review` and `contract`. `monitor-state.json`
       keeps the rollout horizon `obligations_from`: older requests keep the
       earlier rules.
-    - `python -m agobserver.hold <why> o<id>` (and `--release`) records that
-      a person has taken a request over. It stays traced and nothing is
-      asked about it.
+    - A person's hold is a record in the request's conversation since
+      `failsafe` p6 (`agag.holds`; see *Completion, receipts and holds*):
+      Observer reads it from the trace and leaves alone only the work it
+      covers. `held.json` is no longer read.
   - **Health checks and developer reviews** (`failsafe` p2, 2026-09-27).
     - **An owner can expose its execution health** (`agag.health.v1`,
       `python -m agag.health`). Observer lists the owners it probes in the
@@ -640,7 +641,7 @@ and stays open.
       owed root, a held request and an open incident always do; age plays no
       part. `python -m agobserver.hold --retire <why> o<id>` records residue a
       person found owing nothing (lapses when the request moves again);
-      `--release` undoes a hold or a retirement. Closed incident records are
+      `--unretire` undoes it. Closed incident records are
       pruned 14 days after their last change, keeping episode counts
       (`episodes.json`).
     - Trial aids (created only by a person): `faults/probe-slow` (k extra
@@ -851,6 +852,74 @@ Record: `devdocs/episodes/failsafe/p5/`.
   spelled `<channel>/<topic>` naming a real channel; `agentchat recheck`
   says UNOWNED where no agent ever served, and ASKED for the queued post
   itself; `--to` suggests the account a name is part of.
+
+## Completion, receipts and holds (`failsafe` p6, 2026-09-28)
+
+Record: `devdocs/episodes/failsafe/p6/`.
+
+- **Separate facts, one rule** (`agag.trace`, the same call for the panel,
+  Observer and `agentchat trace`). A unit's execution record, the
+  requester's decision, each answer's receipt and open questions are kept
+  apart:
+  - an answer without a receipt is owed (`awaiting_delivery`), whatever the
+    producer's record says;
+  - it is **settled** when a decision recorded after it covers it
+    (`trace.decisions`):
+    - the requester's `[state] accepted`/`done` in the unit;
+    - `[change] accepted … +shown=<id>` (up to the shown result, not the
+      close-out after it);
+    - the mission's `[acceptance] … after=#<shown>`;
+    - a cancellation above it.
+  - Then the unit reads as its record does, and `Node.receipt` keeps the
+    missing receipt as `settled` bookkeeping (a card's `settled_receipts`).
+  - Speech at home is no receipt for anybody: Observer's old
+    `receipts_from` leniency is gone.
+  - Every answer above the served mark is checked, newest first, not only
+    the newest.
+  - A unit's requesters are all authors of its root notes, so the answer is
+    the same from the mission or the request.
+- **A citation adopts nothing** (`trace._reference`). A root note written
+  into a conversation that began as somebody else's request (first post
+  speech by another sender, no identity note) does not hang that request
+  under the note's home. Opened-for-work conversations, ones the author
+  began, and `[rootchat-moved]` still adopt.
+- **Receipts** (`agag.receipt`, `agentchat receipt <answer> [--repair]
+  [--because <post>]`). It inspects:
+  - the answer, and whether it names the caller;
+  - the caller's home (`rootchat_home`);
+  - the receipt: RECEIVED, RECONCILED, MISSING or NOT_OWED;
+  - the evidence: the caller's listener journal (`AGENTCHAT_JOURNAL`, set
+    for every run), a covering decision, or the caller's own later post.
+
+  `--repair` writes one note into home:
+  - with journal evidence, the listener's `[served]` mark — only when no
+    earlier post naming the caller would be covered without having been
+    given;
+  - otherwise `[selfnote][receipt] #<answer> by #<evidence> (<why>) in
+    <remote>`, which covers exactly that answer and claims no serving.
+
+  Nothing is served, and a repeat writes nothing. The listener skips
+  reconciled answers. Only the owed agent's own receipts count.
+- **A trial fault**: `<instance .local>/faults/exit-before-receipt` (one
+  shot, created only by a person) ends a listener right after a confirmed
+  delivery, before its receipts. The restart writes them, with no rerun and
+  no second report.
+- **Holds** (`agag.holds`, `agentchat hold`/`release`, operator
+  `python -m agobserver.hold`) are records in the request's origin
+  conversation:
+  - `[selfnote][hold] <acceptance|resume|decision|indefinite> a<unit> by
+    <user> (<name>) #<their post> — <why>` and `[selfnote][hold-release]
+    #<hold> …`;
+  - `acceptance` settles with the unit's acceptance or cancellation;
+    `resume` when its owner serves it again after the hold, or it ends by
+    record; `decision`/`indefinite` only on the holder's words;
+  - unrelated activity settles nothing;
+  - a hold in force covers only its unit and what is below it, says what it
+    waits for, and keeps its history.
+
+  The panel shows it as `awaiting_you` with that text, and Observer leaves
+  only the covered work alone. `held.json` is gone. `--retire`
+  (`retired.json`) is unchanged, and the panel still does not read it.
 
 ## How a run finds all of this
 
