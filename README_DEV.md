@@ -170,8 +170,10 @@ more: **a conversation is the record**, and a message id is its name.
   by <user>`, `[state] done`, and ✔ — selfnotes only, so nobody runs to
   acknowledge it, and a repeat or an interrupted attempt ends on the same one
   record. It refuses, writing nothing, while a task is open, without
-  evidence, or on evidence older than the mission or written by the recorder
-  or the owner. A person without the tool says it in the `workplan-` topic
+  evidence, or on evidence that is not the decision holder's (since
+  `failsafe` p5: the requester chain or a person who reserved it, whoever
+  records; never the owner; after the shown result — see *Waiting and
+  finishing studies*). A person without the tool says it in the `workplan-` topic
   (`accept.flag`, the same operation); `mission_done` and the operation
   room's completion door write the same record. Posting the acceptance into
   the plan for autolab to "note" — two paid runs and no record — is what
@@ -342,14 +344,25 @@ Three things the realm taught about starting and stopping:
   told an answer arrived after the end and gets the delivered note, so the
   conversation that can decide about it is served. Both ends closed means
   there is nobody to tell, and the log says so.
-- **A run completed from the request's own conversation is ended there**
-  (`progress_panel` p1): the mission's acceptance must be the requester's
-  words, so a routine's last steps often happen in the Front Desk serving,
-  which could not write the run's end. `agrunfinish <channel> <run topic>
-  --achieved|--not-achieved --reason … --report …` (agfront, granted to
-  `front`/`desk`) writes the same end record, delivery, `[delivered]` note
-  and ✔ as a run ending itself. Prose saying a run is complete, or a hand
-  ✔, ends nothing.
+- **A run is Front's to continue, adopt work into and end from anywhere**
+  (`progress_panel` p1, reworked in `failsafe` p5): `agrun` (agfront,
+  granted to `front`, `desk` and `routine_run`):
+  - `agrun continue <run> --because <post>` has the run served again
+    through the listener's own `[selfnote][start]` — Front's own post in
+    its run serves nothing;
+  - `agrun adopt <work topic> --run <run>` moves Front's root note in work
+    opened beside the run (`[rootchat-moved]`), so its answers serve the run;
+  - `agrun finish <run> --achieved|--not-achieved --reason … --report …`
+    writes the end record and completes the close-out;
+  - `agrun status` (and `tools/runs.md` in every desk/front serving) says
+    which runs a conversation opened and where each one's end stands.
+
+  **The close-out is resumable**: the end record comes first (a run's own
+  serving posts it as its reply), and `agfront.routine.close_out` then
+  delivers the report, writes `[delivered]` and resolves the run — each only
+  if missing, after every run serving, from `agrun finish`, and at startup
+  for ends of the last 24 h. An end record does not imply a delivery.
+  Prose saying a run is complete, or a hand ✔, ends nothing.
 - **The `ag-routinerun` block ends the run — it is not a progress note.**
   Three runs in one trial wrote one on their first serving, seconds after
   delegating, each contradicting itself ("so the run continues", "the run has
@@ -791,15 +804,53 @@ Record: `devdocs/episodes/progress_panel/p1/`.
     `undelivered`'s).
 - **Records added for it**: archsage's `sage sync`/`attach` inside a
   serving writes `[selfnote][sagesync] <sage> <revision> project=<slug>
-  findings=<n>`; **`agrunfinish`** (agfront, granted to `front` and `desk`)
-  ends a routine run from the conversation its request was completed in —
-  the same end record, delivery, `[delivered]` note and ✔ a run gives
-  itself. A sentence saying a run is complete, or a hand ✔, ends nothing.
+  findings=<n>` (since `failsafe` p5 also `for=<conversation>#<anchor>` and
+  `includes=`/`missing=<commit>`); `agrun finish` (was `agrunfinish`) ends
+  a routine run from the conversation its request was completed in.
 - **Known limits**: only autolab is probed (Front, archsage, forge, cagent
-  are conversation-only and labelled so); acceptance must be the requester's
-  own post, so every routine run still needs a person's words at the end; a
-  routine guide that names one fixed topic for the sage refresh
-  (`study-growbox`) sends each answer to the request that first used it.
+  are conversation-only and labelled so). Two limits of p1 are gone since
+  `failsafe` p5: an entrusted runner accepts on its own agreement, and a
+  study's refresh goes to a topic of the run's own.
+
+## Waiting and finishing studies (`failsafe` p5, 2026-09-27)
+
+Record: `devdocs/episodes/failsafe/p5/`.
+
+- **A queued post is read, not judged by its age** (pyagag `agag.waits`,
+  shared by the panel and Observer). A post an agent has not acknowledged,
+  or an answer its requester has not taken up, is `behind` (the listener is
+  busy with healthy work elsewhere), `blocked` (the serving ahead is not
+  healthy), `unserved` (the listener is idle, passed it over, or gave up) or
+  `unknown`. For autolab the facts come from its own listener journal
+  (`python -m agag.health --queued --since <post time>`,
+  `agag.health.probe_queue`: the entry, what runs meanwhile and that
+  serving's own health); for others from the open servings every traced
+  request shows (conversation evidence, 30 min at most). Observer defers
+  `behind`, leaves `blocked` to the blocker's own request for at most
+  `escalate_after`, reports `unserved` to the owners at once, and keeps the
+  plain `unacknowledged`/`undelivered` rule for `unknown`; an incident on a
+  wait later confirmed legitimate closes `excused`. A first post in a topic
+  nobody has served belongs to the agent whose `#agents` roster serves it.
+- **Acceptance is the decision holder's, whoever records it**
+  (`agag.acceptance`). Holders: the mission's requester and everyone up
+  its root notes to the request's origin — unless a person reserved it
+  (`agentchat reserve --evidence <their post>`, `[selfnote][approval]
+  reserved …`), then only them. Evidence: a holder's post after the last
+  shown result (`+shown=`), never the mission's own agent's; an agent's
+  words count only in the work's own conversations. The note is
+  `[selfnote][acceptance] #<post> by <user> (<name>) after=#<shown>`.
+  Front, entrusted by a routine's guide, records its own agreement.
+- **A refresh is bound to its run.** Study guides ask archsage in a topic
+  of the run's own, addressed to archsage itself (a post opening with
+  `sage:<name>` goes to the sage), naming the integrated commit; `archsage
+  sage sync <name> --require <commit>` records `for=` and
+  `includes=`/`missing=`; the panel's `knowledge_refreshed` counts a
+  refresh by that relation and revision, never by project and time.
+- **Tools refuse the misroutes seen**: `agentchat send` refuses a topic
+  whose answers would return to another request's conversation, and a topic
+  spelled `<channel>/<topic>` naming a real channel; `agentchat recheck`
+  says UNOWNED where no agent ever served, and ASKED for the queued post
+  itself; `--to` suggests the account a name is part of.
 
 ## How a run finds all of this
 
