@@ -143,6 +143,14 @@ more: **a conversation is the record**, and a message id is its name.
   starts it. A task's report reaches the requester through the parent
   conversation's root note (`agag.zulip.parent_rootchat`) even though the
   requester never posted in that task.
+- **An agreement posted in the plan closes nothing** (`failsafe` p3). The
+  plan serving reads `status.md` (each task's state and the result that
+  waits for agreement in which topic), and when the requester spoke in the
+  plan after a task showed its result, its reply carries a line from the
+  record: the task is still open and closes only in its own topic. The
+  planner guide forbids calling a task closed unless its status says
+  `completed`. Cancelling a mission leaves finished tasks finished. The
+  trial faults mark the run they hit (`executions/<run>.injected`).
 - **Resumption is not acceptance** (`failsafe` p2). A requester's post
   closes a task only if autolab showed a result before it (a post declaring
   `intent=report`, or a request for confirmation). "Continue", a resume
@@ -555,6 +563,47 @@ and stays open.
       (accelerated `interval`/`probe_after`/`ask_after`/`escalate_after`,
       read every look; delete to restore), `faults/probe-fail`,
       `faults/review-exit`.
+  - **Consolidation** (`failsafe` p3, 2026-09-27; record in
+    `devdocs/episodes/failsafe/p3/`).
+    - **Work is not activity.** Live execution records keep the last *work*
+      (a tool call, the model's text or partial output, a subagent's events)
+      apart from housekeeping (`system`/`tool_progress` events, pings); only
+      work makes a run `running`. A tool call records its own bound (Claude
+      Code's Bash timeout); open past it + 60 s it is `unknown`. Waits report
+      the CPU time under the run, and a wait that declares no bound and does
+      not advance for `wait_idle` (900 s) becomes uncertainty, then follows
+      the ordinary 180 s / 600 s bounds. `waiting` was observed live.
+    - **Probes run side by side**, up to 16, within a 20 s budget per look,
+      so failing probes cannot hold the look (serial, k timeouts cost 10k s).
+    - **A health-checked request states the check's fact** about the serving
+      (a confirmed stop is "over", not "open") and no longer adds the
+      conversation-only "do not start a second run" beside it.
+    - **`unanswered`**: a request whose own conversation ends in its agent's
+      failure notice (after the listener's second serving) is reported to the
+      owners at once, 60 s.
+    - **Reviews stay current**: a later outcome (moving again, the work's own
+      record) is appended once under its occurrence, owed before posted and
+      idempotent across restarts; each occurrence carries an evidence-based
+      assessment (observed failure, plausible cause with confidence, missing
+      evidence, candidate; "unknown" allowed); an injected trial fault —
+      `<run>.injected` beside autolab's live record, or the probe's own — is
+      said to be a trial. `python -m agobserver.review_status <topic>
+      <n…|all> reviewed|fix-planned|fixed|accepted-limitation --note … --ref
+      … --by …` records a follow-up decision as a post in the review; the ✔
+      remains the developer's "looked at".
+    - **Retention is bounded without losing obligations**: a plain
+      conversation (no unit of work) no longer keeps a request tracked once
+      its answer was taken up and its serving ended, or once it was ✔'d; an
+      owed root, a held request and an open incident always do; age plays no
+      part. `python -m agobserver.hold --retire <why> o<id>` records residue a
+      person found owing nothing (lapses when the request moves again);
+      `--release` undoes a hold or a retirement. Closed incident records are
+      pruned 14 days after their last change, keeping episode counts
+      (`episodes.json`).
+    - Trial aids (created only by a person): `faults/probe-slow` (k extra
+      probes per look that take their whole timeout); `timing.json` also
+      takes `wait_idle`; agfront `faults/reply-unusable` (N servings'
+      reply marks made unreadable).
   The bot keeps itself subscribed to every public channel, because a ✔ in a
   channel it has not joined never reaches its mirror.
 
@@ -1007,17 +1056,31 @@ speaking was a guide sentence ("no notes to yourself"); Front's #7222 went
 to Zulip as two paragraphs of thought and then the reply, and the Arguing
 Room voiced both. Now (`pyagag` `agag.reply`):
 
-- The run puts what it wants said inside a fenced `ag-reply` block; several
-  blocks are one post, in order; a reply may carry code fences (open the
-  mark with four backticks). Everything outside the mark is the run's own,
-  kept in the transcript and never posted. Machine blocks (`ag-argue`,
-  `ag-routinerun`, `ag-continue`) are read from the whole output by their
-  own splitters and never posted.
+- The run puts what it wants said between a `<ag-reply …>` line and a
+  `</ag-reply>` line (**since `failsafe` p3**; it was a fenced block, and a
+  reply opened with three backticks ended at the first bare fence of a code
+  block inside it — an ambiguity no rule could resolve, so the fenced form
+  is retired and a run that writes it is repaired with that reason). Inside
+  the mark code fences are ordinary Markdown, paired as CommonMark pairs
+  them. Several blocks are one post, in order. An unreadable attribute on
+  the opening tag (`to=Omni Agent`) is dropped and named; it never costs the
+  reply. Everything outside the mark is the run's own, kept in the
+  transcript and never posted. Machine blocks (`ag-argue`, `ag-routinerun`,
+  `ag-continue`) are read from the whole output by their own splitters and
+  never posted. The guide also says a post holds about 9 000 characters.
 - No mark, an empty mark or an unclosed one is a **failed reply**, not
   silence and not "post it all": the run is asked once more for the reply
-  alone with its previous output in front of it (`repair_prompt`; every
-  action and machine block has already happened), and if that fails too
-  the conversation gets one visible line saying this run produced no reply.
+  alone with its previous output and the exact reason in front of it
+  (`repair_prompt`; every action and machine block has already happened).
+  **A reply that still fails is owed** (`failsafe` p3): the failure line is
+  `progress` without `end=`, no receipt is written for what the serving was
+  given, the journal keeps the reason and the run's own output
+  (`extra.reply_owed`), and the listener serves the same input once more
+  after `REPLY_RETRY_SECONDS` (20 s) with that output in the prompt
+  (`prompt_with_guide` appends the notice: do not repeat anything). A second
+  failure is the last: a closing `report`, receipts written, and the
+  request's own conversation ending in its agent's failure notice is the
+  monitor's `unanswered` kind, reported to the owners.
 - `TopicResult` separates model `output` (under the contract), literal
   `sections` (deterministic lines, a canonical block echoed as the record)
   and system `notices` (appended after the reply). Structured-output roles —
