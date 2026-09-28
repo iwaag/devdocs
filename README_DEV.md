@@ -989,6 +989,47 @@ nothing. It deliberately **names no agent**: which agent waits is what the
 board says, not what the tool says, the same rule that keeps routing
 vocabulary out of every consumer's guide.
 
+## How a guide is put together (`agent_guide` p1, 2026-09-28)
+
+A conversational role's prompt is the placement lines and the conversation,
+then its instruction, then the two sections every conversational role gets
+from pyagag (`agag.reply` "How your reply is posted", `agag.continuation`
+"Carrying the conversation forward"). In agfront the instruction is
+`zulip_listener.role_guide(role)`: the role's own
+`agent/guides/<role>/guide.md`, then the files `SHARED_GUIDES` names from
+`agent/guides/shared/`:
+
+- `board.md` (desk, front, routine_run, argue): what the developer assumes
+  (every name on the board is yours to look up), that the board is Zulip
+  reached by `agentchat` and not the filesystem, the `--help` index, that
+  reading is free and a post runs its addressee, the working directory, how
+  a post reads in the chatlog;
+- `requests.md` (desk, front): what the developer asks for and whose work
+  each kind is: work, argues, projects, studies, routines, references;
+- `work.md` (desk, front, routine_run): each serving ends; judge on
+  evidence; whose decision it is (proxy authority, acceptance, holds,
+  dispositions, receipts); what to do when Observer says work has stopped.
+
+A role's own guide is a short head (who you are, who you speak with) plus
+what only that role does (routine_run's finish block, argue's `ag-argue`
+blocks). **Tool usage lives in the tool's `--help`, not in a guide.**
+`agentchat --help` is an index: the board, then one line per command. Each
+`agentchat <command> --help`, `agproject`, `agrun`, `agrefs` and `agbudget`
+says what it prints, what that means and when an agent wants it. A guide
+names the tool and the fact the tool cannot hold. Other agents' guides point
+at `agrefs --help` in one line, instead of copying its manual.
+
+Every paragraph that exists because of a seen-live failure or a named trial
+keeps its trial reference wherever it moved: a help text, a shared file, or
+a role's guide. `devdocs/episodes/agent_guide/p1/report1.md` is the
+inventory of where each came from, and `report.md` lists what was dropped
+as Anxiety-Driven.
+
+Guides are read from disk per serving, so an edit is live at the next post.
+A change that also needs new code (`SHARED_GUIDES`) or a new help text (a
+pyagag pin) is prepared on a branch and merged at deployment, followed at
+once by the pin, `uv sync` and a listener restart.
+
 ## agfront(pj-agdev/agfront)
 
 - Responds to any requests from Human and sends messages to other agents.

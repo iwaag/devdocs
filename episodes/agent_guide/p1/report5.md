@@ -35,5 +35,9 @@ The archsage suite passes 39/39 in the main checkout. In the worktree the
 new test passes, and one listener test fails only because the worktree has
 no `.local` overlay naming the `claude` executable.
 
-The corrected introduction is posted when archsage restarts at deployment
-(step 6): the listener posts its introduction at start-up.
+**Correction (step 6):** the archsage listener does not post its
+introduction at start-up. The restart left #11668 in place, still saying
+"no findings yet". The introduction is posted by `archsage intro` (and by
+`_after_change`), which was run once at deployment. The board now reads
+`… a local starting kit *(study `aisvgs`)*`. preresearch §2.3's "at
+start-up" is wrong in the same way.
