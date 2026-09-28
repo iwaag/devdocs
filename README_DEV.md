@@ -639,9 +639,10 @@ and stays open.
       conversation (no unit of work) no longer keeps a request tracked once
       its answer was taken up and its serving ended, or once it was ✔'d; an
       owed root, a held request and an open incident always do; age plays no
-      part. `python -m agobserver.hold --retire <why> o<id>` records residue a
-      person found owing nothing (lapses when the request moves again);
-      `--unretire` undoes it. Closed incident records are
+      part. Residue a person found owing nothing is a disposition since
+      `failsafe` p6 ex1 (`python -m agobserver.disposition`, see *Work
+      relations and dispositions*); `--retire`/`retired.json` are gone.
+      Closed incident records are
       pruned 14 days after their last change, keeping episode counts
       (`episodes.json`).
     - Trial aids (created only by a person): `faults/probe-slow` (k extra
@@ -878,11 +879,9 @@ Record: `devdocs/episodes/failsafe/p6/`.
     the newest.
   - A unit's requesters are all authors of its root notes, so the answer is
     the same from the mission or the request.
-- **A citation adopts nothing** (`trace._reference`). A root note written
-  into a conversation that began as somebody else's request (first post
-  speech by another sender, no identity note) does not hang that request
-  under the note's home. Opened-for-work conversations, ones the author
-  began, and `[rootchat-moved]` still adopt.
+- **A citation adopts nothing**. Since `failsafe` p6 ex1 this is a recorded
+  relation, not p6's first-post rule (`_reference`, gone): see *Work
+  relations and dispositions*.
 - **Receipts** (`agag.receipt`, `agentchat receipt <answer> [--repair]
   [--because <post>]`). It inspects:
   - the answer, and whether it names the caller;
@@ -918,8 +917,62 @@ Record: `devdocs/episodes/failsafe/p6/`.
     waits for, and keeps its history.
 
   The panel shows it as `awaiting_you` with that text, and Observer leaves
-  only the covered work alone. `held.json` is gone. `--retire`
-  (`retired.json`) is unchanged, and the panel still does not read it.
+  only the covered work alone. `held.json` is gone, and since p6 ex1 so is
+  `retired.json` (dispositions, below).
+
+## Work relations and dispositions (`failsafe` p6 ex1, 2026-09-28)
+
+Record: `devdocs/episodes/failsafe/p6/ex1/`.
+
+- **A root note says what its conversation is to its home** (`agag.relations`).
+  `[selfnote][rootchat] <channel>/<topic> #<anchor> rel=work|reference`:
+  - the note's home is always the **return address** (callbacks follow it,
+    whatever the relation);
+  - `work` (a delegation) or a deliberate move (`[rootchat-moved]`,
+    `agentchat anchor`, `agrun adopt`) **adopts**: the conversation, its
+    waits, acceptance holders and receipt decisions belong to the home's
+    request;
+  - `reference` (a comment, a citation) adopts nothing; the home lists it
+    ("cites …");
+  - no word and no record: **unknown** — adopts nothing, listed on the trace
+    and the card with the command that resolves it.
+  - Records: the author's correction `[selfnote][relation] #<note>
+    work|reference — why` (newest wins), and one legacy record per author,
+    `[selfnote][relation] legacy upto=#<id> reference=#… unknown=#…`, which
+    classifies that author's older notes (written 2026-09-28 as #15450–#15454
+    with `python -m agag.relations legacy --mirror <copy> --channel <own>
+    --apply`, each with its author's credential).
+  - No reader decides a relation from how much history it read.
+- **Writers.** Every writer that opens a conversation for work states `work`
+  (`rootchat_note`'s default). `agentchat send` reads a conversation's
+  **beginning** oldest-first (`ZulipClient.topic_beginning`): work for a new
+  conversation, one the sender began, or one opened for work; reference for
+  one that began as somebody else's request (and says so); unknown when the
+  beginning cannot be read. `--relation work|reference` says it; on a
+  conversation with the sender's note already, it records a correction.
+  `agentchat relation <channel> <topic> [work|reference]` shows and corrects.
+- **Dispositions** (`agag.dispositions`) are decisions about a request's
+  standing, records in its origin conversation beside its holds:
+  `[selfnote][disposition] suppressed|completed|cancelled|withdrawn a<unit>
+  upto=#<id> by <user> (<name>) #<evidence> — why`, and
+  `[selfnote][disposition-reversed] #<disposition> …`.
+  - `suppressed`: monitoring suppressed — the work stays open and visible
+    (the card says why nobody chases it); Observer does not act on it.
+  - `completed` / `cancelled` / `withdrawn`: the request (or unit) ended. The
+    unit reads done or cancelled; unfinished work below it reads cancelled
+    ("ended with …; its own record: …") and is listed as remaining — never
+    completed. A missing receipt under it is settled bookkeeping.
+  - The scope is the unit and what is below it; `upto` is the newest
+    **substantive** post (speech, not an ack) there at the decision. A later
+    substantive post uncovers the conversation it lands in (new obligations
+    are shown and monitored); selfnotes, ✔, restarts, and the recorder's own
+    reply closing the serving that recorded it change nothing.
+  - Tools: `agentchat disposition [<msg>] [<kind>|reversed] --evidence
+    <post> [--unit <anchor>] why`, operator `python -m agobserver.disposition`
+    (`--list`, `--reverse`, `--by` in person). A repeat writes nothing.
+  - Applied once by the trace, so the panel, Observer and `agentchat trace`
+    agree; the relay and Observer discover requests with a disposition
+    record like held ones.
 
 ## How a run finds all of this
 
