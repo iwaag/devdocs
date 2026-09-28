@@ -661,6 +661,11 @@ and stays open.
       Closed incident records are
       pruned 14 days after their last change, keeping episode counts
       (`episodes.json`).
+    - **A repeated false claim** (`failsafe` p7): a `claim` candidate (a
+      reply said an act was done, no record shows it, and it said so again
+      after its owner was told) is reported to the owners at once, never
+      asked again; it recovers only when the claim is settled on record.
+      See *A reply that claims an act it never did*.
     - Trial aids (created only by a person): `faults/probe-slow` (k extra
       probes per look that take their whole timeout); `timing.json` also
       takes `wait_idle`; agfront `faults/reply-unusable` (N servings'
@@ -990,6 +995,106 @@ Record: `devdocs/episodes/failsafe/p6/ex1/`.
     agree; the relay and Observer discover requests with a disposition
     record like held ones.
 
+## A reply that claims an act it never did (`failsafe` p7, 2026-09-29)
+
+Record: `devdocs/episodes/failsafe/p7/` (report1 is the contract).
+
+In agent_guide p2's live hold trial, Front's run-0183 answered "I release
+the hold; stop following this request" in one turn with no tool call:
+"Released hold #15837 … Recorded the disposition as `withdrawn`". Nothing
+was recorded. Observer saw only the records, a hold in force, and would
+never have asked. The Omni Agent noticed by hand (#15847). The fixture
+recorded both acts 12 of 12 times: the event is rare and model-side, and
+no guide sentence could be shown to help. Since p7 the listener checks
+every delivered reply (pyagag `agag.claims`, in `agag.listen`, so the same
+check runs for Front, autolab, forge, archsage, Observer and cagent):
+
+- **A serving's records are its window.** A listener serves one
+  conversation at a time, and a run's tools post with the agent's own
+  credential. So every post the agent's bot made between the serving's ack
+  (or its start, on the mention route) and its reply belongs to that
+  serving, whatever the harness and wherever the post went. The window is
+  read off the listener's mirror (no transcript, no Zulip call). Memo
+  channels and the listener's own lines are left out.
+- **The acts and their records**:
+
+  | act | record |
+  |---|---|
+  | `hold` | `[hold]` |
+  | `release` | `[hold-release]` |
+  | `disposition` | `[disposition]`, `[disposition-reversed]` |
+  | `relation` | `[relation]`, or a `rootchat` note carrying `rel=` |
+  | `accept` | `[acceptance]`, `[state] accepted\|done` |
+  | `reserve` | `[approval]` |
+  | `receipt` | `[receipt]`, or a `[served]` note written by the run |
+  | `send` | a post in another conversation |
+
+  The check looks at who posted a record, and at its kind and target. A
+  release on the Omni Agent's words is Front's own `[hold-release] … by 9
+  … for 8` post, and counts.
+- **A reader lists what the reply claims; code judges it.**
+  - The reader is the host's local model (`~/.config/agag/claims.toml`: a
+    `[reader]` table with `url`, `model` and `timeout`; today
+    `qwen3.8:27b-mxfp8`, the model Observer keeps loaded). It gets the
+    run's own reply words: the reply mark's text, without the mention or
+    the `ag-post` line, which a reader once took for a send.
+  - It returns `{act, target, where, quote}`.
+  - A claim is true when the window holds a record of that kind, or when
+    one is already on record: one naming the target (always required for
+    `release` and `receipt`), one in the target's conversation, or, with
+    no target, one in the reply's own conversation. So a restatement
+    ("the hold #… is still in force", "recorded earlier") is no alarm.
+  - A reader that fails, or no reader configured, leaves the serving
+    `unchecked`, never clean. It is tried again while the executor is idle.
+    A failure line or an empty reply is not read.
+  - The outcome is kept in the serving record (`extra.claims`), and the log
+    line is `claims of #<reply>: …`.
+- **A mismatch buys one serving of its owner.**
+  - The listener writes `[selfnote][claim] {json}` (reply, what is missing
+    with the quote, what was found, attempt) into the reply's
+    conversation. Beside it goes the owner's own `[selfnote][start] #<claim>
+    for <requester>`, so the notice, not the stale decision, is the
+    trigger.
+  - Every conversational prompt carries the open claims
+    (`prompt_with_guide(reply=True)`): the quote, the record missing, the
+    tool that makes it, and "do it now, or say plainly the earlier reply
+    was wrong". No guide text was added.
+  - The serving that answers settles the claim:
+    `[selfnote][claim-settled] #<claim> recorded #<reply>` when the records
+    now exist, and `corrected` when the reply no longer claims them.
+  - Claiming it again is attempt 2: no start note and no third serving.
+    The trace's `claim` candidate, 60 s after an escalated claim or 600 s
+    after an unanswered attempt 1, reaches Observer, which reports it to
+    the owners at once and asks nobody (the `unanswered` rule). The
+    incident recovers only on the settlement record.
+  - A claim in a conversation its listener does not serve by itself gets
+    no start note; the candidate covers it.
+- **Shown as open until settled**:
+  - `agentchat trace` prints `! claim #…: reply #… says release #…,
+    disposition — no record (…)` and lists it under "owed now";
+  - a progress card with an open claim reads `waiting`, with the claim as
+    its reason (`claims` on the unit and the card).
+- **Tools**:
+  - `python -m agag.claims <reply> --mirror <copy> [--after <ack>]` checks
+    one posted reply and writes nothing;
+  - `python -m agag.claims --settle <claim> <why>` closes a claim a person
+    decided to leave (`dismissed`).
+- **Trial aids**:
+  - agfront `faults/false-claim` (one shot, created only by a person): the
+    next desk/front serving posts the file's reply and runs no model;
+  - `agfront.trial hold-release --replies <file>…` replays fixed outputs
+    through the real serving, then the model. The fixture's claims probe
+    runs the same check on an overlay that keeps the run's writes.
+- **Limits.**
+  - Detection is only as good as the reader: a claim it does not extract
+    is missed (pinned by a test).
+  - Acts that leave no record in the realm (files, commits) are not
+    checked.
+  - autolab's task replies are literal sections, not model replies, and
+    are not read.
+  - Observer reports only claims inside requests that came through
+    `#front`.
+
 ## How a run finds all of this
 
 `agentchat intro` lists every agent on the `#agents` board with its own
@@ -1157,6 +1262,16 @@ of the board:
 
 The two probes are `delegate-answer` and `delegate-decision` (Front).
 Results are in `agent_guide/p2/ex1/report.md`.
+
+**A probe can run the listener's claim check** (`failsafe` p7,
+`Probe.claims`; `hold-release` does). It is served on an overlay that
+keeps the records the run writes, and each reply is checked as the
+listener checks it (`agag.claims.check_served`, with the host's reader).
+A mismatch is written there and the conversation is served again with the
+notice. The outcome carries `claims` per serving and `claims_final`.
+`--replies <file>…` makes each serving's run answer the next file's text
+instead of a model (its prompt goes to `<out>/prompt-<n>.md`), then lets
+the model run. That is how run-0183 is reproduced exactly.
 
 ## agfront(pj-agdev/agfront)
 
