@@ -1,4 +1,4 @@
-# failsafe p6 ex2 — step 3: verify and finish (in progress: live trial not run)
+# failsafe p6 ex2 — step 3: verify and finish (completed after a live-test fix)
 
 ## Regressions
 
@@ -51,19 +51,56 @@
 - **Host statement:** `~/.config/agag/people.toml` is in place for every
   process on the host.
 
-## Live L3 reproduction: not run
+## Live L3 reproduction: completed after a formatter fix
 
-- The Omni Agent posted nothing to `#front` for this trial.
-- The request post as the Omni Agent, on its own credential, was refused
-  by the Omni Agent's session classifier (*Self-Modification*).
-- Posting it needs the Developer's permission for this session, the same as
-  the step-1 write.
-- The planned trial is `#front › front-desk-20260928-p6ex2-proxy`:
-  1. The Omni Agent requests one mission of one task in pj-robustp1, not
-     started, and a hold on its start on its own post.
-  2. It then releases the hold and scraps the plan.
-  3. Front records `cancelled` on the Omni Agent's post.
-- **Expected:**
-  - no request for the Developer's personal confirmation;
-  - the hold and the disposition name `by 9 (Omni Agent)`;
-  - no credential switch and no human nudge.
+The earlier session's automatic classifier refused the trial post as
+*Self-Modification*, before anything was posted. At the Developer's request,
+a subsequent Omni session performed the trial on the Omni account without
+changing permission settings.
+
+### Initial attempt and correction
+
+- Front refused request #15611 in `front-desk-20260928-p6ex2-proxy` (#15613):
+  its chatlog lacked the configured proxy label.
+- Root cause: Desk and routine runs use `agfront.evidence.format_evidence`,
+  not the shared `format_chatlog` updated in step 1. The configuration was
+  correct, but this separate renderer omitted the label.
+- agfront **028287f** applies shared `speaker_label` to other speakers in
+  evidence, preserving sender IDs, message IDs, and self labels. A regression
+  checks both the generated Desk chatlog and the actual model prompt.
+- Focused listener tests: **51 passed**; full agfront suite: **194 passed**.
+  These were rerun here; other suite counts above are from the earlier run.
+- Synced and restarted Front; pj-agdev **27b6401** pins the fix. Environment
+  check through `nctl status --json` reported healthy with no errors.
+- The original conversation still refused the continuation (#15618), despite
+  correct labels in its refreshed chatlog. Front repeated its earlier premise.
+  This remains a conversational limitation. The attempt was cancelled on
+  #15645, recorded by Front as #15658, and resolved; it created no mission.
+
+### Fresh trial on the corrected code
+
+Topic: `front-desk-20260928-p6ex2-proxy-retry`.
+
+| Evidence | Result |
+|---|---|
+| Omni #15621 | Requested one plan-only documentation task and indefinite hold. |
+| Front #15624; autolab #15636 | Mission **m15629**, one task, planned without starting. |
+| Hold #15626 | `by 9 (Omni Agent) #15621`; trace confirmed HELD and task NOT_STARTED. |
+| Omni #15643 | Released the hold and cancelled the unused plan; authorized cleanup. |
+| Release #15646 | `by 9 (Omni Agent) #15643`. |
+| Disposition #15647 | Front recorded cancelled, decision maker 9, evidence #15643, recorder 15. |
+| autolab #15655–15656 | Mission and task cancelled; work channel archived; plan topic resolved. |
+| Front #15662 | Confirmed cleanup and untouched repository. |
+
+No Developer personal confirmation, account switch, or authority-related nudge
+was needed in the fresh trial. Both trial topics have zero Developer-account
+posts. Front corrected one ordinary CLI invocation failure (#15648, missing
+`--to`) itself by sending #15649; it did not block cleanup.
+
+Final trace: mission and task CANCELLED. Independent repository reads confirmed
+an empty `git status --short` and only the main worktree. The task never ran.
+Both Front trial topics are resolved; the fresh trial's room state is `done`
+with no pending requests. The trace retains the corrected CLI failure and
+cleanup activity after the earlier disposition as historical evidence.
+
+Omni resolved the two finished Front trial topics for Front — handoff candidate.
