@@ -26,9 +26,15 @@ every agent's:
   first word is not `watch`.) Inside a fence it is not a mention at all.
   It starts no job and holds no queue.
 
-It carries **no roster block**. The notifier answers no topic, and a roster
-would add it to the instances the operation room and the cost gauge expect
-to find on this host.
+It carries a **roster block with no channel and no prefixes** (pj-agdev
+`6556e29`). The first post (#15854) had none, on the theory that a roster
+would put the notifier among the instances the relay expects. That was wrong
+the other way round: the relay's operation room lists **every** `intro-`
+topic as an instance, and one without a roster block becomes an `unknown`
+row ("an agent whose work cannot be read"). The cost gauge also named it
+`missing`, as it does agobserver, archsage and cagent, which have no root
+configured there. After the re-post, `/ops` shows `comfynotify-agstudio1`
+with `roster: intro`, no channel, no prefixes, `state: ok`, all counts 0.
 
 `agentchat intro` now lists it ("comfynotify-agstudio1 — A tool, not an
 agent: …"). `write_agents_md` harvests it into every run's
@@ -87,6 +93,7 @@ is live for the next worker serving. agautolab's suite: **334 passed**.
 `comfynotify/tests/test_intro.py`:
 
 - it is posted once, then again only when forced or changed;
+- its roster names the bot and declares no channel and no prefixes;
 - the one fenced line in `intro.md` parses as a `watch` command;
 - outside backticks and fences the post names nobody (`@**`);
 - it says it is not an agent.
