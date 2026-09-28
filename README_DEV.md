@@ -1030,6 +1030,66 @@ A change that also needs new code (`SHARED_GUIDES`) or a new help text (a
 pyagag pin) is prepared on a branch and merged at deployment, followed at
 once by the pin, `uv sync` and a listener restart.
 
+### Text several agents share (`agent_guide` p2, 2026-09-28)
+
+Text that more than one **agent** needs is written once in pyagag, as
+package data in `agag/guides/*.md`, not copied into each agent's guides:
+
+| file | what it says | who gets it |
+|---|---|---|
+| `board.md` | the board is Zulip reached by `agentchat`, what is on it, `agentchat --help` is the index, reading is free and a post runs its addressee, ✔ is finished | roles that hold `agentchat` and read the board: Front's desk/front/routine_run/argue, archsage, autolab's planner and worker |
+| `callback.md` | each serving ends; ask with `send`, reply, finish; the callback brings the answer back | roles that delegate: Front's desk/front/routine_run, archsage, autolab's worker |
+| `refs.md` | the `agrefs` pointer | every role that holds `agrefs`, argue participants by default |
+| `entrance.md`, `entrance_default.md` | the entrance's fixed half, and the default vocabulary | every entrance (`agag.entrance`); an agent's `entrance_front/guide.md` holds only its vocabulary (autolab's does; forge has none) |
+| `argue_participant.md` | what every argue participant is told | `agag.argue.participant_prompt` |
+
+The agent's code names the sections per role:
+`prompt_with_guide(lines, guide, reply=…, shared=("board", "callback", "refs"))`
+appends them right after the role's own guide (always in that order),
+before the reply and continuation sections; `shared_sections(names)` is
+the same text for a composition that does not go through it (forge's
+generators, cagent's operator, autolab's review serving);
+`participate(…, shared=…)` takes a tuple or a function of the invitation
+(archsage gives its sages none: they hold only `sagetree`). An unknown
+name or a missing file is a `GuideError`. The choice follows the role's
+grant: a section may only point at tools the role holds.
+
+agfront's own `shared/` files keep what is true of Front alone: the
+developer's assumption, Front's working directory and chatlog format
+(`board.md`), what the developer asks for (`requests.md`), and whose
+decision it is and what to do when Observer says work stopped (`work.md`).
+
+The check that nothing is repeated across agents, over every guide of
+every agent plus pyagag's files, is `cat … | awk 'length>40' | sort | uniq
+-c | awk '$1>1'`; it printed nothing after p2.
+
+### What a run reads the board through
+
+A run's look-only commands — `agentchat read/topics/channels/intro/
+options/trace` and `agproject status` — read the mirror store named by
+`AGENTCHAT_MIRROR`, which `agag.agent.chat_environment` sets to the
+listener's own `<instance>/.local/mirror/mirror.sqlite`
+(`agag.mirror.reads.MirrorReads`, opened read-only). What the store cannot
+answer (a private channel, an unread archived topic, users, every write,
+and `recheck`) goes to Zulip. `agentchat read` takes several topics of a
+channel, or `--latest N [--prefix p]`, in one call; `topics` takes
+`--prefix`.
+
+### Trying a guide change against the same board
+
+`python -m agag.fixture build <dir>` writes a synthetic board (built in
+code; nothing exported from the realm) as a mirror store marked `fixture`:
+a run pointed at it reads only it and can post nowhere. `python -m
+agag.fixture probes` lists the probes and their pass rules. From
+agfront, `.venv/bin/python -m agfront.trial <probe> --store
+<dir>/mirror.sqlite --out <out>` serves one probe with agfront's own
+`serve`; `--guides <tree> --no-shared` serves it with another guide tree
+and without pyagag's sections (p1's composition), `--dry-run` writes the
+prompt and runs nothing. The outcome (reply, verdict, cost, turns, tool
+calls) is `<out>/outcome.json`. The other agents' probes are served the
+same way from their own compositions (`agent_guide/p2/report6.md`,
+`report7.md`).
+
 ## agfront(pj-agdev/agfront)
 
 - Responds to any requests from Human and sends messages to other agents.
