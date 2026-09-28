@@ -1078,7 +1078,13 @@ check runs for Front, autolab, forge, archsage, Observer and cagent):
   - `python -m agag.claims <reply> --mirror <copy> [--after <ack>]` checks
     one posted reply and writes nothing;
   - `python -m agag.claims --settle <claim> <why>` closes a claim a person
-    decided to leave (`dismissed`).
+    decided to leave (`dismissed`);
+  - `python -m agag.fixture reader [--runs 4] [--model m] [--url u]` measures
+    the reader on 13 fixed cases (`agag/fixture/reader_cases.json`) with the
+    listener's own prompt and `reply_words`: right readings and seconds per
+    reading. Run it before switching `claims.toml` to another model; today's
+    model reads 44 of 52 (the two over-readings the judge absorbs), 0.3–3.7 s
+    (agent_guide p3).
 - **Trial aids**:
   - agfront `faults/false-claim` (one shot, created only by a person): the
     next desk/front serving posts the file's reply and runs no model;
@@ -1158,7 +1164,7 @@ package data in `agag/guides/*.md`, not copied into each agent's guides:
 
 | file | what it says | who gets it |
 |---|---|---|
-| `board.md` | the board is Zulip reached by `agentchat`, what is on it, `agentchat --help` is the index, reading is free and a post runs its addressee, ✔ is finished | roles that hold `agentchat` and read the board: Front's desk/front/routine_run/argue, archsage, autolab's planner and worker |
+| `board.md` | the board is Zulip reached by `agentchat`, what is on it, `agentchat --help` is the index, reading is free and a post runs its addressee (a question the person you serve asks you to put to a named agent is the request, not a poll), ✔ is finished (a question about it goes where the introduction says; agent_guide p3) | roles that hold `agentchat` and read the board: Front's desk/front/routine_run/argue, archsage, autolab's planner and worker |
 | `callback.md` | each serving ends; ask with `send`, reply, finish; the callback brings the answer back | roles that delegate: Front's desk/front/routine_run, archsage, autolab's worker |
 | `refs.md` | the `agrefs` pointer | every role that holds `agrefs`, argue participants by default |
 | `entrance.md`, `entrance_default.md` | the entrance's fixed half, and the default vocabulary | every entrance (`agag.entrance`); an agent's `entrance_front/guide.md` holds only its vocabulary (autolab's does; forge has none) |
@@ -1261,7 +1267,22 @@ of the board:
   posts sent (`sends_must`) and the number of servings.
 
 The two probes are `delegate-answer` and `delegate-decision` (Front).
-Results are in `agent_guide/p2/ex1/report.md`.
+Results are in `agent_guide/p2/ex1/report.md`, and the three-arm comparison
+(before p1 / p1 / now) with the delegation fix in `agent_guide/p3/`.
+`guard-status` (as9: a status question about running work, nothing sent)
+and `guard-finished` (fd-wr: no send into a ✔ topic's bare name; the rule
+`sends_to_must_not` judges sends, not reads) keep that fix from undoing
+the lessons it scoped.
+
+**A shared-section change can be tried before it is released.**
+`--shared-guides <dir>` reads pyagag's shared sections (`<dir>/<name>.md`)
+instead of the installed package; with `--guides <tree>` a whole candidate
+composition runs while the live agents keep reading their checkouts
+(agent_guide p3 tried its fix this way). Judge the verdict *and* the calls:
+a rule's spellings miss correct answers ("12 時間", a closing
+"教えてください"), and a delegation fails three different ways (nothing
+sent, sent where no listener is served, or proposed and waited), which
+only the calls tell apart.
 
 **A probe can run the listener's claim check** (`failsafe` p7,
 `Probe.claims`; `hold-release` does). It is served on an overlay that
