@@ -28,6 +28,22 @@ keeps a refusal from waking an agent that answers by naming the bot. A mention
 inside a code fence is not a mention, which is how the command is quoted
 without firing it.
 
+**Since `agent_guide` p2 ex1 the command is learnable from the board.**
+The notifier posts its own introduction in `#agents`
+(`comfynotify/params/intro.md` through `agag.intro.post_intro`):
+
+- it is a tool, not an agent;
+- the one command, quoted in a fence;
+- what comes back;
+- why a mention inside a sentence gets a refusal.
+
+It is in every run's `tools/agents.md` and in `agentchat intro`. Its roster
+block declares no channel and no prefixes, so the operation room shows it
+as an instance with nothing to serve rather than as an unreadable agent.
+The daemon posts it at start-up when the board's newest one differs;
+`comfynotify intro` posts it by hand. autolab's worker guide now only
+points at it.
+
 A new agent is `agag init <agent> --yes --provision --like <sibling>`
 (pyagag): it generates a project on the shared skeleton (`agag.agent`),
 copies compatible local machine facts, creates its Zulip bot and channels,
@@ -1075,20 +1091,72 @@ and `recheck`) goes to Zulip. `agentchat read` takes several topics of a
 channel, or `--latest N [--prefix p]`, in one call; `topics` takes
 `--prefix`.
 
-### Trying a guide change against the same board
+### Trying a guide change against the same board (`agent_guide` p2, p2 ex1)
 
-`python -m agag.fixture build <dir>` writes a synthetic board (built in
-code; nothing exported from the realm) as a mirror store marked `fixture`:
-a run pointed at it reads only it and can post nowhere. `python -m
-agag.fixture probes` lists the probes and their pass rules. From
-agfront, `.venv/bin/python -m agfront.trial <probe> --store
-<dir>/mirror.sqlite --out <out>` serves one probe with agfront's own
-`serve`; `--guides <tree> --no-shared` serves it with another guide tree
-and without pyagag's sections (p1's composition), `--dry-run` writes the
-prompt and runs nothing. The outcome (reply, verdict, cost, turns, tool
-calls) is `<out>/outcome.json`. The other agents' probes are served the
-same way from their own compositions (`agent_guide/p2/report6.md`,
-`report7.md`).
+**The board.** `python -m agag.fixture build <dir>` writes a synthetic
+board as a mirror store marked `fixture`. It is built in code; nothing is
+exported from the realm. A run pointed at it reads only it and can post
+nowhere. `python -m agag.fixture probes` lists every probe, its pass rule
+and the line that runs it.
+
+**The drivers.** Each agent's driver is in its own package. You run it from
+that agent's checkout with its own venv:
+
+```
+.venv/bin/python -m agfront.trial | archsage.trial | agautolab.trial | agobserver.trial \
+    <probe> --out <dir> [--store <mirror.sqlite>] [--guides <tree> | --guides-rev <commit>] \
+    [--no-shared] [--dry-run] [--records <dir>]
+```
+
+They share pyagag's kit (`agag.fixture.run`). A trial builds its own board
+under `--out` unless `--store` names one. `--dry-run` replaces the harness:
+the prompt is written to `<out>/prompt.md` and no model runs. The outcome
+goes to `<out>/outcome.json` and `reply.md`: the reply, the verdict,
+required and observed facts, cost, turns, tool calls, and which guides
+and board were used.
+
+**A baseline is a commit.** `--guides-rev <commit>` extracts the
+checkout's `agent/guides` at that commit (`git archive`, into `<out>`).
+`--no-shared` leaves out pyagag's shared sections. For Front:
+
+- p1's composition: `--guides-rev 447bb03 --no-shared`;
+- before p1: `--guides-rev ba28e90^ --no-shared`.
+
+For the other agents, before p2: archsage `df6e0af`, autolab `aab6810`.
+
+**A trial touches nothing real.**
+
+- The kit sets `AGAG_RECORDS_ROOT`, so every `AgentSpec` puts serving
+  workspaces and run records under `<out>/records/<agent>/.local/`
+  (`--records` to choose). The relay's cost gauge and in-flight view read
+  only the agents' checkouts, so trial spend is never counted live. Each
+  driver has a test that a dry run from the main checkout leaves that
+  checkout's `.local/agent` and `.local/topics` as they were.
+- `agproject status` on a fixture reads the fixture's own repositories
+  (`gitea.fixture.invalid`), never the host's Gitea.
+- A trial run's `AGENTCHAT_JOURNAL` is beside the board, not the live
+  listener's.
+
+**A delegation can be tried.** A probe with a responder script
+(`agag.fixture.responder`) is served on an overlay, the trial's own copy
+of the board:
+
+- `agentchat send` there is recorded, and a post that addresses a scripted
+  agent the way a listener is served (a mention, its channel or one of its
+  topic prefixes; a `to=` alone reaches nobody) takes that agent's next
+  canned line;
+- the line is posted after the serving ends, and the conversation is served
+  again with the calling topic beside it, as the listener serves a callback
+  (`Trial.converse`);
+- a script line is `Canned(agent, text, topics=())`, where `{ask}` is the
+  post it answers and `{asker}` the asker's mention: a plain answer, or a
+  `response_request … ask=decision` back to the asker;
+- every other write stays refused, so the board is the same between runs;
+- rules judge the last serving's reply, every serving's tool calls, the
+  posts sent (`sends_must`) and the number of servings.
+
+The two probes are `delegate-answer` and `delegate-decision` (Front).
+Results are in `agent_guide/p2/ex1/report.md`.
 
 ## agfront(pj-agdev/agfront)
 

@@ -131,3 +131,11 @@ Step 3 cost: $1.30 (four runs).
 - agfront `tests/test_trial.py` (3, the stub loop included).
 - Driver tests of agautolab, agobserver and archsage pass on this pin.
   Full suites are run in step 5.
+
+## Correction (step 5)
+
+The addressing rule above counted `to=<id>` in a post's `ag-post` line.
+A listener is served only by a mention or by a topic it owns, and a step-5
+run passed on a question the real autolab would never have seen. Since
+pyagag `3a16479` only a mention, the agent's channel or its topic prefix
+takes a script line (report5).
