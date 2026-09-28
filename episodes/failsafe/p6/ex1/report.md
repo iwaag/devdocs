@@ -131,9 +131,11 @@ Step reports:
   #15542 and #15569, and the confirmations #15478, #15547 and #15574. The
   Developer's delegated cleanup authorization covers the legacy settlement.
   Front's records name the Omni Agent as the decision maker.
-- **The Developer in person**: #15580 confirmed L3 after Front refused the
-  stand-in's confirmation. The L3 cancellation is recorded by the
-  Developer.
+- **The Developer account**: #15580 confirmed L3 after Front refused the
+  stand-in's confirmation. The L3 cancellation is recorded as the
+  Developer's. *Corrected in p6 ex2:* #15580 was posted through the API
+  client (`Python-urllib`), not a Zulip UI, so the record evidences the
+  Developer **account**, not a human typing; it was not "in person".
 - **Front and autolab** did all the record-keeping in the trials and the
   settlement, with ordinary tools. No record was edited by hand.
 - **Cost**:

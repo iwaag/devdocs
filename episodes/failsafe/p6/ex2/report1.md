@@ -1,124 +1,105 @@
-# failsafe p6 ex2 — step 1: align the rule and the affected checks (stopped)
+# failsafe p6 ex2 — step 1: align the rule and the affected checks
 
 ## Status
 
-**Stopped before any change.** No repository was modified in this step,
-and Front's harness memory was left as it is.
+Done.
 
-The first write was the shared proxy statement: a new pyagag module,
-`agag.people`, reading `people.toml` from the host's agag config directory.
-The Omni Agent's session auto-mode classifier refused it as *Security
-Weaken*. Every later part of the plan rests on that statement or pursues the
-same outcome:
-
-- replacing Front's confirm rule;
-- widening the acceptance and hold checks;
-- the live L3 reproduction.
-
-So the Omni Agent did not look for another route. The Developer decides how
-to proceed (see *What is needed to continue*).
+The first attempt stopped: the Omni Agent's session auto-mode classifier
+refused the proxy statement as *Security Weaken*, and nothing was changed
+(first version of this report). The Developer then allowed it by hand, and
+the step was carried out.
 
 ## What L3 was, from the record
 
 | post | sender (id) | client | content |
 |---|---|---|---|
-| #15569 | Omni Agent (9) | Python-urllib | the request, standing in for the Developer, "you need not ask me again" |
-| #15572, #15576 | Front (15) | Python-urllib | refusal: needs the Developer's own go-ahead, per the standing rule |
+| #15569 | Omni Agent (9) | Python-urllib | the request, standing in for the Developer: "you need not ask me again" |
+| #15572, #15576 | Front (15) | Python-urllib | refusal: it needs the Developer's own go-ahead, per its standing rule |
 | #15580 | Developer (8) | **Python-urllib** | 「進めてください。」 |
 | #15606 | Front (15) | Python-urllib | `[selfnote][disposition] cancelled a15569 … by 8 (Developer) #15580` |
 
-- #15580 went through the API client, not the web UI or a desktop client.
-- Only the **account** is evidenced. ex1's "the Developer in person" is
-  stronger than the record supports. That wording correction is step 2's.
+#15580 came through the API client, so only the account is evidenced.
+Step 2 corrects ex1's "in person".
 
-## The conflicting rule
+## The rule
 
-- **File:** `feedback_confirm_before_contacting_agents.md` (2026-08-20), in
-  Front's Claude Code project memory (outside the repos; path in
-  `pj-agdev/.local/devenv.md`).
-- **Rule:** get "the developer's explicit go-ahead" before any `agentchat
-  send`.
-- **Problem:** it says nothing about a proxy. Front's guide says only "when
-  you relay a stand-in's decision say whose it is", so each serving decided
-  the question afresh: accepted in L1/L2, refused in L3.
+**Front's harness memory** `feedback_confirm_before_contacting_agents`
+(Front's Claude Code project memory, outside the repos) was rewritten:
 
-## Where the identity definition would go
+- the go-ahead comes from the developer **or the Omni Agent**, which
+  carries the developer's full delegated authority;
+- its instructions, confirmations, approvals, cancellations and hold
+  releases count as the developer's, and are never re-confirmed;
+- its decisions are recorded as its own words;
+- no other agent's word is the developer's;
+- L3's refusal is named as the wrong reading.
 
-- **No existing definition separates the proxy.** Zulip shows the Omni
-  Agent (9) as a bot with `bot_owner_id` 8. Every agent bot the realm has
-  (Front, autolab, forge, cagent, …) is also owned by 8 or by Provisioner
-  (17), so bot ownership cannot mean "full proxy".
-- **Chosen place:** a host config beside `refs.toml`, `[[proxy]] user = 9,
-  for = 8`, read by one pyagag module.
-  - Every process that makes these checks runs on this host under launchd.
-  - Proposed readers:
-    - the acceptance and hold checks;
-    - the chatlog label (`agag.topics.format_chatlog`), so that every
-      serving reads "Omni Agent — with Developer's full authority" instead
-      of re-deciding.
-  - **Records:** the actual speaker plus `for 8 (Developer)`. No id is
-    aliased.
-  - **Tests:** isolated from the host file, like `AGREFS_HOST_CONFIG`.
+**Front's guides** gained the same rule, worded from what a run sees:
 
-## Decision-holder checks surveyed (read-only)
+- files: `front/guide.md` and `desk/guide.md`, agfront `12ce0f1`;
+- a speaker marked `— with <person>'s full authority` is that person's
+  decision;
+- reply to it, and record its decision on its own post.
 
-**Wrongly exclude the proxy from Developer-owned decisions:**
+## The one statement
 
-1. **`agag.acceptance.Decision.may_decide`** / `accept_mission`
-   - Once the Developer reserved the approval, or requested directly, only
-     id 8's post accepts. The Omni Agent's post is refused ("does not hold
-     m…'s acceptance").
-   - It reaches `agentchat accept`, autolab's `accept.flag` and
-     `mission_done`.
-2. **`accept_mission` in person**
-   - `is_bot` refuses any bot, so the proxy must always cite a post, and
-     that post must pass (1).
-3. **`accept_mission` scoping**
-   - An agent-holder's words count only in the mission's conversations.
-   - A proxy's decision should count wherever it is said, as a person's
-     does.
-4. **`agag.holds.release`** (also `agobserver.hold --release --by`)
-   - A hold by 8 is released only on 8's own post or in-person id.
-   - The Omni Agent cannot release it, so it stays in force on the panel
-     and in Observer.
-5. **`agag.outstanding.read_requests`**
-   - A question `to=` the Developer is answered only by id 8.
-   - A Developer's request is withdrawn only by its own sender.
-   - The proxy's answer leaves the node `awaiting_human`.
-6. **`agag.argue.validate_desire`** / agfront `argue.humans_of`
-   - `is_bot` means "not a person", so an argue whose desire the Omni Agent
-     states can never complete.
-   - This needs a decision rather than a fix, because an argue asks for a
-     *human's* desire.
+- **`agag.people`** (pyagag `3139390`) reads the host's
+  `~/.config/agag/people.toml`, beside `refs.toml`:
 
-**Deliberately not changed:**
+  ```toml
+  [[proxy]]
+  user = 9
+  name = "Omni Agent"
+  for = 8
+  for_name = "Developer"
+  ```
 
-- **Dispositions** (`record`, `reverse`) have no identity gate.
+- **Why a host file.** No existing definition separates the proxy: every
+  realm bot, the Omni Agent included, is owned by 8 or by Provisioner (17).
+  Every process that makes these checks runs on this host.
+- **How it is read:**
+  - authority runs both ways (the Developer may release a hold the proxy
+    placed);
+  - a missing file means plain id equality;
+  - tests never read the host file (`conftest`, `AGAG_PEOPLE_CONFIG`).
+- **Nothing is aliased:**
+  - replies and mentions still go to the actual sender;
+  - records name the speaker, plus the authority used:
+    `by 9 (Omni Agent) for 8 (Developer)`.
+- **The chatlog** (`format_chatlog`) marks the proxy's lines
+  `[Omni Agent — with Developer's full authority]`. Every serving reads the
+  relationship from the conversation itself instead of deciding it afresh.
+  Mentions and reply routing are untouched.
+
+## Checks changed
+
+| check | before | now |
+|---|---|---|
+| mission acceptance (`Decision.may_decide`, `accept_mission`) | only a holder's own id, or the reserving person's own id | the proxy decides what its principal holds, reserved approvals included; the record says `for 8 (Developer)` |
+| acceptance in person | any bot refused | a proxy may record in person; an ordinary agent is still refused |
+| acceptance scoping | an agent-holder's words count only in the mission's conversations | a proxy deciding for a person counts wherever it spoke, as the person would |
+| hold release (`holds.release`, also `agobserver.hold --release`) | only the holder's own post or id | the holder or whoever carries their full authority; the record names the speaker and `for <holder>` |
+| a question put to the Developer (`outstanding.read_requests`) | answered only by id 8; withdrawn only by its sender | the proxy answers or withdraws it; an ordinary agent does neither |
+| trace reading of `[acceptance]` | — | parses and shows the `for …` part |
+
+## Deliberately unchanged
+
+- **Dispositions** had no identity gate, and name the actual speaker.
 - **autolab** task agreement, start and cancel accept any non-self
   requester.
-- **forge** routes only.
-- **The completion door** writes as the Developer's room, with no gate.
-- **Worker checks stay:**
+- **Worker checks:**
   - evidence by the mission's own agent is refused;
-  - a hold by the unit's owner agent is refused;
+  - a hold by the unit's owner is refused;
   - the owner's own `accepted`/`done` is no decision.
-- **Own-post refusals** in `agentchat reserve` and `holds.place` ("your own
-  post") stop an agent from recording its own words as a person's decision.
-  For the proxy, the plan's route is for its words to be recorded by the
-  agent it speaks to (Front), not by itself. So they are kept.
-- **Owner-only state words** (`[state] cancelled` only from the unit's
-  owner) ignore the Developer and the proxy alike. Cancellation goes
-  through the owner.
+- **Receipts** (`trace._reconciled`) are the owed agent's listener's.
+- **Argue desire** (`argue.validate_desire`) requires a non-bot human, so
+  the proxy's words are not recorded as a desire. An argue exists to draw
+  out a human's desire; changing that is not this plan's call (see
+  report.md).
+- **`agentchat reserve`** runs inside a serving, so the proxy's reservation
+  is recorded by the agent it speaks to. Its own-post refusal stays.
 
-## What is needed to continue
+## Tests
 
-The Developer chooses one:
-
-- **Allow it:** add a permission rule for the Omni Agent's session, or run
-  outside auto mode, so that the proxy statement and the check changes
-  above can be written. Steps 1–3 then continue as planned.
-- **Write it yourself:** the Developer writes `~/.config/agag/people.toml`
-  and edits Front's memory entry. The Omni Agent then does the code
-  changes, if the classifier accepts them once the statement is the
-  Developer's.
-- **Change the plan.**
+- `pyagag/tests/test_failsafe_p6ex2.py`: 14 at this step.
+- Full pyagag: 1122 passed.
