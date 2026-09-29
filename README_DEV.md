@@ -1202,7 +1202,7 @@ and `recheck`) goes to Zulip. `agentchat read` takes several topics of a
 channel, or `--latest N [--prefix p]`, in one call; `topics` takes
 `--prefix`.
 
-### Trying a guide change against the same board (`agent_guide` p2, p2 ex1, p3 ex1)
+### Trying a guide change against the same board (`agent_guide` p2, p2 ex1, p3 ex1, p3 ex2)
 
 **The board.** `python -m agag.fixture build <dir>` writes a synthetic
 board as a mirror store marked `fixture`. It is built in code; nothing is
@@ -1274,14 +1274,23 @@ For the other agents, before p2: archsage `df6e0af`, autolab `aab6810`.
 (`agag.fixture.responder`) is served on an overlay, the trial's own copy
 of the board:
 
-- `agentchat send` there is recorded, and a post that addresses a scripted
-  agent the way a listener is served (a mention, its channel or one of its
-  topic prefixes; a `to=` alone reaches nobody) takes that agent's next
-  canned line;
+- `agentchat send` there is recorded, and a post takes a scripted agent's
+  next canned line only through that agent's **doors**, where its live
+  listener would serve it (`responder.DOORS`, `agent_guide` p3 ex2):
+  - autolab (`AUTOLAB_DOORS`) answers in `autolab-agstudio1` and in a
+    mission's own `workplan-`/`workrun-` topics already on the board;
+  - a **new** `workplan-` topic in a `pj-` channel is a new request. It
+    gets a new-mission plan acknowledgement and no script line, and nothing
+    scripted answers there again;
+  - a mention elsewhere, a `workplan-` topic outside a project channel,
+    and a `to=` alone reach nobody;
+  - an agent not in `DOORS` is served by a mention or in its own channel;
+  - each send's door is in `outcome.json` (`doors`), and `python -m
+    agag.fixture doors <out>…` replays saved runs through today's doors;
 - the line is posted after the serving ends, and the conversation is served
   again with the calling topic beside it, as the listener serves a callback
   (`Trial.converse`);
-- a script line is `Canned(agent, text, topics=())`, where `{ask}` is the
+- a script line is `Canned(agent, text)`, where `{ask}` is the
   post it answers and `{asker}` the asker's mention: a plain answer, or a
   `response_request … ask=decision` back to the asker;
 - every other write stays refused, so the board is the same between runs;
@@ -1289,13 +1298,14 @@ of the board:
   posts sent (`sends_must`) and the number of servings.
 
 The two probes are `delegate-answer` and `delegate-decision` (Front).
-Results are in `agent_guide/p2/ex1/report.md`, and the three-arm comparison
-(before p1 / p1 / now) with the delegation fix in `agent_guide/p3/`;
-the rates on board 2 (12 runs per arm, Wilson intervals, fd-wr attempts
-counted over every run) in `agent_guide/p3/ex1/`. The responder answers
-any `workplan-` post, so a delegation that opens a new `workplan-` topic
-passes here although live autolab would plan a new mission there: read
-where the answer came from.
+Results are in `agent_guide/p2/ex1/report.md`; the three-arm comparison
+(before p1 / p1 / now) with the delegation fix in `agent_guide/p3/`; the
+rates on board 2 (12 runs per arm, Wilson intervals, fd-wr attempts
+counted over every run) in `agent_guide/p3/ex1/`; and the three arms
+again on board 2 with the doors (72 runs per arm) in `agent_guide/p3/ex2/`.
+Before the doors, a delegation that opened a new `workplan-` topic passed.
+Under the doors it gets the acknowledgement, and in p3 ex2 all four such
+runs answered it "start".
 `guard-status` (as9: a status question about running work, nothing sent)
 and `guard-finished` (fd-wr: no send into a ✔ topic's bare name; the rule
 `sends_to_must_not` judges sends, not reads) keep that fix from undoing
@@ -1318,6 +1328,42 @@ it adds. p3 ex1 added "12 時間", named a study by any of its places, and
 narrowed "教えてください" to asking which or what study is meant
 (`ASKS_WHAT_THE_STUDY_IS`): p3's 108 runs went 86 → 90, exactly the four
 passes in substance p3 named.
+
+**A batch is one command** (`agent_guide` p3 ex2). The queue, the
+classifier and the table live in `agag.fixture`, not in ignored folders:
+
+```
+python -m agag.fixture batch <plan.toml> --out <dir> [--jobs 2] [--probe p] [--list] [--dry-run]
+python -m agag.fixture classify <dir>          # per run: verdict, delegation class, fd-wr, search, as9, unasked send
+python -m agag.fixture table <dir> [--json f]  # pass counts with Wilson 95 %, process measures per arm
+```
+
+- The plan (TOML) holds:
+  - `[arms]`: name → driver flags;
+  - `[[probes]]`: `names`, `runs`, optionally `arms`;
+  - `[drivers.<agent>] dir`;
+  - `[budget]`: `harness`, `limits`, `poll_seconds`.
+
+  `agag.fixture.batch`'s docstring has an example, and p3 ex2's
+  `report2.md` has the three-arm plan.
+- Jobs are interleaved per run number with the arms rotated. A job whose
+  `outcome.json` exists is skipped, so the same command resumes.
+- **The budget gate.** Trials spend the account the live agents use: in p3
+  ex1, 4 parallel trials exhausted the 5-hour window. Before each job the
+  gate reads `agbudget --json` and starts nothing while a limited window
+  (e.g. `session = 60`, `weekly_all = 90`) is at its limit, or while the
+  reading fails. The usage endpoint's 429s show up as short pauses.
+  Pauses and readings go to `<dir>/batch.log` and `budget.jsonl`.
+- A reply that is the harness's limit message is **cut**, not judged. It
+  is kept under `<dir>/cut/` and queued again.
+- p3 ex2's 216 runs (3 arms) took 97 minutes at `--jobs 2`, for $54.86,
+  0 cut, and moved the session window 20 → 56 % and the weekly window
+  81 → 86 %.
+
+**A trial's filesystem is the host's.** Runs sometimes grep the projects
+tree for a mission's name (p3 ex2: 8 of 12 p1 guard-status runs), and that
+reaches other trials' outcomes and pyagag's pass rules. No reply used what
+it found, but keep batch output where that matters to you.
 
 **A shared-section change can be tried before it is released.**
 `--shared-guides <dir>` reads pyagag's shared sections (`<dir>/<name>.md`)
