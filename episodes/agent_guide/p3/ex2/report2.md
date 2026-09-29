@@ -1,8 +1,9 @@
 # agent_guide p3 ex2 — step 2: the batch tooling, versioned, with a budget gate
 
 pyagag `99e88cb`. It is installed, with the lock committed, in agfront
-`58605f6`→(this step), agautolab, agobserver and archsage. It is fixture
-code only, so no listener was restarted.
+`be5a059`, agautolab `d0a4286`, agobserver (pj-agdev `66a83d3`) and
+archsage `fd89eef`. It is fixture code only, so no listener was
+restarted.
 
 ## Where it is
 
