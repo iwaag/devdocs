@@ -1202,13 +1202,35 @@ and `recheck`) goes to Zulip. `agentchat read` takes several topics of a
 channel, or `--latest N [--prefix p]`, in one call; `topics` takes
 `--prefix`.
 
-### Trying a guide change against the same board (`agent_guide` p2, p2 ex1)
+### Trying a guide change against the same board (`agent_guide` p2, p2 ex1, p3 ex1)
 
 **The board.** `python -m agag.fixture build <dir>` writes a synthetic
 board as a mirror store marked `fixture`. It is built in code; nothing is
 exported from the realm. A run pointed at it reads only it and can post
 nowhere. `python -m agag.fixture probes` lists every probe, its pass rule
 and the line that runs it.
+
+**The board records what it says, and says which board it is**
+(`agent_guide` p3 ex1).
+
+- A mission is written as a live one is (m15750 was the template): its name
+  is its `[mission]` note's id, and a finished one carries its tasks'
+  `[task]`/`[rootchat]`/`[start]`, the shown result, the requester's
+  agreement, `[change] accepted … +shown=`, `[state] completed`, ✔, then
+  the acceptance record (`[state] accepted`, `[acceptance] … after=#`,
+  `[state] done`, ✔). Routine runs end with their `ag-routinerun` block.
+  Board 1 said "m20390 is done: accepted by Front" over a mission `trace`
+  read as `queued`, and one run believed the trace.
+- `python -m agag.fixture consistency <dir>` checks the built board: every
+  mission named has its note, one called done traces done, a ✔ task traces
+  done, every agent named has an introduction. It is also a test; board 1
+  fails it on every mission.
+- `agag.fixture.board.BOARD_VERSION` (2 since p3 ex1; 1 before) is written
+  into the store and, from the store a trial actually read, into
+  `outcome.json` as `board_version`. Board 2 renamed growbox's and
+  ProtoPrey's missions (m20390→m20420, m20396→m20460, m20402→m20510,
+  m20410→m20550, m20455→m20600); `board.EARLIER_NAMES` keeps the old
+  names.
 
 **The drivers.** Each agent's driver is in its own package. You run it from
 that agent's checkout with its own venv:
@@ -1268,19 +1290,42 @@ of the board:
 
 The two probes are `delegate-answer` and `delegate-decision` (Front).
 Results are in `agent_guide/p2/ex1/report.md`, and the three-arm comparison
-(before p1 / p1 / now) with the delegation fix in `agent_guide/p3/`.
+(before p1 / p1 / now) with the delegation fix in `agent_guide/p3/`;
+the rates on board 2 (12 runs per arm, Wilson intervals, fd-wr attempts
+counted over every run) in `agent_guide/p3/ex1/`. The responder answers
+any `workplan-` post, so a delegation that opens a new `workplan-` topic
+passes here although live autolab would plan a new mission there: read
+where the answer came from.
 `guard-status` (as9: a status question about running work, nothing sent)
 and `guard-finished` (fd-wr: no send into a ✔ topic's bare name; the rule
 `sends_to_must_not` judges sends, not reads) keep that fix from undoing
 the lessons it scoped.
+
+**Judging again costs nothing** (`agent_guide` p3 ex1). An
+`outcome.json` keeps what a rule reads (the last reply, every tool call,
+the sends, the servings), and every verdict names its rule (`rule`, a
+digest). `python -m agag.fixture rejudge <out-dir>… [--json <file>]`
+applies today's rules to saved results without a model:
+
+- a result from an earlier board is judged in that board's mission names
+  (`probes.for_board`);
+- one judged by another question (the first `delegate-answer`) is listed as
+  `other rule` and left out of the counts;
+- dry runs are skipped.
+
+A rule change must be a spelling, not a changed standard: read the passes
+it adds. p3 ex1 added "12 時間", named a study by any of its places, and
+narrowed "教えてください" to asking which or what study is meant
+(`ASKS_WHAT_THE_STUDY_IS`): p3's 108 runs went 86 → 90, exactly the four
+passes in substance p3 named.
 
 **A shared-section change can be tried before it is released.**
 `--shared-guides <dir>` reads pyagag's shared sections (`<dir>/<name>.md`)
 instead of the installed package; with `--guides <tree>` a whole candidate
 composition runs while the live agents keep reading their checkouts
 (agent_guide p3 tried its fix this way). Judge the verdict *and* the calls:
-a rule's spellings miss correct answers ("12 時間", a closing
-"教えてください"), and a delegation fails three different ways (nothing
+a rule's spellings can miss correct answers (p3's four, since held), and
+a delegation fails three different ways (nothing
 sent, sent where no listener is served, or proposed and waited), which
 only the calls tell apart.
 
