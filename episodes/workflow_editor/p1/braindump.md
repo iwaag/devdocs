@@ -1,0 +1,8 @@
+ワークフローとプロジェクトのエディタを導入する。
+devdocs/episodes/workflow_editor/design/braindumps/構想メモを、devdocs/episodes/workflow_editor/design/idea1/にコンセプト画像を追加した。
+
+まずp1でpj-agdev/experiments/workflow_editor/にMVPを作成する。
+プロジェクトやワークフローの構成要素となるリポジトリは一旦giteaとは繋がず、pj-agdev/.localにgit initで作成したリポジトリをクローンするなどして実験する。
+
+ワークフローの定義ファイルの具体的詳細はまだ決めてないので検討するひつようがある。
+プロジェクト定義ファイルは必要かどうか微妙なところだ。プロジェクトの意図とゴールさえあれば、プロジェクトリポジトリに展開されているsubmoduleで構成はわかるが、一応それらの情報を集約したファイルは必要だろうか？
