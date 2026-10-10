@@ -28,6 +28,28 @@ The contract is
 `pj-agdev/experiments/workflow_editor/docs/runs.md`
 (`ag.workflow-run.v1`).
 
+## Review correction: report files at a commit
+
+The review found that a historical run view showed the committed execution
+state but opened report files from the working tree. The file request now carries
+the displayed commit ID, and the service reads the file from that same devdocs
+commit. Current run views continue to read saved working-tree files.
+
+Missing historical files return an error rather than falling back to current
+content. Artifacts outside devdocs are unavailable from a devdocs commit; the
+error directs the person to the current run. File-size and path restrictions
+also apply to historical reads.
+
+Validation after the correction:
+
+- `npm run check`: type check, 67/67 tests and production build passed.
+- The HTTP regression checks two committed report versions, an uncommitted
+  version, deletion from the working tree, missing historical files, invalid
+  revisions and paths.
+- `node checks/runs.ts --repeat 3`: 35/35 browser checks passed, including
+  historical and current report contents. This is a functional regression run;
+  the original 30-save measurement remains the latency evidence below.
+
 ## Starting the p3 trial
 
 1. **Restart the editor for the area.** The service on `:8097` predates
