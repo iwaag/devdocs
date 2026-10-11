@@ -1,0 +1,1 @@
+workflow_editor/design/migration/braindump.mdで予告されているような、既存エージェントをプロジェクトとワークフローベースとして、主にzulipを介した連携をするための定義などを
