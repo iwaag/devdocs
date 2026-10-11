@@ -1,5 +1,9 @@
 # p5 step 5 — rehearsal and rollout
 
+Final status (2026-10-11): the person has completed `improve-game/run-002`.
+The independent review and remaining findings are in [report.md](report.md).
+The pending items below describe the state at rollout, before that trial.
+
 Plan sections: [plan.md](plan.md) §9, §10.5 and §11.
 
 ## Rehearsal with the real agent (isolated data)
