@@ -120,6 +120,8 @@ The final review reused the recent code checks rather than rerunning the full su
 
 ## Open findings and limitations
 
+> **Follow-up (2026-10-11): [p5/ex1](ex1/report.md)** fixed and deployed the two findings below and the backend-display gap: frozen deliveries with claims and reconciliation (notify protocol 2), recoverable SQLite stores, and the observed backend in the run header (agdevworld `78caec2`, agautolab `ca8e807`). The observations below are kept as they were recorded.
+
 ### Notification deduplication when a retry batch changes
 
 The earlier lightweight review reproduced this unresolved case using an isolated `NotifyStore`:
