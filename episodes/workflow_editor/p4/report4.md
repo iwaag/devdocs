@@ -1,5 +1,14 @@
 # workflow_editor p4 — Stage 4: continuing RTS and editor development (in progress)
 
+> **Corrected by [p4/ex1](ex1/plan.md) (2026-10-11).** The editor is no
+> longer a managed project: it is agdevworld system code
+> (`agdevworld/workflow_editor`), built and installed by agdevworld's
+> `scripts/wfe-release.sh`. The `workflow-editor` project, both of its
+> workspaces and `developer/pj-workflow-editor` were removed from the
+> catalog, and that repository is excluded from it. No `improve-editor` run
+> or `scripts/deploy.sh` deployment is part of p4. The steps below that say
+> otherwise are history, not instructions; see [ex1/report.md](ex1/report.md).
+
 Stage 4 has two parts:
 
 - **Prepared:** inventory, project roots, Gitea, fresh workspaces, and a
@@ -137,6 +146,9 @@ launchd:
   either.
 
 ## Outstanding: what the person does
+
+> Superseded by p4/ex1: only the RTS request remains (step 2, first bullet).
+> The editor request in step 2, and step 3, no longer apply.
 
 1. **Load the two jobs:**
 

@@ -2,9 +2,11 @@
 
 ## Goal
 
+Revision (2026-10-11): the corrected migration input makes the editor an agdevworld system component and retains RTS as the development project. [p4/ex1](ex1/plan.md) specifies the corrective integration and cleanup of the already implemented self-development arrangement. Earlier reports describe the implementation before this correction.
+
 This plan follows the [migration braindump](../design/migration/braindump.md) and the design agreed upon after its revision.
 
-Build on the experimental Project, Workflow, and Run model so that a person can request development through agdevworld, have a single autolab agent perform research and implementation with human checkpoints, and save the results and work records to Gitea. Continue development of both the experimental RTS project and the editor itself through this path.
+Build on the experimental Project, Workflow, and Run model so that a person can request development through agdevworld, have a single autolab agent perform research and implementation with human checkpoints, and save the results and work records to Gitea. Integrate the editor into agdevworld as system code, and continue development of the experimental RTS project through it.
 
 Integrate incrementally: establish the storage contract, resource management, single-agent execution, and then use on real projects. Treat the supervised IDE execution demonstrated in p3 separately from the process management, resumption, and agdevworld operations introduced here.
 
@@ -19,7 +21,9 @@ Implement the following in p4:
 - Adding existing shared repositories from the Project Editor.
 - Execution of study, do, and talk by autolab alone, including human waits and explicit resumption after interruption.
 - Requests, progress inspection, answers, stopping, resumption, and result review through agdevworld.
-- Registration of the RTS and editor projects under the new contract, followed by one real improvement run for each.
+- Integration of the editor into the agdevworld repository and system deployment.
+- Registration of the RTS project under the new contract, followed by one real improvement run.
+- Removal of the editor project and both editor workspace registrations created by the earlier implementation, as specified in [ex1/plan.md](ex1/plan.md).
 
 The following are out of scope:
 
@@ -27,6 +31,7 @@ The following are out of scope:
 - Delegate execution, delegation across projects, and execution control for parent and child runs.
 - Actual Zulip notification delivery or inbound integration, and Observer integration.
 - Representing agents as a form of project.
+- Managing or developing the editor itself as an ordinary wfe project, including `improve-editor` runs and deployment from that project.
 - Reading or converting old formats, preserving old URLs, or synchronizing with legacy missions and tasks.
 - Changing a project's devdocs storage mode after creation.
 - Automatic deployment or discovery across hosts, and distributed scheduling.
@@ -47,7 +52,7 @@ Do not maintain backward compatibility. Experimental run histories need not be m
 
 Devdocs is the source of truth for work records. Do not independently manage run state in Zulip or the registry. Saved files are the current work record even before publication to Gitea; display their unpublished status separately.
 
-Use the experiment's models, validation, reducer, and run operations as the shared implementation. Build on the existing service and CLI, with autolab invoking the same operations through the CLI. Do not duplicate state-transition rules in Python or the browser. The agdevworld views use the same service.
+Use the experiment's models, validation, reducer, and run operations as the shared implementation. Build on the existing service and CLI, with autolab invoking the same operations through the CLI. Do not duplicate state-transition rules in Python or the browser. The agdevworld views use the same service. The source package belongs to the agdevworld repository; system code, installed releases, and control data are excluded from ordinary managed project targets. The executor uses the installed system CLI.
 
 Do not translate workflow runs into the existing autolab mission/task model. Connect migrated projects to the new execution entrance, ensuring that legacy listeners cannot execute the same request again. Compatibility with the old views and operating model is not required.
 
@@ -223,16 +228,16 @@ Completion criteria: Global listings and per-Project listings serve distinct pur
 
 Completion criteria: A synthetic task proceeds from a request through a human wait, process exit, answer, resumption, and completion. Service restart and unexpected interruption remain distinguishable, and recovery causes neither duplicate launches nor automatic repetition of work.
 
-### Stage 4: Continue RTS and editor development
+### Stage 4: Integrate the editor and continue RTS development
 
-1. Inventory the source code, artifacts, and knowledge to retain from experimental workspaces, and the records that will not be migrated.
-2. Inspect the current code and Git boundaries to determine each Project root. A separate repository for the editor is not mandatory; align the boundary with its actual development and build unit.
-3. Save the necessary repositories to Gitea and prepare Projects and Workflows under the new contract.
-4. Register workspaces obtained from Gitea and confirm that the source and artifacts are usable.
-5. Execute one improvement task for each project through agdevworld, as specified or agreed upon by the person. Record the actual answers and result acceptance.
-6. For changes to the editor itself, separate the running service from the source being edited. Update the service after building and validating the changes, and confirm that ongoing runs can be displayed again.
+1. Inventory the editor source and deployed code, the RTS artifacts and knowledge to retain, and current registrations and execution state.
+2. Integrate the editor as a system package at `agdevworld/workflow_editor`, tracked in agdevworld's repository and built/deployed through system commands. Do not register it as a Project or Workspace.
+3. Apply [ex1/plan.md](ex1/plan.md) to remove the editor's self-development dependency, both editor workspace registrations, and obsolete operating instructions. Keep system targets outside supported project registration and execution paths.
+4. Preserve or prepare the RTS root and shared repositories in Gitea, and register its workspace and workflows. Verify that a fresh checkout supplies the source and artifacts.
+5. Through agdevworld, execute one RTS improvement task specified or agreed upon by the person. Record the actual answers and result decision, and verify publication and retrieval from Gitea. Reuse sufficient existing real-run evidence if it predates the correction.
+6. Verify that service restart and system deployment preserve the RTS records and operating route. System updates follow agdevworld's development lifecycle; they are not workflow runs of a managed editor project.
 
-Completion criteria: A real improvement run completes for each of the RTS and editor projects, with human review, results and records in Gitea, and successful reads from a fresh workspace. Synthetic tests alone do not complete this stage.
+Completion criteria: Agdevworld supplies the editor as system code, the current catalog contains RTS as its only development project/workspace with its shared study repository, and real RTS use has been verified with human review and published records. Synthetic tests alone do not establish real use. No editor improvement run is required.
 
 ## 8. Validation
 
@@ -252,7 +257,7 @@ Verify at least the following:
 10. Projects without a workspace and unused shared Repositories appear in listings, and retrieval failures are distinguishable from valid empty results.
 11. Adding or updating a shared Repository does not alter another Project's references.
 12. Browser reconnection, run switching, unsaved drafts, and publication-state changes are handled correctly.
-13. Real tasks for both RTS and the editor complete through agdevworld operations.
+13. A real RTS task completes through agdevworld operations; the integrated editor is absent from ordinary project/workspace listings, and protected system targets are refused through supported registration and execution operations.
 
 Interruption tests must include a process stopping after a work side effect but before recording completion. Rather than spending hours in an actual wait, verify recovery from persistent state across process exit and restart.
 
@@ -267,7 +272,8 @@ P4 is complete when all of the following hold:
 - The new devdocs contract and Gitea operation work in both storage modes.
 - The dashboard and Project Editor have distinct roles, and resources can be managed globally and within an individual Project.
 - Autolab alone supports requests, work, human checkpoints, stopping and resumption, result review, and publication.
-- One development task for each of RTS and the editor has been completed through agdevworld, and its results and records can be retrieved again.
+- The editor is integrated into agdevworld as system code, with no dependency on its former managed project or workspaces.
+- One RTS development task has been completed through agdevworld, and its results and records can be retrieved again.
 - All of this works without front, forge, archsage, Zulip integration, or delegate execution.
 
 If real tasks or human review remain outstanding, report foundation implementation as complete separately from real use remaining incomplete. Do not expand p4's completion criteria by adding future multi-agent coordination ahead of its own design phase.

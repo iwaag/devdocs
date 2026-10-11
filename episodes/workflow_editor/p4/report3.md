@@ -239,3 +239,6 @@ Stage 4:
    `agautolab.wfexec`.
 6. Run one improvement task per project through agdevworld, with the
    person's answers and acceptance.
+
+> Corrected by [p4/ex1](ex1/plan.md): the editor is agdevworld system code,
+> not a project; only the RTS run remains.
