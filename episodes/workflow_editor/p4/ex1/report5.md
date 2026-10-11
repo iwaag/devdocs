@@ -24,26 +24,72 @@ No real run has been made in the RTS workspace since the p4 migration
 p3 MVP run (`build-game/run-001`) is kept as knowledge in
 `devdocs/notes/p3-mvp/` under the p4 contract, not as a run record.
 
-## Real RTS acceptance: outstanding
+## Real RTS acceptance: done (2026-10-11)
 
-The plan requires one improvement through `improve-game` in the RTS
-workspace. The person specifies or agrees on it, answers the scope question,
-and accepts or rejects the result. A request or an acceptance must not be
-invented, and none was. The route is ready:
+The person requested one improvement through agdevworld, and it completed
+there. The Omni Agent wrote no request, answer or acceptance.
 
-1. Open `http://localhost:8093/wfe/`, or the operation room's "agdev
-   dashboard ↗". Then open the Project editor of `rts-vs-bot` → "Request a
-   run" → workflow "Improve the game", and enter your name and your words.
-2. autolab (`com.agdev.agautolab-wfexec`, idle and available) claims it and
-   runs `confirm-scope`. It asks the scope question in the run view and ends
-   its process.
-3. Answer in the run view. autolab resumes and runs implement → verify, then
-   asks the `human-check` question.
-4. Inspect the game and its test results, then Accept or Reject with your
-   evidence.
+**Request.** `improve-game/run-001` in workspace `rts-vs-bot`, workflow
+`improve-game`, from the browser. Braindump by iwaag: 「兵士ユニットを一種類追加してください。詳細は任せます。」
 
-After that the Omni Agent verifies the published files from a fresh Gitea
-checkout and records it, completing p4.
+**Attempts.** Three, all by autolab through `com.agdev.agautolab-wfexec`
+(`claude_code / anthropic/claude-sonnet-5`). Each ended its process at a
+human wait or at completion.
+
+| Attempt | Reason | Window (UTC) | Ended at |
+| --- | --- | --- | --- |
+| `amv3cmld3` | start | 04:54:30–04:55:14 | asked q1 (confirm-scope) |
+| `amv3cofck` | resume after answer | 04:55:56–05:00:26 | implement, verify; asked q2 (human-check) |
+| `amv3cy7d1` | resume after answer | 05:03:32–05:03:53 | human-check completed; run completed |
+
+**The person's answers.**
+
+- **q1, scope.** Proposal: a melee 「重戦士」 trained at the barracks; the bot
+  unchanged; done when the unit is added, the headless test is updated and
+  the browser is checked. Answer: 「ok、詳細は任せます。」
+- **q2, result.** HP 160, melee 22, range 10, speed 55, 120 ore, 14 s; Q/W
+  to train at the barracks, F/G to select all; 14/14 headless checks;
+  browser verified (`verify-report.md`). Answer: 「OK」, taken up, and
+  `human-check` completed as the person's acceptance.
+
+**Publication.** Three checkpoints, one after each attempt, all `published`:
+
+| Commit | After |
+| --- | --- |
+| `8181278` | attempt 1, awaiting the person |
+| `095c914` | attempt 2, awaiting the person |
+| `96cbe25` | completed |
+
+The `study-rts` gitlink is unchanged (`d2734db`).
+
+**Fresh Gitea checkout.** In a scratch directory:
+`git clone --recurse-submodules developer/pj-rts-vs-bot`, with the token as a
+scoped header; nothing was written to `.git/config`.
+
+- `HEAD` = `96cbe25`, and the clone is identical to the workspace.
+- It holds the run folder (`braindump.md`, `run.json`, `definition/`,
+  `verify-report.md`).
+- Game changes since `7e662e1`: `game/sim.js`, `main.js`, `README.md` and
+  `test/headless.js`. `bot.js` is unchanged, as agreed.
+- `node game/test/headless.js` in the clone: **all 14 checks pass**,
+  including "barracks trains a heavy warrior".
+- `wfe run check run-001`: usable. Through agdevworld,
+  `/wfe/api/workspaces/rts-vs-bot/runs/improve-game/run-001` returns 200.
+
+**Observations, not failures:**
+
+- **No separate result decision.** `run.json` `decisions` is empty: the
+  run view's Accept/Reject result decision was not used. The person's
+  acceptance is the `human-check` answer, which is what the `improve-game`
+  definition asks for. Whether that talk node should also record a
+  decision is a design question for later.
+- **Backend shown as unknown.** `wfe run show` prints "Executor: autolab
+  (backend: unknown)". The attempts record their backend
+  (`attempt.begin`), but the run header reads only the creation-time
+  executor field. This is a display gap.
+- **Artifact list includes `bot.js`.** `node.complete` for `implement`
+  lists `game/bot.js` as an artifact, although that file has no change
+  (the agent declared it).
 
 ## Documentation updated
 

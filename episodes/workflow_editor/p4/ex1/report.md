@@ -2,8 +2,10 @@
 
 The correction in [braindump.md](braindump.md) is implemented: the workflow
 editor is agdevworld system code, and the operating catalog holds only the
-real development project, RTS. One completion criterion is outstanding, and
-it waits on the person: the real RTS run.
+real development project, RTS. The person carried out one real RTS
+improvement through agdevworld: a heavy-warrior unit, requested, answered
+and accepted by them. Its results are verified from a fresh Gitea checkout.
+All completion criteria hold.
 
 ## Completion criteria
 
@@ -15,7 +17,7 @@ it waits on the person: the real RTS run.
 | Both editor workspaces and the editor project/repository are out of active use; no pending job can restore them | done | `wfe project unregister workflow-editor`; folders archived; an injected queue job was dropped by the live executor; removed ids return 404; the retired repository is refused in every role |
 | Supported management and execution operations reject protected system targets | done | `server/boundary.ts`; [report3](report3.md) (6 tests); live probes in [report4](report4.md) |
 | p4's storage, Gitea, dashboard and single-autolab behaviour still work | done | 93 tests; browser checks 33/13/18; executor tests 3/3 on source and on the release: [report5](report5.md) |
-| Actual RTS acceptance established, or reported as outstanding | **outstanding** | no real RTS run exists yet; route ready ([report5](report5.md)) |
+| Actual RTS acceptance established, or reported as outstanding | done | `improve-game/run-001`: the person's request, scope answer and 「OK」 on `human-check`; 3 attempts; 3 published checkpoints (`96cbe25`); a fresh clone passes 14/14 headless checks ([report5](report5.md)) |
 | No `improve-editor` run or self-deployment required | holds | none was made |
 
 ## State of this host
@@ -38,10 +40,7 @@ it waits on the person: the real RTS run.
 
 ## For the person
 
-1. **Make the RTS request** (report5, "Real RTS acceptance"): your own
-   words, through `improve-game` in `rts-vs-bot`. Then answer the scope
-   question, and accept or reject the result. That completes p4.
-2. **Optional cleanup:**
+1. **Optional cleanup:**
    - `pj-agdev/.local/agdev/service/releases/0b9d97a….tmp`, a failed
      candidate the agent could not delete;
    - the archives in `.local/agdev/.local/retired/`, when no longer wanted;
@@ -49,6 +48,11 @@ it waits on the person: the real RTS run.
      required; it is excluded by the boundary.
 
 ## Notes
+
+- **Open design point from the real run.** Acceptance was recorded as the
+  `human-check` answer. The run's separate result `decisions` stayed empty,
+  and the run header shows the backend as "unknown" although the attempts
+  record it (report5).
 
 - **Not an OS sandbox.** The checks protect the supported operations. An
   agent with shell access under the same account can still change files
