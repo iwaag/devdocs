@@ -53,7 +53,6 @@ All completion criteria hold.
   `human-check` answer. The run's separate result `decisions` stayed empty,
   and the run header shows the backend as "unknown" although the attempts
   record it (report5).
-
 - **Not an OS sandbox.** The checks protect the supported operations. An
   agent with shell access under the same account can still change files
   outside them.
