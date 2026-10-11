@@ -1,0 +1,1 @@
+devdocs/episodes/workflow_editor/design/migration/braindump.mdに仕込んだ文章のミスにより、とんでもない仕様が仕込まれてしまった。wfe自身のソースコードがwfeで管理されているという、ユーザーやエージェントの一つのミスでシステムが崩壊する。wfeは普通にagdevworldに組み込んだ上で、実際の開発プロジェクトであるrtsだけが残っている状態に修正する。
