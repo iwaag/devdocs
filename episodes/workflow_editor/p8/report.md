@@ -1,6 +1,6 @@
 # Workflow editor p8 — final report: a calmer UI grounded in the existing editor
 
-**Source**: agdevworld `8cda5c9` (from `a571ae2`). **Deployment**: not done — the installed release is still `a571ae2`; see [report7](report7.md).
+**Source**: agdevworld `8cda5c9` (from `a571ae2`). **Deployment**: done 2026-10-13 at the person's request — the installed release is `8cda5c9`, previous `a571ae2`; see [report7](report7.md).
 
 ## What changed
 

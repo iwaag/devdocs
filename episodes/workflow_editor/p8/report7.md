@@ -22,7 +22,9 @@ The source revision is agdevworld **`8cda5c9`** (pj-agdev pointer `0a2c100`). `n
   - **open attempts: none**.
 - The installed release was not changed. p8 changes presentation only: no store schema, run record, compiler, CLI or server API changed. A rollback is therefore the usual `wfe-release.sh rollback`, with no data step.
 
-### Deployment status: not deployed
+### Deployment status: deployed 2026-10-13 (after the person's request)
+
+After this report was written, the person asked for the deploy. `wfe-release.sh deploy .local/agdev 8cda5c9788737b94bd6135f495e0338478a97348` rebuilt and checked the release (211 tests, build), switched `service/current` and `bin/wfe`, restarted `com.agdev.wfe-service`, and reported healthy. Afterwards `status` shows current `8cda5c9…`, previous `a571ae2…`, no open attempt; `/api/version` names `8cda5c9`; the app answers 200 on `:8098`. Rollback: `wfe-release.sh rollback .local/agdev` (to `a571ae2`; no data step). The text below is the pre-deploy assessment.
 
 The plan makes the installed release a separate operation, "from the reviewed source commit". This session did not deploy. The operating service and launcher still run `a571ae2`.
 
