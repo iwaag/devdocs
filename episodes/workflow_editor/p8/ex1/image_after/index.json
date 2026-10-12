@@ -1,0 +1,586 @@
+[
+  {
+    "file": "dashboard-simple.png",
+    "screen": "Dashboard",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "project-simple.png",
+    "screen": "Project",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "project-jp-simple.png",
+    "screen": "Project with a long Japanese and English name",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "def-simple.png",
+    "screen": "Workflow definition, nothing selected",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "def-selected-simple.png",
+    "screen": "Workflow definition, a node selected",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "def-longtext-simple.png",
+    "screen": "Workflow definition, long Japanese and English names, a node selected",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "def-large-simple.png",
+    "screen": "Workflow definition, a large graph (16 nodes)",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "nodes-simple.png",
+    "screen": "User nodes",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "nodes-selected-simple.png",
+    "screen": "User nodes, a template selected",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-working-simple.png",
+    "screen": "Run: work in progress",
+    "mode": "simple",
+    "size": "1440 × 1000",
+    "note": "host facts synthetic (/exec answered with an alive attempt)"
+  },
+  {
+    "file": "run-question-simple.png",
+    "screen": "Run: an open question (the plan)",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-questions-simple.png",
+    "screen": "Run: branch and join, two open questions",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-question-jp-simple.png",
+    "screen": "Run: an open question in Japanese, long names",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-review-simple.png",
+    "screen": "Run: live review",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-answered-simple.png",
+    "screen": "Run: answer recorded, awaiting take-up",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-accepted-simple.png",
+    "screen": "Run: accepted, cleanup still running",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-completed-simple.png",
+    "screen": "Run: completed and accepted",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-completed-selected-simple.png",
+    "screen": "Run: completed, a step selected",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-nodecision-simple.png",
+    "screen": "Run: completed without a decision",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-held-simple.png",
+    "screen": "Run: held",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-failed-simple.png",
+    "screen": "Run: failed",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-cancelled-simple.png",
+    "screen": "Run: cancelled",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-history-simple.png",
+    "screen": "Run: historical view",
+    "mode": "simple",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-disconnected-simple.png",
+    "screen": "Run: the editor service unreachable",
+    "mode": "simple",
+    "size": "1440 × 1000",
+    "note": "the private service stopped for the capture; host facts synthetic before it"
+  },
+  {
+    "file": "dashboard-detail.png",
+    "screen": "Dashboard",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "project-detail.png",
+    "screen": "Project",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "project-jp-detail.png",
+    "screen": "Project with a long Japanese and English name",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "def-detail.png",
+    "screen": "Workflow definition, nothing selected",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "def-selected-detail.png",
+    "screen": "Workflow definition, a node selected",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "def-longtext-detail.png",
+    "screen": "Workflow definition, long Japanese and English names, a node selected",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "def-large-detail.png",
+    "screen": "Workflow definition, a large graph (16 nodes)",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "nodes-detail.png",
+    "screen": "User nodes",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "nodes-selected-detail.png",
+    "screen": "User nodes, a template selected",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-working-detail.png",
+    "screen": "Run: work in progress",
+    "mode": "detail",
+    "size": "1440 × 1000",
+    "note": "host facts synthetic (/exec answered with an alive attempt)"
+  },
+  {
+    "file": "run-question-detail.png",
+    "screen": "Run: an open question (the plan)",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-questions-detail.png",
+    "screen": "Run: branch and join, two open questions",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-question-jp-detail.png",
+    "screen": "Run: an open question in Japanese, long names",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-review-detail.png",
+    "screen": "Run: live review",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-answered-detail.png",
+    "screen": "Run: answer recorded, awaiting take-up",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-accepted-detail.png",
+    "screen": "Run: accepted, cleanup still running",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-completed-detail.png",
+    "screen": "Run: completed and accepted",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-completed-selected-detail.png",
+    "screen": "Run: completed, a step selected",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-nodecision-detail.png",
+    "screen": "Run: completed without a decision",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-held-detail.png",
+    "screen": "Run: held",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-failed-detail.png",
+    "screen": "Run: failed",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-cancelled-detail.png",
+    "screen": "Run: cancelled",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-history-detail.png",
+    "screen": "Run: historical view",
+    "mode": "detail",
+    "size": "1440 × 1000"
+  },
+  {
+    "file": "run-disconnected-detail.png",
+    "screen": "Run: the editor service unreachable",
+    "mode": "detail",
+    "size": "1440 × 1000",
+    "note": "the private service stopped for the capture; host facts synthetic before it"
+  },
+  {
+    "file": "dashboard-simple-1280.png",
+    "screen": "Dashboard",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "project-simple-1280.png",
+    "screen": "Project",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "project-jp-simple-1280.png",
+    "screen": "Project with a long Japanese and English name",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "def-simple-1280.png",
+    "screen": "Workflow definition, nothing selected",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "def-selected-simple-1280.png",
+    "screen": "Workflow definition, a node selected",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "def-longtext-simple-1280.png",
+    "screen": "Workflow definition, long Japanese and English names, a node selected",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "def-large-simple-1280.png",
+    "screen": "Workflow definition, a large graph (16 nodes)",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "nodes-simple-1280.png",
+    "screen": "User nodes",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "nodes-selected-simple-1280.png",
+    "screen": "User nodes, a template selected",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-working-simple-1280.png",
+    "screen": "Run: work in progress",
+    "mode": "simple",
+    "size": "1280 × 800",
+    "note": "host facts synthetic (/exec answered with an alive attempt)"
+  },
+  {
+    "file": "run-question-simple-1280.png",
+    "screen": "Run: an open question (the plan)",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-questions-simple-1280.png",
+    "screen": "Run: branch and join, two open questions",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-question-jp-simple-1280.png",
+    "screen": "Run: an open question in Japanese, long names",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-review-simple-1280.png",
+    "screen": "Run: live review",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-answered-simple-1280.png",
+    "screen": "Run: answer recorded, awaiting take-up",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-accepted-simple-1280.png",
+    "screen": "Run: accepted, cleanup still running",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-completed-simple-1280.png",
+    "screen": "Run: completed and accepted",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-completed-selected-simple-1280.png",
+    "screen": "Run: completed, a step selected",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-nodecision-simple-1280.png",
+    "screen": "Run: completed without a decision",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-held-simple-1280.png",
+    "screen": "Run: held",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-failed-simple-1280.png",
+    "screen": "Run: failed",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-cancelled-simple-1280.png",
+    "screen": "Run: cancelled",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-history-simple-1280.png",
+    "screen": "Run: historical view",
+    "mode": "simple",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-disconnected-simple-1280.png",
+    "screen": "Run: the editor service unreachable",
+    "mode": "simple",
+    "size": "1280 × 800",
+    "note": "the private service stopped for the capture; host facts synthetic before it"
+  },
+  {
+    "file": "dashboard-detail-1280.png",
+    "screen": "Dashboard",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "project-detail-1280.png",
+    "screen": "Project",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "project-jp-detail-1280.png",
+    "screen": "Project with a long Japanese and English name",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "def-detail-1280.png",
+    "screen": "Workflow definition, nothing selected",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "def-selected-detail-1280.png",
+    "screen": "Workflow definition, a node selected",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "def-longtext-detail-1280.png",
+    "screen": "Workflow definition, long Japanese and English names, a node selected",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "def-large-detail-1280.png",
+    "screen": "Workflow definition, a large graph (16 nodes)",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "nodes-detail-1280.png",
+    "screen": "User nodes",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "nodes-selected-detail-1280.png",
+    "screen": "User nodes, a template selected",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-working-detail-1280.png",
+    "screen": "Run: work in progress",
+    "mode": "detail",
+    "size": "1280 × 800",
+    "note": "host facts synthetic (/exec answered with an alive attempt)"
+  },
+  {
+    "file": "run-question-detail-1280.png",
+    "screen": "Run: an open question (the plan)",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-questions-detail-1280.png",
+    "screen": "Run: branch and join, two open questions",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-question-jp-detail-1280.png",
+    "screen": "Run: an open question in Japanese, long names",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-review-detail-1280.png",
+    "screen": "Run: live review",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-answered-detail-1280.png",
+    "screen": "Run: answer recorded, awaiting take-up",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-accepted-detail-1280.png",
+    "screen": "Run: accepted, cleanup still running",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-completed-detail-1280.png",
+    "screen": "Run: completed and accepted",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-completed-selected-detail-1280.png",
+    "screen": "Run: completed, a step selected",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-nodecision-detail-1280.png",
+    "screen": "Run: completed without a decision",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-held-detail-1280.png",
+    "screen": "Run: held",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-failed-detail-1280.png",
+    "screen": "Run: failed",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-cancelled-detail-1280.png",
+    "screen": "Run: cancelled",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-history-detail-1280.png",
+    "screen": "Run: historical view",
+    "mode": "detail",
+    "size": "1280 × 800"
+  },
+  {
+    "file": "run-disconnected-detail-1280.png",
+    "screen": "Run: the editor service unreachable",
+    "mode": "detail",
+    "size": "1280 × 800",
+    "note": "the private service stopped for the capture; host facts synthetic before it"
+  }
+]
