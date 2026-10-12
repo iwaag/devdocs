@@ -1,0 +1,1 @@
+devdocs/episodes/workflow_editor/design/simpler/image_suggestion/take3の内容を大まかな指針としてUIを再設計する。実装すると仕様に合わない部分が発覚する可能性もあるから、厳密に再現しようとするのではなく、あくまで参考程度に進める。
