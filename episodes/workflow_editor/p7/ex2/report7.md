@@ -68,7 +68,7 @@ Not validated yet. All composition results above are synthetic (CDP `Input.imeSe
   4. keep typing;
   5. submit or preview.
 
-The result will be added here when it has been done.
+**Outcome (2026-10-12).** A fixture was provided on port 8203. When the final report was requested, its run held no answer from the browser and no adjustment preview. The manual procedure was not carried out, and native IME remains unvalidated. The fixture was stopped and its data removed.
 
 ## Status
 
