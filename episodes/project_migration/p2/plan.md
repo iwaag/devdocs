@@ -9,7 +9,7 @@ Basis: [braindump.md](braindump.md) and [../p1/report.md](../p1/report.md) (its 
 Decisions taken with the person on 2026-10-13 (the person accepted the proposal as written):
 
 - **The layout is kept.** `study/`, `lab/` and `devdocs/` do not move; 200+ commits of reports cross-reference these paths. Both folders become local areas in place.
-- **Three workflows**: `study`, `experiment`, `improve-tools`. Video presentations are made by the `experiment` workflow's explain node as a presentation, not by a workflow of their own.
+- **Three workflows** (plus the system's `freework`): `study`, `experiment`, `improve-tools`. Video presentations are made by the `experiment` workflow's explain node as a presentation, not by a workflow of their own.
 - **Execution check stays light**: one real `study` run. `experiment` is checked up to its design node (plan agreed with the person) unless step 3 finds a cheap recomputation worth running.
 - **Everything on Gitea stays public**, as in p1. This phase runs on this host only.
 
@@ -22,6 +22,8 @@ Out of scope: re-running the heavy experiments, a converter for other projects, 
 - Experiments call local model servers by loopback address and use Apple-silicon runtimes; weights and checkouts live in ignored `.work/` folders and are not in the repository. What this host can re-run is unknown until step 0.
 - The working tree is about 220 MB (`.npz` results, a 16 MB request cache) against a 30 MB pack. About 250 tracked files contain an absolute home path, a host name or an address; most are logs, tables and reports.
 - `.local/localrule.md` is referenced by plans but is ignored and absent from the clone. Its content is unknown.
+- (Step 0) Every project has a `freework` workflow, and Zulip intake is automatic for registered projects. The project's original working copy sits on this host and holds unpushed work. See [report0.md](report0.md).
+- (Step 1) The contract supports what is needed: `wfe validate` passes on a trial; the one visible difference is that a top-level `study` area is categorised *other*. See [report1.md](report1.md).
 - The contract already supports what is needed: `areas:` in `project.yaml` (`docs/contract.md`, *Local areas*). Category follows the path (`study/…` study, `wedo/…` wedo, otherwise other), so a top-level `study` is shown as other.
 
 ## Step 0 — preflight
@@ -45,6 +47,8 @@ Deliverable: a gap table in `report1.md`; a release only if a gap demands one.
 
 ## Step 2 — the migration commit
 
+Precondition (report0): the person decides what happens to the unpushed work in the original working copy before the commit is made.
+
 Work in a clone outside the operating area (ignored, under the area's `migration/` folder), as p1 did. One commit on `main`, pushed to the same repository; history kept.
 
 ```text
@@ -54,7 +58,8 @@ pj-jevlab/
   agent/guide.md          purpose, folders, what each holds, host rules
   agent/study.md, experiment.md, improve-tools.md
   devdocs/README.md       purpose line from todo.md; explains the old layout
-  devdocs/workflows/study.yaml, experiment.yaml, improve-tools.yaml
+  devdocs/workflows/study.yaml, experiment.yaml, improve-tools.yaml,
+                          freework.yaml
   devdocs/runs/           empty until step 3
   devdocs/episodes/       unchanged
   study/, lab/            unchanged
@@ -72,6 +77,7 @@ Workflows (policy `default`, intake `requests`; `execution.agent` and profile as
 | --- | --- | --- |
 | `study` | survey (study) → synthesize (do) → explain (talk) | sources and claims separated from independent measurements; findings go to `study/` with citations; run notes in the run folder |
 | `experiment` | design (talk, `plan.md` agreed) → run (do) → analyze (do) → report (do) → explain (talk, presentation allowed) | design states the hypothesis, the criteria, and the **cap on requests and hours** before anything runs; analysis keeps the individual-level data needed to re-check |
+| `freework` | talk (system default) | bound to `study` and `lab` editable, as in agsfx and ppt |
 | `improve-tools` | implement → verify → present → human-check → cleanup | the p1 shape, for `lab/viewer` and the video builder |
 
 Bindings: `study` editable in `study`, `lab` readonly; `experiment` editable in `lab`, `study` readonly; `improve-tools` editable in `lab`. Definitions are agreed with the person before step 3.
@@ -84,7 +90,7 @@ wfe project obtain jevlab
 wfe status --workspace jevlab      # structure complete, three workflows valid
 ```
 
-Then add `jevlab` to `zulip.json` intake. Check that the dashboard shows the project and its two local areas.
+Intake is automatic for registered projects: check that `wfe intake status` lists the `jevlab` channels and that the dashboard shows the project and its two local areas.
 
 Deliverable: pj-jevlab is a registered project with a workspace; `wfe validate` passes for all three workflows; nothing newly committed contains a secret.
 
