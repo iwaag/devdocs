@@ -11,7 +11,7 @@ Step reports: [report0](report0.md) (preflight), [report1](report1.md) (contract
 | pj-jevlab | `trustedagent/pj-jevlab` `7343f59`, public |
 | agdevworld | `783cfcb`, installed (was `92de1da`) |
 | agautolab | run guide amended (background work at the end of a turn) |
-| Workspace | `jevlab`; `study/run-001` completed; `experiment/run-001` waits on its plan question |
+| Workspace | `jevlab`; `study/run-001` completed; `experiment/run-001` held (stopped) at the Developer's request |
 
 ## What was done
 
@@ -51,7 +51,7 @@ New items:
 
 ## Open
 
-1. **`experiment/run-001` is out of scope but still open.** It wrote a sound plan, a byte-level reproduction of set6 p2's model-free validation, and waits on q1. While open, it **holds the jevlab workspace**, so another jevlab request queues behind it. The Developer either answers q1 later or cancels the run (`wfe run cancel`, final).
+1. **`experiment/run-001` is held, and a held run still holds its workspace.** It wrote a sound plan (a byte-level reproduction of set6 p2's model-free validation). The Developer answered q1 in the browser asking to hold it, and the run was stopped before any work: no process runs. By the contract, a run that has begun and is neither completed nor cancelled holds its workspace, so `wfe request` into `jevlab` is refused until it is resumed and finished, or cancelled (`wfe run cancel`, final). Other projects are not affected.
 2. **The Omni Agent cannot act for the Developer by default.** Answering a question for them and resuming a held run were each refused by the permission classifier, until the Developer approved them by hand. That will recur every time unless a permission rule is added.
 3. **arXiv rate-limits this host heavily.** The export API and the search pages both returned 429, which cost about 40 s a query. The two general web searches of the original method were skipped for it.
 4. **Cosmetic:** `wfe status` and run links still print `http://127.0.0.1:8098/…`; the LAN address is `http://agstudio.local:8093/wfe/`.
