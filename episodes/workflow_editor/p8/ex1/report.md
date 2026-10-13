@@ -1,6 +1,6 @@
 # Workflow editor p8/ex1 — final report: Simple and Detail
 
-**Source**: agdevworld `5d4519c`, from `8cda5c9`. **Deployment**: not deployed. The installed release is `8cda5c9`, with `a571ae2` as previous and no attempt open. Deploying is the existing `agdevworld/scripts/wfe-release.sh deploy .local/agdev` with its execution guards; after it, verify the installed revision separately.
+**Source**: agdevworld `5d4519c`, from `8cda5c9`. **Deployment**: done 2026-10-13 at the person's request. The installed release is `5d4519c`, with `8cda5c9` as previous; see [report7](report7.md).
 
 The step reports are [report1](report1.md) (contract), [report2](report2.md) (visual direction), [report3](report3.md) (graphs), [report4](report4.md) (run states), [report5](report5.md) (continuity) and [report6](report6.md) (validation). The captures are in [image_after/](image_after/).
 
