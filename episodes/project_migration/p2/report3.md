@@ -1,6 +1,6 @@
 # project_migration p2 step 3a — the study run (2026-10-13)
 
-`study/run-001` in jevlab: a follow-up to `study/recent_study` for papers posted 2026-10-08 to 2026-10-13. Requested with `wfe request` by the Omni Agent for the Developer; the plan was agreed by the Omni Agent with the Developer's explicit permission; the result was judged by the Developer in the browser over the LAN ("ok、完了してください"). Completed and published (`98a5a92`).
+`study/run-001` in jevlab: a follow-up to `study/recent_study` for papers posted 2026-10-08 to 2026-10-13. Requested with `wfe request` by the Omni Agent for the Developer; the plan was agreed by the Omni Agent with the Developer's explicit permission; the result was judged by the Developer in the browser ("ok、完了してください"). Completed and published (`98a5a92`).
 
 ## Result
 
@@ -28,4 +28,4 @@
 
 ## Side change during this step: the services are on the LAN
 
-The Developer asked for every service to be reachable from the LAN (`localrule.md`). agdevworld `783cfcb` (released): the editor binds every interface and answers any host name, accepting browser writes from the page's own origin; nginx publishes `:8093` and passes the request's Host; the relay binds every interface; the browser builds both URLs from the host the page was opened from; presentations bind every interface with a LAN `publicBase` and `answerBase`. The q2 answer above came through that route.
+The Developer asked for every service to be reachable from the LAN (`localrule.md`). agdevworld `783cfcb` (released): the editor binds every interface and answers any host name, accepting browser writes from the page's own origin; nginx publishes `:8093` and passes the request's Host; the relay binds every interface; the browser builds both URLs from the host the page was opened from; presentations bind every interface with a LAN `publicBase` and `answerBase`.
