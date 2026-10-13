@@ -1,0 +1,1 @@
+もうひとつmigrationを試してみる。giteaにpj-jevlabを追加したので、これも取り込めるか試してみる。
