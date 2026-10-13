@@ -10,7 +10,7 @@ Decisions taken with the person on 2026-10-13 (the person accepted the proposal 
 
 - **The layout is kept.** `study/`, `lab/` and `devdocs/` do not move; 200+ commits of reports cross-reference these paths. Both folders become local areas in place.
 - **Three workflows** (plus the system's `freework`): `study`, `experiment`, `improve-tools`. Video presentations are made by the `experiment` workflow's explain node as a presentation, not by a workflow of their own.
-- **Execution check stays light**: one real `study` run. `experiment` is checked up to its design node (plan agreed with the person) unless step 3 finds a cheap recomputation worth running.
+- **Execution check stays light**: one real `study` run. `experiment` is checked up to its plan agreement unless step 3 finds a cheap recomputation worth running.
 - **Everything on Gitea stays public**, as in p1. This phase runs on this host only.
 
 Out of scope: re-running the heavy experiments, a converter for other projects, a second execution host, turning an area into a repository, backward compatibility of any kind.
@@ -76,7 +76,7 @@ Workflows (policy `default`, intake `requests`; `execution.agent` and profile as
 | workflow | nodes | notes |
 | --- | --- | --- |
 | `study` | survey (study) → synthesize (do) → explain (talk) | sources and claims separated from independent measurements; findings go to `study/` with citations; run notes in the run folder |
-| `experiment` | design (talk, `plan.md` agreed) → run (do) → analyze (do) → report (do) → explain (talk, presentation allowed) | design states the hypothesis, the criteria, and the **cap on requests and hours** before anything runs; analysis keeps the individual-level data needed to re-check |
+| `experiment` | run (do) → analyze (do) → report (do) → explain (talk, `confirms: result`, presentation allowed) | the system's plan step is the design: the guide requires the hypothesis, the criteria and the **cap on requests and hours** in the plan, and plan agreement (`_plan`) is enforced by the system; a `design` node with `confirms: plan` is not valid (`confirms-kind`) and is not needed |
 | `freework` | talk (system default) | bound to `study` and `lab` editable, as in agsfx and ppt |
 | `improve-tools` | implement → verify → present → human-check → cleanup | the p1 shape, for `lab/viewer` and the video builder |
 
