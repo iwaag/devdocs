@@ -12,7 +12,7 @@ Date: 2026-10-14.
 | agautolab (all) | 372 passed, 1 skipped (`test_wfexec.py` 13: run/fresh/refused/missing/changed guide+retire/early crash with restart) |
 | pyagag (all) | 1218 passed |
 | agobserver (all) | 107 passed (recorded session in evidence and recovery request) |
-| Real harness trials | steps 3–5: 3 + 6 + 4 runs, ~$15 reported in total |
+| Real harness trials | steps 3–5: 3 + 6 + 4 runs, about $17.6 reported in total (step 3 ≈ $1.19, step 4 ≈ $2.3, step 5 $14.06; corrected in ex1 from "~$15", which carried report5's addition error) |
 
 ## Deployment
 

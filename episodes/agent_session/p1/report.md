@@ -110,8 +110,15 @@ There was no duplicate writer, lost answer, false stall or bypassed hold.
   feature already existed, so the correction was the real work), one model.
   Many short immediate continuations might favour `run`. Long implementation
   attempts and human-length waits do not.
-- **What would make `run` cheap:** compaction or per-node session splitting
-  (out of scope). Without one of them the carried history dominates.
+- **Untested improvement candidates:** compaction or per-node session
+  splitting might make `run` cheaper on long runs. Neither was tried (no
+  compaction occurred in the trials), so neither is an established saving.
+  As measured, the carried history dominates.
+- **Correction (ex1):** report5 first stated the step 5 trial total as
+  $11.06. The four runs' reported costs add up to **$14.06** ($5.99 fresh +
+  $8.07 run), matching the retained measurements and the driver's running
+  total. report6's trial total is now about $17.6. The comparison figures
+  above were right and are unchanged.
 - **Delegation.** Future delegate nodes keep their own run, wait identities
   and deadlines between execution intervals. No conversation ancestry is
   inferred. Delegate nodes, cross-agent conversations and model routing were

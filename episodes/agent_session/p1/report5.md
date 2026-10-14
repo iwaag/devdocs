@@ -20,7 +20,10 @@ ignored notes `pj-agdev/.local/agent-session-p1/step5/`.
   - first result question → correction 「見出しを「選択中」にして、兵種ごとの行は数の多い順に並べてください。」
   - re-check → acceptance 「確認しました。これで合格です。」 (pair 1 only, see the driver defect below).
 - **Budget** recorded beforehand: at most 4 runs, $25 reported. Used:
-  $11.06.
+  **$14.06**: fresh $5.99 plus run $8.07, the four runs below. The trial
+  driver's own running total also ended at $14.06. (Corrected in ex1: this
+  line said $11.06, an addition error. The per-run and per-attempt figures
+  were right and are unchanged.)
 - **Pairs.**
   - Pair 1: fresh first, then run; answers immediately. The two runs'
     attempts interleaved on the one slot.
@@ -130,5 +133,7 @@ policy is better at quality.
 
 So: an undeclared `execution.session` stays `fresh`. `run` remains a
 supported, tested choice for workflows where carrying the conversation
-matters more than cost. Compaction, or splitting sessions per node, would be
-what makes `run` cheap for long runs; both are outside this phase.
+matters more than cost. Compaction and splitting sessions per node are
+untested candidates for making `run` cheaper on long runs. Neither was tried
+in this phase (no compaction occurred in any run), so neither is an
+established saving.
