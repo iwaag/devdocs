@@ -1415,7 +1415,41 @@ conversation or the task's execution conversation, located from the anchor
 at send time; a document is refused with the path to Front; a ✔'d target is
 resumed only on a second, explicit press.
 
-## forge agent(pj-agdev/agforge)
+## forge (workflow-editor project `forge`, since `project_migration` p3, 2026-10-14)
+
+**forge is a managed project, not an agag agent.** `developer/pj-forge`,
+workspace `forge`, agent identity `forge-agent` (profile `sonnet`). It makes
+or changes media assets (text included) with capabilities proven here, says
+plainly when it cannot, and keeps the demand.
+
+- Workflows: `provide` (assess in the plan, make or explain, present,
+  confirm), `develop-capability` (demand → research → implement → verify →
+  catalog), `refresh-catalog`, `freework`. Channels `wf-forge.*`.
+- `catalog/` — one entry per capability: state (`verified` / `unverified` /
+  `planned` / `elsewhere` …), sources as `<source>@<rev>:<path>`, *Proof
+  here* kept apart from knowledge. `requests/` — one demand record per run
+  that could not be (fully) served, with `Later` lines from the runs that
+  act on it.
+- `tools/forge --help`: images (SwarmUI), edits, ComfyUI jobs with a record
+  written before queueing (submit once, collect once, survives an
+  interrupted attempt), durable delivery by content hash to the old agforge
+  bucket (`forge/<h2>/<sha256>`; any old key still signs), speech (`say` +
+  ffmpeg, from develop-capability/run-001).
+- Host settings are the workspace's ignored `.local/` (`forge.env`,
+  `sources.toml`, `comfy/`, `localenv.md`); tools find it from a run copy's
+  location.
+- **No documentation step after `confirms: result`.** An acceptance binds
+  the result as presented; a report written after it stops p9 integration
+  (`needs-agreement`, seen on provide/run-001–003). agsfx, ppt and
+  rts-vs-bot still have that pattern.
+
+## forge agent(pj-agdev/agforge) — retired 2026-10-14
+
+Listener and request service stopped, plists archived, retirement
+introduction posted to `#agents`; the checkout stays (comfynotify's venv).
+Front's guide still names forge as a destination until the Front episode.
+What follows is history.
+
 
 - Responds to requests for providing media assets with characteristics specified in the requests.
 - Its entrance is the Zulip channel named after its instance; an asset
