@@ -448,6 +448,33 @@ it relies on is WFE's `docs/observation.md`. Episode record:
   and the watch entrance's process. The watch modules remain a library; the
   old local state is archived under `agobserver/.local/archive/`.
 
+## Workflow run sessions (`agent_session` p1, 2026-10-14)
+
+A workflow chooses how its runs use harness conversations:
+`execution.session: fresh | run` (Detail → Workflow settings → Execution;
+not declared = `fresh`). The choice is frozen with the run.
+
+- **`fresh`**: each attempt starts a new session from the records.
+- **`run`**: later attempts resume the run's retained session by an explicit
+  id. WFE mints the id and records it in `attempt.begin` before launch.
+- **When `run` starts a new session anyway**: a changed configuration (agent,
+  profile, backend, contract or guides), a retirement (`wfe run session <run>
+  --retire`), or a conversation missing from the host's store. Each is
+  recorded with its reason.
+- **Unsupported profiles**: `run` on a profile whose harness keeps no
+  resumable conversation is refused. Only `claude_code` keeps one.
+- **Waits** still end the attempt and free the slot.
+- **Observer** reads `session` from the record; incidents stay per attempt.
+
+Contract: `agdevworld/workflow_editor/docs/sessions.md`; harness seam:
+`agag.harness.Session`.
+
+**Measured (p1 report5): `run` did not save money on RTS.** Two matched pairs
+cost $8.07 for `run` against $5.99 for `fresh`. A retained session carries
+its whole history into every request, and loses the prompt cache across a
+wait longer than an hour. The bootstrap it saves is only 16–22 k tokens
+written. The default stays `fresh`.
+
 ## Request progress, operation failures and resolving (`robust_workflow` p1–p3, 2026-09-24)
 
 - `agentchat trace [<message id>]` (pyagag `agag.trace`) follows a request
