@@ -80,7 +80,7 @@ The old conversations, run workspaces, transcripts and the MinIO objects stay in
 
 ## Remaining old dependencies
 
-- **Nautobot.** To finish the retirement, the Developer runs: `cd pj-clusterintent && uv run --project nctl nctl desired apply -f ../pj-agdev/.local/project-migration-p3/retire-agforge.yaml --yes`. It makes 3 updates (service and agent `retired`, placement `disabled`), and the preview showed no conflicts. Until then, `nctl drift` will report the agforge placement as missing once the next node dump is collected.
+- **Nautobot** (still open after ex1: the Omni Agent's apply was refused again, 2026-10-14, see `ex1/report3.md`). To finish the retirement, the Developer runs: `cd pj-clusterintent && uv run --project nctl nctl desired apply -f ../pj-agdev/.local/project-migration-p3/retire-agforge.yaml --yes`. It makes 3 updates (service and agent `retired`, placement `disabled`), and the preview showed no conflicts. Until then, `nctl drift` will report the agforge placement as missing once the next node dump is collected.
 - **comfynotify** runs from agforge's `.venv` and reads `AGFORGE_COMFYUI_URL`. The checkout is kept for it.
 - **Front's guide** (`agfront/agent/guides/shared/requests.md`) still names forge as a destination, and autolab's supercoder guide mentions asking forge for images. The retirement introduction tells any reader where requests go now. Re-pointing them is Front's episode.
 - **History readers.** The agentroom relay (`forge.py`, `AGENTROOM_AGENT_ROOTS`) and agdevworld's forge views read history and were left as they are.
@@ -103,15 +103,15 @@ The old conversations, run workspaces, transcripts and the MinIO objects stay in
 - Decide whether results should come back to the requester's own conversation.
 
 **Also for the workflow-editor episodes** (report4; the Developer's `p3/ex1` braindump covers 1 and 3):
-1. "needs agreement" offers no control, and re-acceptance is hidden.
-2. `integrate --status` shows a stale row.
-3. A double acceptance is possible after a confirmation answer.
+1. ~~"needs agreement" offers no control, and re-acceptance is hidden.~~ Fixed in ex1 (agdevworld `e1e6be3`).
+2. ~~`integrate --status` shows a stale row.~~ Fixed in ex1.
+3. ~~A double acceptance is possible after a confirmation answer.~~ Fixed in ex1: the same result is refused.
 4. The copy revision at request time is not shown.
 5. Workflows of agsfx, ppt and rts-vs-bot have documentation steps after `confirms: result`, which p9 integration will stop.
 
 **For forge itself** (next runs):
 - `refresh-catalog`: record run-001's text proof, run-002's image-to-image limit and the speech proof.
-- Guide facts: a listening verdict is the person's; ask again when the agreed route changes; presentations come from the run folder; demand state follows the outcome.
+- Guide facts: ask again when the agreed route changes; presentations come from the run folder. (A listening verdict is the person's, and demand state follows the outcome: added in ex1, pj-forge `e9ea373`. The records themselves are corrected in `freework/run-001`, pending the Developer's acceptance.)
 - Add an `--out` alias to `job collect`.
 - Keep the presentation URL out of question texts.
 
