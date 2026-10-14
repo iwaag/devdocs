@@ -1,0 +1,5 @@
+observerを追加した後、episodes/workflow_editorなどを経て開発システムがワークフロー主導に変わった。
+
+そのあとでdevdocs/episodes/project_migration/p2/のテスト実行中にプロセスの停滞が発生した。これが、observerの新システムを前提としたアップデートで改善しそうかどうか検討し、もし多少なりとも改善の可能性がありそうなら改善を試みよう。observerでは解決しない問題なら改めて復帰方法を検討する必要がある。
+
+未実行だが次に実行の可能性のあるdevdocs/episodes/agent_session/p1/braindump.mdも考慮する必要があるかもしれない。セッションが長くなるとobserverの仕組みが変わるかどうか考えた方がいいかもしれない。
