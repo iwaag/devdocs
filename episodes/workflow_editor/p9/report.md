@@ -2,7 +2,8 @@
 
 Final report of [plan.md](plan.md), for [braindump.md](braindump.md). Step
 reports: [1](report1.md), [2](report2.md), [3](report3.md), [4](report4.md),
-[5](report5.md), [6](report6.md), [7](report7.md).
+[5](report5.md), [6](report6.md), [7](report7.md). The review correction is
+recorded in [report8.md](report8.md).
 
 ## Outcome
 
@@ -17,13 +18,20 @@ admits requests again.
 
 | Component | Deployed |
 | --- | --- |
-| agdevworld (workflow editor service, `bin/wfe`) | `513aa3f` |
+| agdevworld (workflow editor service, `bin/wfe`) | `c100f56` (review correction) |
 | agautolab (`wfexec`, wfrun guide) | `fa26c16` |
-| pj-agdev superproject | `e51f509` |
+| pj-agdev superproject | `ce580c3` |
 
-All three are on agstudio since 2026-10-14 03:0x JST. They were released
-as `2153cf0`, `7c5355c` and then `513aa3f`, each a release switch, with no
-open attempt.
+The initial p9 deployment was completed on 2026-10-14 JST. The editor was
+released as `2153cf0`, `7c5355c` and then `513aa3f`, each a release switch,
+with no open attempt. Subsequent review corrections are recorded below and
+in report8.
+
+The review correction now compares reports, plans and presentation content
+inside the run folder against the accepted revision. Only the run's own
+`run.json` and separately checked submodule gitlinks are administrative
+exceptions. The correction passed 287/287 tests and was deployed on
+2026-10-14 JST; see report8 for its regression and deployment checks.
 
 ## What p9 changed
 
