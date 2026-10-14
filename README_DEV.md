@@ -403,275 +403,50 @@ and stays open.
 
 ## observer (`pj-agdev/agobserver`)
 
-- **Waits, so nobody else has to.** One watch is one topic in its own
-  `agobserver-agstudio1` channel: a condition in ordinary words, what to look
-  at, and where to notify. Observer looks every minute with the **host's own
-  local model**, posts once into the conversation the requester named when the
-  condition holds, and then stops. Waiting therefore costs no account at all —
-  which is the point, and why the polling role is deliberately **not** on its
-  execution menu.
-- **Its introduction is the contract**, like every agent's. `watch-<something
-  short>` is the recommended topic name; every topic in the channel is a watch
-  and there is no second door. **A ✔ on the watch topic cancels it** — that is
-  the whole cancellation gesture, checked before each evaluation and again
-  before notifying, because the ✔ may land inside the evaluation meant to be
-  cancelled. Since `p1 ex1` that check is a lookup of the watch's **own anchor
-  id**, not a comparison of remembered topic names: a renamed watch is
-  continued under its new name, a renamed *then* resolved one cancels, a
-  deleted anchor ends it locally, and a lookup that got no answer concludes
-  nothing at all.
-- **A watch is a message id.** `[selfnote][watch]`'s own id *is* the request
-  (`w6676`), with `[accepted]` (condition, target, destination, requester) and
-  `[state]` beside it, and one ordinary visible post saying the same in words.
-  The same rule the rest of the realm arrived at the hard way: a name is
-  reusable, an id is not.
-- **The acknowledgement names nobody**, and that is load-bearing rather than
-  polite. The requester is waiting for the *notification*; naming them in the
-  acceptance would buy them a paid run to read "understood". Measured live on
-  2026-09-13: Front opened a watch, Observer accepted it, and Front's listener
-  did not stir until the notification arrived.
-- **The answer is three-valued.** `met`, `not_met`, and **`unable`** — a
-  statement about the *look*, not about the world. A target that cannot be read
-  is never reported as a condition that has not held yet; the watch keeps its
-  schedule and says so in its own topic once, at the third consecutive failure.
-  Routine polling is otherwise silent.
-- **A destination stops being a name at intake.** Since `p1 ex1` both
-  spellings — a message link and `<channel>/<topic>` — are resolved *while the
-  request is being accepted* to a message id in the conversation the requester
-  meant, and that id is what the Zulip record carries, so it survives a lost
-  local store. Delivery follows the id: a rename, a ✔ or somebody taking the
-  freed name cannot move the notification. A destination that is gone or
-  already ✔ is a terminal `undeliverable` outcome recorded in the watch topic —
-  **Observer never opens a conversation of its own to deliver into**, and
-  leaves that watch topic open because a human has to see it. A delivered watch
-  is resolved.
-- **Uncertainty is never terminal, and that took a change in pyagag.**
-  `ZulipClient.message()` flattened every failure into "absent", so a timeout
-  reading a destination was indistinguishable from its deletion. `call()` now
-  raises `ZulipRejected` for an answered 4xx and a plain `ZulipError` for a
-  5xx, a timeout or a dropped connection, and `message()`, `conversation_of()`
-  and `topic_history_across_resolve()` take `strict=True` (pyagag `f613feb`;
-  the lenient default is unchanged). Observer stops only on Zulip's own "no":
-  a failed destination read, a failed read-back and a failed send all keep the
-  met result and the pending notification and retry at the ordinary interval,
-  without re-judging the condition.
-- Exactly-once rests on three things in order: the store's delivery record
-  (which is why polling never reaches delivery twice), the watch id inside the
-  notification (which a read-back recognizes after an ambiguous send), and
-  writing the state note *after* delivery, so a crash between them leaves the
-  watch owed rather than silently finished.
-- The listener's own triggers cannot wait — the listener reacts to posts
-  and its recovery runs at startup and after a resync — so the due-watch
-  trigger is a worker
-  thread started beside the listener, not a plist setting. See
-  `devdocs/episodes/observer/p1/`.
-- **The introduction says what the requester does while it waits** (`p2`
-  step 1): finish the serving once the request is posted, name the
-  conversation that serves *you* as the destination, and leave the job's
-  identity, its output location and the next action behind, because the run
-  the notification wakes is a new run that remembers nothing. A job
-  condition is written as **"it has ended"**, with what failure looks like,
-  since a condition only success can meet waits forever on a crash. Only
-  what is reachable from Observer's host can be looked at — a path on
-  another machine is not, and an HTTP endpoint usually is.
-- **One watch per thing you are waiting for.** A condition covering two jobs
-  was judged `met` while its own evidence said one of them was still
-  running (`p2` step 3, `w6866`): correct by luck of timing, and a slower
-  job would have woken the requester to collect a result that did not exist.
-  The `observe` guide now says every part must hold in the same look, that
-  the parts are enumerated in the evidence, and that a verdict must agree
-  with its own evidence — a "but" in the evidence has already answered the
-  question. Two later two-job watches judged correctly across seven looks,
-  but a conjunction is still the hardest thing a small model is asked to do
-  here.
-- **An evaluation's cost follows the condition, not just the queue.** p1
-  measured 11–22 s on single-target conditions; a two-job condition reading
-  two histories and a queue took 30–120 s. Sequential evaluation is the
-  ceiling, so a complex condition makes every *other* watch wait too.
+Since `observer` p3 (2026-10-14) Observer watches **workflow runs**, not
+conversations. The contract is `agobserver/docs/workflow.md`; the read side
+it relies on is WFE's `docs/observation.md`. Episode record:
+`devdocs/episodes/observer/p3/`.
 
-- **It also watches requests nobody registered** (`robust_workflow` p1,
-  `agobserver.monitor`; p2 made it durable and evidence-backed). Every couple
-  of minutes it traces, off its mirror (no Zulip call), every request that
-  came in through `#front` recently **and every request it is already
-  tracking**, and lists in code what is owed and overdue: a task with no
-  start after its predecessor finished, a post nobody's listener
-  acknowledged, an answer the asker was never served, a failure notice, a ✔
-  on live work, the request's own conversation ✔'d with work still open
-  (`origin_closed`), a long silence. The two judged kinds (a ✔, a silence)
-  go to the `triage` role on the local model — on a worker of its own, so a
-  30–130 s judgment never holds the look at everything else.
-  - **Identity is ids.** A request is its origin's first post (`o<id>`); an
-    incident is (request, stalled conversation's anchor), the kind an
-    attribute — a rename, a ✔, a restart or a different blockage of the same
-    work is the same incident with the same two requests; a reused name is
-    another request. A lost store adopts the incident from its
-    `[selfnote][incident]` note.
-  - **Retention is not discovery.** A request stays tracked
-    (`.local/incidents/tracked.json`) while anything opened for it is
-    unfinished or an incident of it is open, whatever its age or name.
-    Unfinished means not `done`/`cancelled` **by record** (p3): a ✔, a quiet
-    wait and a `legit` verdict end nothing. A dismissed incident (a wait
-    judged legitimate) closes as *finished* when the work records its outcome,
-    *cancelled* on a recorded decision, and stays dismissed otherwise.
-  - **A verdict is about the evidence it read** (p3). Each judgment carries a
-    snapshot identity (kind, state, ✔, the newest relevant post in the
-    stalled conversation and in the request's own); a verdict whose snapshot
-    no longer matches is discarded and the current state judged, and a kept
-    `stall` is judged again when its evidence moves — the requests already
-    made still count. The health record says `pending`, the oldest wait,
-    `invalidated` and `churning`; the watchdog reads a backlog or churn as
-    `degraded`. The judgment reads the request's own conversation too (its
-    newest spoken posts) and a long post by both ends; every judgment keeps
-    its exact `prompt.md` and `input.json` beside its transcript.
-  - **Recovery is a transition on record, never an absence.** *Rescued*
-    needs a fresh look that reads the stalled conversation in the state its
-    kind waited for; a recorded `cancelled`/`replaced` closes it *cancelled*;
-    an unreadable conversation is said once and *reported* after 30 min; a
-    stale mirror concludes nothing and asks nobody. An `undelivered` ask
-    carries `[selfnote][owed] <remote> <answer id>`, and the requester's
-    listener turns it into the served mark once the serving that read the ask
-    has replied — the receipt the next look verifies.
-  - Asked about **in the conversation the request came from** — Front owns
-    it — at most twice, ten minutes apart; with nobody to ask (origin ✔ or
-    gone, its own agent silent) or no progress, reported to the realm's
-    owners by name. `python -m agobserver.withdraw <why> <incident>…` is the
-    operator's correction for an incident opened in error.
-  - **The monitor never reports its own failure.** It writes
-    `agobserver/.local/monitor-health.json` at every look and judgment; the
-    agdevworld relay evaluates it every 30 s (`ok`, `idle`, `disabled`,
-    `missing`, `stopped` — saying whether Observer's process is alive —,
-    `stalled`, `judgment_stalled`, `unable_to_observe`, `degraded`), shows it
-    on `/ops`, the ops board and `/healthz`, and DMs the realm's owners on a
-    change into or out of a failing state.
-  - Trial fault hooks, created only by a person, in
-    `agobserver/.local/faults/`: `monitor-stop`, `triage-stall`,
-    `mirror-stale`.
-  - **The failsafe contract** (`failsafe` p1, 2026-09-26). A worker that
-    stops is a normal event, and the party that stopped cannot report it,
-    so detection is Observer's job and never waits for self-report.
-    - **Only a record ends an obligation**: `done`/`cancelled` words, and
-      `replaced`, which moves it to the successor. A serving's end, an
-      answer classification, a ✔, a `legit` verdict or a sent request end
-      nothing.
-    - **Each conversation carries `execution` (open/ended/unknown) and
-      `holder`** (owner, delegate, requester, human, none, unknown) beside
-      its state. See the trace section below.
-    - **`unheld`** is mechanical. The last serving ended saying the work goes
-      on, and nothing holds it (m11741). It fires after a 60 s grace (p1: 300 s), is
-      judged by no model, and is silent while a person has been asked
-      since.
-    - **`quiet`** is judged. It fires on the deepest unfinished unit of work
-      whose holder cannot be read, when nothing has moved below the origin
-      for 1800 s and nobody asked a person.
-    - **Reviews never end on a judgment**:
-      - `legit` postpones by 1 h, doubling to 4 h on unmoving evidence;
-      - a wait for `silent`/`quiet` still unmoved after 6 h is reported to
-        the owners;
-      - a judgment without a verdict after 4 min counts as `unclear` (p1: 15 min).
-    - **Recovery is work, not words.** `unheld`/`quiet` are rescued only by
-      a serving begun after detection that showed work or handed the move
-      on. An ack or another promise is not enough. After a rescue the
-      request stays tracked until its record.
-    - **Requests go where the answer reaches the waiting run.** For
-      `unheld`, `quiet` and `silent` the request goes to the conversation
-      Front holds closest above the stalled work (a `routinerun-` before the
-      Front Desk). It states what is not known (is anything still running?),
-      and it is an aside (`intent=report answer=none`), so Front's reply is
-      handed to the requester, not to Observer.
-    - **Detection targets** (`monitor.DETECTION_TARGET`, since p2 with a
-      60 s look): `unheld` 120 s, `stopped` 240 s, `uncertain` 420 s;
-      `quiet` 2010 s and `silent` 2910 s for owners that are not probed.
-    - `tracked.json` keeps each request's obligations (execution, holder),
-      `evidence_at`, `next_review` and `contract`. `monitor-state.json`
-      keeps the rollout horizon `obligations_from`: older requests keep the
-      earlier rules.
-    - A person's hold is a record in the request's conversation since
-      `failsafe` p6 (`agag.holds`; see *Completion, receipts and holds*):
-      Observer reads it from the trace and leaves alone only the work it
-      covers. `held.json` is no longer read.
-  - **Health checks and developer reviews** (`failsafe` p2, 2026-09-27).
-    - **An owner can expose its execution health** (`agag.health.v1`,
-      `python -m agag.health`). Observer lists the owners it probes in the
-      ignored `agobserver/.local/health.toml` (`health.example.toml`); today
-      that is autolab. For such an owner a silence is *checked*, not judged:
-      - an open serving with no confirmed progress (a post, or the
-        harness's own events) for 120 s is probed every look (60 s);
-      - so is a serving that ended asking nobody anything on unfinished
-        work, after 300 s with nothing moving and nobody holding the move.
-    - **The probe's verdict drives the incident.**
-      - `running`/`waiting` (a live run, a named tool call or child
-        process) is left alone and stays under review.
-      - `stopped` (the process is gone, nothing was posted or queued) asks
-        Front at once.
-      - Anything else is `uncertain`: Front is asked 180 s after the
-        **first suspicion**, and the developer is told 600 s after it. A
-        repeated claim or the same result again does not move that time.
-    - For such an owner `silent` (2700 s) and `quiet` (1800 s) are not
-      used, and no model judges. `unheld` is now 60 s, and the judgment
-      deadline for the kinds that are still judged is 240 s.
-    - **Every incident that ends rescued or reported is handed to a developer
-      review** (`agobserver.review`). The review is a `review-<owner>-<kind>`
-      topic in Observer's channel, with one post per occurrence:
-      - its timeline, durations and health checks;
-      - what is confirmed and what is a hypothesis.
-
-      Occurrences are grouped by owner and kind, not by a claimed cause.
-      The first, every unrecovered one and every third name the owners. The
-      developer's ✔ on the review is their record and accepts nothing
-      about the work. The next occurrence then opens `…-2`.
-    - Trial aids (created only by a person): `agobserver/.local/timing.json`
-      (accelerated `interval`/`probe_after`/`ask_after`/`escalate_after`,
-      read every look; delete to restore), `faults/probe-fail`,
-      `faults/review-exit`.
-  - **Consolidation** (`failsafe` p3, 2026-09-27; record in
-    `devdocs/episodes/failsafe/p3/`).
-    - **Work is not activity.** Live execution records keep the last *work*
-      (a tool call, the model's text or partial output, a subagent's events)
-      apart from housekeeping (`system`/`tool_progress` events, pings); only
-      work makes a run `running`. A tool call records its own bound (Claude
-      Code's Bash timeout); open past it + 60 s it is `unknown`. Waits report
-      the CPU time under the run, and a wait that declares no bound and does
-      not advance for `wait_idle` (900 s) becomes uncertainty, then follows
-      the ordinary 180 s / 600 s bounds. `waiting` was observed live.
-    - **Probes run side by side**, up to 16, within a 20 s budget per look,
-      so failing probes cannot hold the look (serial, k timeouts cost 10k s).
-    - **A health-checked request states the check's fact** about the serving
-      (a confirmed stop is "over", not "open") and no longer adds the
-      conversation-only "do not start a second run" beside it.
-    - **`unanswered`**: a request whose own conversation ends in its agent's
-      failure notice (after the listener's second serving) is reported to the
-      owners at once, 60 s.
-    - **Reviews stay current**: a later outcome (moving again, the work's own
-      record) is appended once under its occurrence, owed before posted and
-      idempotent across restarts; each occurrence carries an evidence-based
-      assessment (observed failure, plausible cause with confidence, missing
-      evidence, candidate; "unknown" allowed); an injected trial fault —
-      `<run>.injected` beside autolab's live record, or the probe's own — is
-      said to be a trial. `python -m agobserver.review_status <topic>
-      <n…|all> reviewed|fix-planned|fixed|accepted-limitation --note … --ref
-      … --by …` records a follow-up decision as a post in the review; the ✔
-      remains the developer's "looked at".
-    - **Retention is bounded without losing obligations**: a plain
-      conversation (no unit of work) no longer keeps a request tracked once
-      its answer was taken up and its serving ended, or once it was ✔'d; an
-      owed root, a held request and an open incident always do; age plays no
-      part. Residue a person found owing nothing is a disposition since
-      `failsafe` p6 ex1 (`python -m agobserver.disposition`, see *Work
-      relations and dispositions*); `--retire`/`retired.json` are gone.
-      Closed incident records are
-      pruned 14 days after their last change, keeping episode counts
-      (`episodes.json`).
-    - **A repeated false claim** (`failsafe` p7): a `claim` candidate (a
-      reply said an act was done, no record shows it, and it said so again
-      after its owner was told) is reported to the owners at once, never
-      asked again; it recovers only when the claim is settled on record.
-      See *A reply that claims an act it never did*.
-    - Trial aids (created only by a person): `faults/probe-slow` (k extra
-      probes per look that take their whole timeout); `timing.json` also
-      takes `wait_idle`; agfront `faults/reply-unusable` (N servings'
-      reply marks made unreadable).
-  The bot keeps itself subscribed to every public channel, because a ✔ in a
-  channel it has not joined never reaches its mirror.
+- **What it reads.** `wfe observe --json` every 60 s — WFE's read-only
+  snapshot of every run (its `uid` = `<project>/<workflow>/<run>#<creation>`,
+  record, attempts, process group, log facts such as an open tool call with
+  its declared timeout, queue position, waits with their responsible party,
+  publication and integration problems) and of the executor's heartbeat.
+  Observer reads no SQLite, no copy layout and no Zulip history to decide.
+- **What it decides in code** (`wfclassify`): a person's hold, a question,
+  an external wait (inside its `--deadline`), live work and a queue wait
+  behind healthy work need nobody; `interrupted`/`unknown` holds, attempts
+  whose process is gone, unowned continuations (an answer or ready work with
+  nothing queued), stalled queues, an executor without heartbeat, failed
+  publications/integrations and unreadable sources are suspicions with an
+  identity `(run uid, family, episode)` — one incident per episode, whatever
+  the wording, across restarts. A live attempt that is silent is
+  `uncertain`: judged by the local model (`wftriage`), never given a second
+  writer, told to the owners at its bound.
+- **Recovery is a workflow.** A recoverable incident becomes a
+  `request-<incident>` post in `#wf-agops.recover`; WFE's intake accepts it
+  from Observer (`zulip.json` `intake.agents`) and the post becomes an
+  `agops/recover` run. The recovery agent investigates and decides; to
+  continue it records `wfe run recover` (only interrupted/unknown holds or an
+  unowned continuation; never a person's stop; budget 2 per person's
+  instruction). Observer records `restored` only when the run's agent reports
+  work afterwards. A recovery run is never itself recovered; the executor's
+  outage is told to the owners, not sent to recovery.
+- **Records.** `agobserver/.local/workflow/observer.sqlite` (incidents,
+  suspicions, judgments, assignments, outbox, events); posts go out
+  journaled and are looked for by marker before any repeat; incident notes in
+  `#agobserver-agstudio1 › incident-<id>`; owners by DM.
+- **Processes.** `com.agdev.agobserver` (the monitor; writes
+  `workflow-health.json` and `agag.status.v1` for nodeutils) and
+  `com.agdev.agobserver-watchdog` (a separate process: Observer's freshness,
+  loop failure and recovery backlog, and the executor's heartbeat through
+  `wfe`; owners told once per change). The agentroom relay no longer
+  watches Observer.
+- **Retired.** The `#front` conversation monitor (traces, serving probes,
+  Front asks, holds/dispositions on requests, developer reviews in Zulip)
+  and the watch entrance's process. The watch modules remain a library; the
+  old local state is archived under `agobserver/.local/archive/`.
 
 ## Request progress, operation failures and resolving (`robust_workflow` p1–p3, 2026-09-24)
 
