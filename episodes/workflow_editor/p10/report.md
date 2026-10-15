@@ -30,7 +30,7 @@ opened no Observer incident.
 | The existing mechanical receipt leads to progress, detailed IO and the run view | done: forge receipt #16202 (report6), follow-up when IO is not ready yet (report4) |
 | A person can follow delegated work down to the child's detailed output | done: parent → child links in messages and views, the child's IO channel (#301) |
 | Observer understands delegation waits and detects broken delivery/resumption | done: `awaiting-delegation`, `relay-stalled`, `unbound-dispatch`, unowned continuation; no duplicate child recovery (report5) |
-| Deployed, documented, ready for immediate inspection | done: deployed, `README_DEV.md`, `devenv.md`; links below |
+| Deployed, documented, ready for immediate inspection | done: deployed, `README_DEV.md`; inspection links in ignored local environment notes |
 
 ## Design in brief
 
@@ -62,20 +62,31 @@ opened no Observer incident.
   (`provide/run-007`); its catalog entry is still `unverified` until forge
   records the proof.
 - An `agobserver` service aggregate in Nautobot shows `service_missing`
-  (pre-existing); the agforge retirement batch is still pending the
-  Developer (from project_migration p3).
+  (pre-existing). On the review recheck, the old agforge service is inactive
+  with no active placement; its retirement is no longer pending the Developer.
+
+## Review correction
+
+The IO reader previously stopped advancing when one JSON log line exceeded
+its 2 MiB batch budget. It now reads that line through its newline, preserves
+the complete entry for the full-output view and continues with later events.
+Incomplete lines remain pending; UTF-8 is decoded after chunks are joined.
+The batch budget is not a memory cap: one oversized line is assembled in memory.
+Regression coverage includes a large tool result, later output, the attempt's
+end boundary, full-entry retrieval and no duplicate delivery after restart.
+Deployment and final validation are recorded in `report-review.md`.
 
 ## For the person to inspect
 
-- The parent run:
-  http://agstudio.local:8093/wfe/#/ws/agops/run/delegate-check/run-001 —
-  select "Get the asset from forge", or open Detail → Delegations.
-- The child run:
-  http://agstudio.local:8093/wfe/#/ws/forge/run/provide/run-007
+- Open the editor using the links in `pj-agdev/.local/devenv.md`, section
+  *workflow_editor p10 review correction*. Machine-specific addresses belong
+  in those ignored local notes.
+- Parent: agops `delegate-check/run-001`; select "Get the asset from forge",
+  or open Detail → Delegations.
+- Child: forge `provide/run-007`.
 - The forge request topic: `wf-forge.provide ›
   request-agops.delegate-check.run-001.d1` (the request, the receipt with
   its links, both questions, the parent agent's answers).
 - Detailed IO: `wf-agops.delegate-check.run-001.io` and
   `wf-forge.provide.run-007.io`.
-- The delegate inspector:
-  http://agstudio.local:8093/wfe/#/ws/agops/wf/delegate-check.yaml
+- Delegate inspector: the agops `delegate-check` workflow.

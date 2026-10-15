@@ -1,10 +1,10 @@
 # p10 step 6 — Verification, deployment and report
 
-## Deployment (2026-10-15, agstudio)
+## Deployment (2026-10-15)
 
 - **Before**:
-  - nctl/Nautobot: `nctl status` ok. autolab-agstudio, agobserver-agstudio1
-    and agdevworld-web are converged and polling. An `agobserver` service
+  - nctl/Nautobot: `nctl status` ok. The executor and Observer agents
+    and the web service are converged. Both agents are polling. An `agobserver` service
     aggregate shows `service_missing` (pre-existing, unrelated).
   - Installed WFE `e1e6be3`. Only jevlab `experiment/run-001` was open,
     held by iwaag; no attempt was running.
@@ -17,8 +17,8 @@
   first pass. No automatic rollback was added.
 - **Executor**: agautolab `f66162a`. The wfrun guide is read at each claim,
   live since step 3; the Python is unchanged and was not restarted.
-- **Observer**: pj-agdev `9de0696`, `com.agdev.agobserver` kickstarted.
-- **`zulip.json`**: `viewBase http://agstudio.local:8093/wfe/` (was null),
+- **Observer**: pj-agdev `9de0696`, the Observer service restarted.
+- **`zulip.json`**: `viewBase` set to the LAN editor address (was null),
   and `io {enabled, since 2026-10-15T07:21:30Z, secretFiles: 15 host
   credential files}`.
 - **agops**: a disposable `delegate-check` workflow
@@ -52,8 +52,9 @@ What came back: "One commander versus the machine. Only one side wins."
 - **58 IO messages** over two channels, with no failed delivery and no gap.
 
 **LAN links**: the parent and child run views, an IO whole-entry page and
-the workflow page were opened at `http://agstudio.local:8093/wfe/` (not a
-secure context) in Chromium and WebKit. All rendered with no page errors.
+the workflow page were opened through the LAN editor address (not a secure
+context) in Chromium and WebKit. All rendered with no page errors. Exact
+addresses are kept in the ignored `pj-agdev/.local/devenv.md`.
 The workflow page's approval digest uses the new plain-JS SHA-256, where
 the pre-existing `reading 'digest'` error was before.
 
