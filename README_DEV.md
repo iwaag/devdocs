@@ -553,6 +553,17 @@ fresh $1.84, mostly one extra correction attempt. The default stays `fresh`.
 A plan→implementation session boundary is designed, not implemented
 (`devdocs/episodes/agent_session/p1/ex2/`).
 
+**Larger tasks (p1 ex3, 2026-10-15).** Three distinct RTS features were run
+once per policy: rally points, Shift waypoints and save/load. Each run
+included a staged follow-up and up to one evaluated repair, and answers were
+delivered only after the attempt's process had ended. All six runs were
+accepted. Run cost against fresh: $6.00 vs $6.57, $3.02 vs $3.71, $6.08 vs
+$5.57, so $15.10 vs $15.85 in total. Fresh attempts rebuild context: history
+reads and about twice the tool output. Retained attempts carry 2–5× larger
+prefixes. The two roughly cancel. The result is not a basis for changing the
+default, which stays `fresh`; `run` is a reasonable choice
+(`devdocs/episodes/agent_session/p1/ex3/`).
+
 ## Request progress, operation failures and resolving (`robust_workflow` p1–p3, 2026-09-24)
 
 - `agentchat trace [<message id>]` (pyagag `agag.trace`) follows a request
