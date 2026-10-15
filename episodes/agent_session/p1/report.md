@@ -131,3 +131,9 @@ There was no duplicate writer, lost answer, false stall or bypassed hold.
   predates this phase.
 - **Deus Ex Machina note.** None: no in-system agent's work was done by the
   Omni Agent. The trial inputs were scripted and labelled as such.
+
+## Follow-up
+
+[ex2](ex2/report.md) (2026-10-15) optimized what a retained session is
+given on resume and repeated the comparison once. The p1 figures above are
+unchanged.

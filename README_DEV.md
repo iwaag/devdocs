@@ -529,6 +529,30 @@ its whole history into every request, and loses the prompt cache across a
 wait longer than an hour. The bootstrap it saves is only 16–22 k tokens
 written. The default stays `fresh`.
 
+**Continuation (p1 ex2, 2026-10-15).** A resumed attempt is not given the
+bootstrap again and is not asked to read the history. It gets the claim's
+`continuation`:
+
+- why it runs;
+- the record entries since its previous attempt began that it did not
+  write;
+- the compact state;
+- every answer, instruction and delegation fact not yet taken up, in full;
+- instructions only for documentation steps it reaches for the first time.
+
+`wfe run state <run> [--since <seq>]` is the compact read and the
+node-boundary check. `wfe run show --history` stays a diagnostic. A
+session compacted since its last bootstrap (or whose logs cannot show it
+was not) is resumed with the whole bootstrap again, recorded as
+`settings.session.reconstruct`. New sessions' briefs name the request and
+the agreed `plan.md` on every attempt.
+
+Measured on one RTS pair: no history reads on resume, continuations ≈1.7–1.9 k
+chars, but the cost is still dominated by carried history: run $3.02 against
+fresh $1.84, mostly one extra correction attempt. The default stays `fresh`.
+A plan→implementation session boundary is designed, not implemented
+(`devdocs/episodes/agent_session/p1/ex2/`).
+
 ## Request progress, operation failures and resolving (`robust_workflow` p1–p3, 2026-09-24)
 
 - `agentchat trace [<message id>]` (pyagag `agag.trace`) follows a request
