@@ -8,7 +8,7 @@ Written 2026-10-16. Nine runs were executed by the installed executor as archsag
 | --- | --- |
 | Release | agdevworld `1d13ff9` (previous `a642e27`), `wfe-release.sh deploy`. The release's own check passed 357/357. The service and `bin/wfe` report the same commit. |
 | Backup before | exec, notify, intake, present and delegate stores (`.backup`), plus registry, zulip, system, present and node-catalog json, in the area's ignored backups (`pm-p4-predeploy-*`). No store migration was needed. |
-| LAN | `GET /wfe/api/projects` and the run views answer through nginx `:8093` from the LAN host name. |
+| LAN | `GET /wfe/api/projects` and the run views answer through agdevworld's nginx from the LAN host name. |
 | Executor guide | agautolab `3fbafad`: the `wfrun` guide lists `wfe projects` among what every run can see. It is read live at each claim, so no restart was needed. |
 | archsage | Gitea `developer/pj-archsage` (id 140). `wfe project register` and `obtain` give workspace `archsage`. 4 workflows are valid. Channels `wf-archsage.{backfill-wedo,consult,freework,study}` (#304–#307) were provisioned by the notifier. |
 | Trial targets | rts-vs-bot `1062e00`: the `wedo/` area (supplemented) and `backfill-wedo` (channel #308); the workspace was fast-forwarded so the definition is visible. wedo-ppt `365b7a8`: `knowledge.yaml` `maintenance: project`. |
@@ -52,7 +52,7 @@ After the trial, rts-vs-bot's `wedo/knowledge.yaml` was restored to `supplemente
    - The write route answered a probe (refused as outdated, nothing written).
    - The cause is not known. The empty *Recording as* field is one candidate: the archsage runs were answered in the same session.
 5. **Decisions.** The Developer answered runs 1, 2, 2b and 4b in the browser. On 2026-10-16 the Developer told the Omni Agent to answer for them and move on. Every later answer (run 3's plan, correction and acceptance; runs 4a, 5 and 5b) was recorded with `wfe run answer --by "Omni Agent (for Developer)"`, and each says it was delegated. One attempt through the HTTP route was refused by the session's safety classifier; the CLI was used instead.
-6. Agents wrote the presentation server address (`127.0.0.1:8300`) into advice text (run 1). This is the same class as forge's p3 finding 6: harmless here, but host-specific.
+6. Agents wrote a presentation server's loopback address and port into advice text (run 1). This is the same class as forge's p3 finding 6: harmless here, but host-specific.
 
 ## Cost
 
@@ -71,7 +71,9 @@ After the trial, rts-vs-bot's `wedo/knowledge.yaml` was restored to `supplemente
 
 ## Human review paths
 
-- archsage runs: `http://agstudio.local:8093/wfe/#/ws/archsage/run/<workflow>/<run>` (consult/run-001, run-002, study/run-001, backfill-wedo/run-001)
-- rts-vs-bot: `http://agstudio.local:8093/wfe/#/ws/rts-vs-bot/run/backfill-wedo/run-00N` (1–4)
+`<editor>` is the workflow editor's entry through agdevworld (host notes, `pj-agdev/.local/devenv.md`).
+
+- archsage runs: `<editor>/#/ws/archsage/run/<workflow>/<run>` (consult/run-001, run-002, study/run-001, backfill-wedo/run-001)
+- rts-vs-bot: `<editor>/#/ws/rts-vs-bot/run/backfill-wedo/run-00N` (1–4)
 - The new study note: `wfe projects read rts-vs-bot study/study-rts/notes/03-rts-bot-difficulty.md --upstream`
 - The supplemented wedo: `wfe projects tree rts-vs-bot wedo`

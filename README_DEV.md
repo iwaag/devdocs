@@ -1295,7 +1295,66 @@ the model run. That is how run-0183 is reproduced exactly.
   a routine's channel is a conversation of Front's own, served by the
   `routine_run` role (see *Routines* above).
 
-## archsage — the knowledge council (`archsage`; `argue` p1, 2026-09-16)
+## Project access (`wfe projects`, since `project_migration` p4, 2026-10-16)
+
+**Reading any managed project is a system capability, not an agent's.**
+`wfe projects list|show|tree|read|search|runs|run` and the read-only
+`GET api/projects…` routes (agdevworld `workflow_editor/docs/access.md`)
+read every registered project and registered repository (`repo:<owner>/<name>`),
+with or without a workspace on this host, from system-managed caches
+(`<area>/.local/access-cache/`): committed `main` by default, a submodule at
+the commit its project **pins** or `--upstream`, `--rev`, `--require`, the
+working tree only with `--source worktree`. Every result names project,
+repository, commit, the commit that pins it, and fetch state; failures are
+`absent` / `inaccessible` / `uninitialized` / `fetch-failed`. Runs show the
+**live** record beside the **published** snapshot. Every run's agent sees it
+(agautolab `wfrun` guide); Front can use it as is.
+
+Two additions came with it:
+
+- `execution.guides: ["<project>:<path>"]` — a guide of another managed
+  project, read at claim from its committed `main`.
+- A binding's `integrate: if-unchanged` — integration stops as
+  `target-changed` when the target changed under the binding since the run
+  built on it; reassessment is a successor run.
+
+## archsage (workflow-editor project `archsage`, since `project_migration` p4, 2026-10-16)
+
+**archsage is a managed project, not an agag agent.** `developer/pj-archsage`,
+workspace `archsage`, agent identity `archsage-agent` (profile `sonnet`). It
+advises from what the managed projects have learned, performs requested
+studies, and supplements a project's wedo only where that project assigned it.
+
+- Workflows `consult` (answer with sources by project/repository/commit/path,
+  unknowns kept apart; `advice.md`), `study` (agreed scope and destination,
+  into a shared study bound as a submodule), `backfill-wedo` (shared wedo,
+  guarded), `freework` (every knowledge destination readonly). Channels
+  `wf-archsage.*`.
+- `index/` — where knowledge lives (`sources.yaml`, `domains/`), not a copy
+  of it; `questions/` — proposed research questions. The old sages' domains
+  and queue notes were imported with provenance.
+- **Maintenance is declared** by a `knowledge.yaml` at a knowledge target's
+  root: `maintenance: project | supplemented` (+ `supplementer: archsage`);
+  absent = unknown = not eligible.
+- **Knowledge inside another project's root** is written by that project's
+  run following archsage's guides (`execution.guides:
+  [archsage:agent/guide.md, archsage:agent/backfill-wedo.md]`): rts-vs-bot
+  `backfill-wedo` writes its root-local `wedo/`. A shared repository is
+  written by archsage's own run; integration moves the shared branch and
+  archsage's pin, never another project's pin.
+
+The autolab studies (`autodev/*`) stay autolab's; their routines (v4 guides,
+2026-10-16) no longer ask archsage to refresh. Front's guides still name the
+old `@**archsage**` / `sage:` addressing — the Front episode re-points them.
+
+## archsage — the knowledge council — retired 2026-10-16
+
+Listener `com.agdev.archsage-zulip` booted out, plist archived, retirement
+introduction in `#agents` (#16705), Nautobot service/agent `retired`,
+placement `disabled`; the checkout, its records, the sage store
+`autodev/archsage-sages` and the conversations stay. What follows is history.
+
+### archsage — the knowledge council (`archsage`; `argue` p1, 2026-09-16)
 
 **One deployed agent, one Zulip account (`archsage`, user 24), many logical
 sages.** archsage runs on the frontier profile (Claude Fable 5.1 through
@@ -1330,7 +1389,7 @@ Nautobot rows are gone and its `intro-` topic is ✔; `sages/arxiv` is its
 knowledge (`study-arxiv-trend`) in the new structure, with the same study
 queue contract (`sage` p1). The channel and repository stay as history.
 
-### archsage establishes studies (`sage` p2, 2026-09-26)
+#### archsage establishes studies (`sage` p2, 2026-09-26)
 
 **A study is archsage's to establish; running it is Front's.** A request to
 create a study, to connect an existing study to a sage or a routine, or to
