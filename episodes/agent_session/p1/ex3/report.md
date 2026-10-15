@@ -122,12 +122,41 @@ first attempt was refused. They are also kept in the ignored
 `pj-agdev/.local/agent-session-p1-ex3/trial-branches.git` and in each run's
 bundle.
 
-Nothing was integrated, deployed or merged into `main`. Choosing an
-implementation to integrate is a separate decision. Useful candidates:
+### Integration into `main` (after the trial, at the person's request)
 
-- A: either arm; they are almost the same.
-- B: either arm; fresh adds a remaining-count label.
-- C: fresh, which has the stricter validator and tests.
+The person asked for any of the implementations to be integrated. All three
+features went into the RTS `main`. Only the `game/` changes were taken: the
+trial branches' run records and trial workflow files stayed out. There is
+one commit per feature, fast-forward from `979d6a7`:
+
+| Commit | Feature | Source | Why this arm |
+| --- | --- | --- | --- |
+| `a05a7a0` | rally points | `a-run` | sets the rally for every selected production building |
+| `d01f9fb` | Shift waypoints | `b-fresh` | adds the remaining-count label and in-game help |
+| `ce67c01` | save/load | `c-run` | serializes entities as raw data, so the other features' new fields are saved without a field list |
+
+Integration work beyond the arms:
+
+- **Merge conflicts**: README rows, the two draw functions, the help text
+  and the test blocks, resolved by keeping both sides. The help text gained
+  the Shift+right-click entry.
+- **Validation**: save/load now checks each entity's rally point and
+  waypoint list.
+- **New test block 13**: a rally point and a queued route survive
+  save/load, and the route then finishes identically to the original. A
+  broken or missing waypoint list and a broken rally point are rejected.
+
+Checks on `ce67c01`:
+
+- headless suite 73/73 (baseline 31 + A 15 + B 9 + C 11 + combined 7);
+- the independent A, B and C probes 29/29;
+- all five corrupt saves rejected;
+- the browser checks of all three features in Chromium and WebKit, with no
+  page errors.
+
+Pushed to Gitea `developer/pj-rts-vs-bot` `main`. The production workspace
+was fast-forwarded to it. No RTS run was in progress, and nothing else is
+deployed for the game.
 
 ## Versions and conditions
 
