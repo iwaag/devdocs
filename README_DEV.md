@@ -448,6 +448,60 @@ it relies on is WFE's `docs/observation.md`. Episode record:
   and the watch entrance's process. The watch modules remain a library; the
   old local state is archived under `agobserver/.local/archive/`.
 
+## Delegation and detailed IO (`workflow_editor` p10, 2026-10-15)
+
+**A delegate node entrusts its work to a run of another managed workflow.**
+Contract: `agdevworld/workflow_editor/docs/delegation.md`; episode:
+`devdocs/episodes/workflow_editor/p10/`.
+
+- **Definition**: `type: delegate`, `project:` (absent = this project),
+  `workflow:`, `accepts: person | parent` (who may accept the child's
+  result; default person). The editor offers every registered project's
+  workflows and validates across them (recursion included).
+- **Who does what**: the parent's agent writes the request and dispatches
+  it (`wfe delegate request`). Delivery is the notifier's: the request is
+  posted in the target workflow's channel as a new `request-…` topic. The
+  child is an ordinary run created by that workflow's intake.
+  - The intake binds a post to a delegation only by the message id that a
+    sent delivery recorded. The child's `request.md` is the parent's file,
+    checked by hash.
+  - The child's questions, failures and result are relayed to the parent as
+    numbered facts (`wfe delegate show`). The parent's agent takes them up
+    and answers (`wfe delegate answer`); the answers are posted in the
+    child's request topic and recorded there.
+  - It judges the result (`wfe delegate dispose satisfied|rejected|
+    abandoned`). Only then does the node complete.
+- **Waiting frees the slot**: the parent's attempt ends with the node
+  waiting, and the child runs. A waking fact queues the parent (one job per
+  fact). An attempt that ignores a fact it was started for ends
+  `interrupted`.
+- **Separate records**: the child's acceptance (its own decision from its
+  confirmation; refused as `delegate-scope` when `accepts: person` and only
+  the agent answered), the parent's receipt (take-up), its disposition, and
+  the parent's own result decision.
+- **Controls**: a parent hold keeps facts and queues nothing. Stopping or
+  cancelling the parent never touches the child (`wfe delegate cancel` is
+  the explicit act). No replacement child is ever made automatically.
+- **Observation**: `wfe observe` has `delegations[]` and
+  `waiting.responsible = delegation:<child uid>` (or
+  `delegation-unbound:`). Observer: `awaiting-delegation` is quiet;
+  `relay-stalled` (300 s) and `unbound-dispatch` (900 s) go to the owners.
+  A child's interruption is the child's incident only.
+
+**Detailed IO: one Zulip channel per run** (`docs/io.md`):
+
+- `wf-<project>.<workflow>.<run>.io`, topic `io`, fed from the attempt
+  logs: agent text, tool calls and results, session start and end, attempt
+  boundaries. Never reasoning or harness configuration; redacted (patterns
+  plus `zulip.json` `io.secretFiles`). Long output links to the whole entry
+  in the run view (`…/run/<wf>/<run>/io/<attempt>/<line>`, or `wfe run io`).
+- Positions persist in `notify.sqlite` (`io_attempts`); a truncated or
+  missing log is said to be a gap. Output only: the intake never reads it.
+- The request receipt and the run topic's "Started" carry `Progress`,
+  `Detailed IO` and `Run` links; a follow-up gives the IO link when the
+  channel was not ready at the receipt. The run view's title band links
+  Conversation · Progress · Detailed IO.
+
 ## Workflow run sessions (`agent_session` p1, 2026-10-14)
 
 A workflow chooses how its runs use harness conversations:
