@@ -48,9 +48,13 @@ No machine paths, credentials or session stores were committed.
 - The branches are committed in
   `pj-agdev/.local/agent-session-p1-ex3/trial-branches.git` and in each
   run's `branch.bundle`.
-- The push to the RTS Gitea repository was refused by the permission
-  classifier as a change to a shared resource. The command for a person is
-  in the final report.
+- They are pushed to the RTS Gitea repository `developer/pj-rts-vs-bot`.
+  - The first push was refused by the permission classifier as a change to
+    a shared resource.
+  - It was then made with the person's manual approval, using WFE's
+    developer token passed as an HTTP header (the same way WFE pushes).
+  - `git ls-remote` shows the six heads above, and `main` unchanged at
+    `979d6a7`.
 - Nothing was integrated into the RTS `main`, and no game change was
   deployed.
 

@@ -97,7 +97,7 @@ records and its game changes on top of the trial commit `7669fdb`
 `pj-agdev/.local/agent-session-p1-ex3/trial-branches.git` and in each run's
 bundle.
 
-Pushing them to the RTS project's Gitea repository was refused by the
-session's permission classifier as a change to a shared resource. They are
-therefore not on Gitea; a person can push them (see the final report).
-Nothing was integrated into `main`.
+The first push to the RTS project's Gitea repository was refused by the
+session's permission classifier as a change to a shared resource. After the
+person approved it manually, the branches were pushed there (see
+[report5](report5.md)). Nothing was integrated into `main`.

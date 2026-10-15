@@ -116,15 +116,11 @@ All six implementations pass their own checks and the independent ones.
 They are on the branches `trial/agent-session-p1-ex3/{a,b,c}-{fresh,run}`,
 based on `7669fdb` (`979d6a7` + two trial workflow files).
 
-The branches are in the ignored bare repository
+The branches are pushed to the RTS project's Gitea repository
+(`developer/pj-rts-vs-bot`), with the person's manual approval after the
+first attempt was refused. They are also kept in the ignored
 `pj-agdev/.local/agent-session-p1-ex3/trial-branches.git` and in each run's
-bundle. Pushing them to the RTS Gitea repository was refused by the
-session's permission classifier, because that repository is shared. To
-publish them for review, a person can run, from that bare repository:
-
-```sh
-git push http://agstudio.local:3000/developer/pj-rts-vs-bot.git 'refs/heads/trial/agent-session-p1-ex3/*:refs/heads/trial/agent-session-p1-ex3/*'
-```
+bundle.
 
 Nothing was integrated, deployed or merged into `main`. Choosing an
 implementation to integrate is a separate decision. Useful candidates:
