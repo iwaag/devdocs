@@ -1,6 +1,6 @@
 # project_migration p4 — step 4: deployed, and the workflows proven with real runs
 
-Written 2026-10-16. Nine runs were executed by the installed executor as archsage-agent (`sonnet`). Agent cost was **$13.84** for the whole step, against a $30 budget.
+Written 2026-10-16. Eight runs were executed by the installed executor as archsage-agent (`sonnet`). Agent cost was **$13.84** for the whole step, against a $30 budget.
 
 ## Deployment
 

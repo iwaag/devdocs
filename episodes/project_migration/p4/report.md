@@ -13,13 +13,13 @@ Plan: [plan.md](plan.md).
 
 | | State |
 | --- | --- |
-| agdevworld (editor) | `8db95c0` released. p4 commits: `f94f07a` (access, guides, guard), `1d13ff9` (area category), `8db95c0` (CLI label). Previous release `a642e27`. |
+| agdevworld (editor) | `47a365d` released after review (`8db95c0` at initial completion). p4 commits: `f94f07a` (access, guides, guard), `1d13ff9` (area category), `8db95c0` (CLI label), `47a365d` (search failures and live-run discovery). Previous release before p4 `a642e27`. |
 | agautolab | `3fbafad`: the `wfrun` guide names `wfe projects` |
 | pj-archsage | `developer/pj-archsage` `main`, every run integrated; guides corrected after trials 2 and 3 |
 | rts-vs-bot | `wedo/` supplemented by archsage; `backfill-wedo` follows archsage's guides; main after the trials `0ab8f4a` |
 | wedo-ppt | `knowledge.yaml`: maintained by ppt (`365b7a8`) |
 | Old archsage | Listener stopped, plist archived, introduction #16705, Nautobot service and agent `retired`, placement `disabled`; checkout and records kept |
-| pj-agdev | pointers to agdevworld `8db95c0` and agautolab `3fbafad` |
+| pj-agdev | pointers to agdevworld `47a365d` and agautolab `3fbafad` |
 | Agent cost | $13.84 for step 4 (budget $30) |
 
 ## The common access contract (`workflow_editor/docs/access.md`)
@@ -112,3 +112,68 @@ It should route knowledge questions to `wf-archsage.consult`, study requests to 
 - Did for archsage: the guide facts after trials 2 and 3 (consult, study, backfill-wedo) and the rts domain's note list — handoff candidate (an archsage `freework` run).
 - Did for rts-vs-bot and wedo-ppt: the maintenance files and the trial-5 ownership change and its restoration, which were setup and trial events.
 - Every trial deliverable (advice, study note, wedo content, outcomes) was the agents'.
+
+## Review corrections — 2026-10-16
+
+The Developer requested fixes for the missing-search-target and live-run
+discovery findings. The ignored-file finding is **deferred by the Developer**:
+reading ignored files may be useful. No change to ignored-file access was
+made in this correction. The earlier statement that ignored files are never
+content does not describe the live run-file endpoint; its intended policy
+remains to be decided.
+
+### Changes
+
+- **Missing search target:** `search` now checks that the selected path
+  exists before running Git's search, for both committed and working-tree
+  sources (including paths inside submodules). A missing path returns
+  `absent`; an existing file or directory without matches still returns a
+  successful empty list.
+- **Live runs when published content is unavailable:** `runs` reads the
+  published and live sources independently. When the committed source
+  cannot be read but a live workspace is available, the result retains its
+  live runs and includes `publishedUnavailable: {state, message}`. It does
+  not invent committed-source provenance. The CLI displays that failure
+  alongside live records; the API carries the same structured result. An
+  empty live list still discloses the published-source failure. Explicit
+  `--published` reads, unknown projects and cases with neither source
+  available still fail.
+- **Trial count:** report4's opening now says eight runs, matching its run
+  table and cost table.
+
+Implementation: agdevworld `47a365d`. The public access contract and focused
+regression tests were updated with the code.
+
+### Validation and deployment
+
+- Focused access tests: **11/11 passed**, including missing paths and true
+  zero-match results in committed/worktree sources, published-source
+  failures with and without a live workspace, explicit published-only
+  failure, unknown project refusal, empty live lists, and CLI output.
+- Release check (`npm run check`): TypeScript, **359/359 tests**, and Vite
+  build passed. No operating store migration was needed.
+- Deployed `47a365d` using `wfe-release.sh deploy`; there were no open
+  attempts at activation. The service and launcher report that release.
+- LAN HTTP smoke: a missing search path returns **404 / absent**; an
+  existing path with no match returns **200 / zero matches**; archsage's
+  run list returns **200** with four live records.
+- Installed-release smoke with Gitea deliberately omitted from the access
+  context: all four archsage live runs remain available, with
+  `publishedUnavailable.state: inaccessible` and no fabricated committed
+  provenance. The operating Gitea configuration was not altered.
+- `nctl drift --json` succeeded before and after deployment with the same
+  summary (45 converged, one drifting). The existing drift is agobserver's
+  missing-service observation; this correction changed no desired service
+  records.
+- Code and the pj-agdev superproject pointer were committed and pushed.
+
+### Open follow-up: p4-answer-loss
+
+The two browser answers lost during rts-vs-bot backfill-wedo/run-001 remain
+an unresolved workflow-editor defect (report4, finding 4). This correction
+does not claim to fix it. A follow-up should trace submission from the
+answer form through the HTTP response and stored operation, check the
+empty *Recording as* case, and ensure a rejected or failed submission
+remains visible with the entered answer retained. Close it only after a
+reproduction or equivalent regression evidence and verification of the
+deployed answer path.
