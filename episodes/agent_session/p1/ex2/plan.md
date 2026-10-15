@@ -21,6 +21,10 @@ explicit session identity, attempt fencing, single-writer ownership, ex1's
 launch/mismatch fixes, human holds and authoritative records. Creating this plan
 does not start implementation, paid trials or service changes.
 
+The follow-up must stay short: no deliberate cache-expiry waits, repeated
+trials of the same condition, or reruns of p1 merely to reproduce known results.
+Use existing evidence and deterministic local checks wherever possible.
+
 ## 1. Audit what the model actually receives and reads
 
 Inspect the executor's `prompt()` / `continuation()`, WFE's `brief()` and its
@@ -108,8 +112,9 @@ while new input and state remain discoverable and actionable.
 
 ## 3. Verify the changed correctness boundaries
 
-Use focused tests and short disposable harness probes where real transcript
-behavior matters. Avoid broad repeated suites and long timing-based waits.
+Use focused deterministic tests and existing transcript artifacts. Verify real
+continuation behavior within the single comparison pair in step 4, without
+separate paid probes. Avoid broad repeated suites and long timing-based waits.
 
 | Case | Required result |
 | --- | --- |
@@ -138,12 +143,14 @@ still applicable. Use Nautobot/nctl before depending on local services, followin
 the workspace operating instructions. Keep raw transcripts and machine-specific
 details in ignored local notes.
 
-Use three arms on the same current RTS baseline and model/profile:
+Use two arms on the same current RTS baseline and model/profile, once each:
 
 1. `fresh`: the existing fresh-attempt behavior, reconstructing from records.
-2. `run-before`: retained sessions with the pre-optimization continuation and
-   read guidance, pinned to a reproducible revision.
-3. `run-optimized`: retained sessions with step 2's compact continuation.
+2. `run-optimized`: retained sessions with step 2's compact continuation.
+
+Use p1's stored prompts/transcripts and deterministic prompt/output comparisons
+for the pre-optimization reference. Do not rerun `run-before`. Historical cost
+figures are contextual evidence, not a matched causal control.
 
 Hold task, workflow graph, documentation requirements, accepted plan constraints
 and trial inputs constant. Keep any shared correctness fix common to all arms;
@@ -151,23 +158,25 @@ document unavoidable differences. Use isolated run copies and session stores as
 needed to prevent experimental cross-talk. Do not edit a held person's run or
 integrate trial implementations into the shared project.
 
-- Run one immediate-answer triplet and one delayed-answer triplet, reversing
-  arm order in the second. Six task runs maximum and a $30 cap on reported
-  list-price cost, including probes and repairs. If a valid comparison cannot
-  fit, stop and report incomplete evidence; do not silently enlarge the budget.
+- Run one immediate-answer pair only: two task runs maximum, one per arm, and
+  a $15 cap on reported list-price cost across the follow-up. Choose a small task
+  with only the boundaries needed to inspect continuation. No repeated pairs,
+  order-reversal runs, extra paid probes or automatic retries of failed trials.
+  If a run fails or the cap is reached, report partial evidence and investigate
+  locally rather than repeat the experiment.
 - Use an actual useful task whose feature is absent from the baseline. Include
   plan agreement, implementation, a bounded correction and explicit result
   acceptance. Preserve original requirements through the correction. Use the
   same clearly labeled scripted-person inputs in all arms; recognize re-checks
   by their meaning/recorded question, not a hard-coded node name. Ambiguous
   input must not be counted as acceptance.
-- For the delayed triplet, wait beyond the observed cache TTL without keeping
-  an attempt or slot alive. Record actual wait duration and hit/write evidence;
-  do not infer expiry solely from elapsed time. Avoid cache-clearing operations
-  that affect unrelated work, and record shared-prefix warming/order effects.
-- P1's figures remain historical reference, not a substitute for the concurrent
-  `run-before` control. Six runs are a small-sample diagnostic, not a definitive
-  estimate of average savings.
+- Answer scripted questions promptly. Do not wait 60–65 minutes, wait for TTL
+  expiry, artificially shorten TTL, or force cache eviction to recreate p1.
+  Use p1's existing delayed-run evidence for that known behavior; check local
+  expiry-related logic with fixtures or a mock clock. Record naturally observed
+  cache conditions and shared-prefix warming/order effects.
+- A single pair is a limited diagnostic, not an estimate of average savings.
+  Accept uncertainty rather than adding repetitions to seek a clearer result.
 
 Measure both actual total outcome and the mechanism of any change:
 
@@ -179,8 +188,9 @@ Measure both actual total outcome and the mechanism of any change:
 | Cost | Per-attempt and whole-run reported cost, cumulative-session deltas, missing totals and any separately estimated amounts |
 | Quality | Original requirement retention, plan adherence, correction uptake, tests, actual UI result, explicit acceptance and stale-state failures |
 
-Use a small paired context replay/probe, within the same budget, if needed to
-separate reduced input from stochastic differences in work. Do not present
+Use offline context-size and duplicate-read analysis of retained artifacts to
+explain the mechanism; do not add paid replay/probe runs to reduce uncertainty.
+Do not present
 token savings as measured monetary savings without actual usage/cost evidence.
 Include all failed and repaired runs; label subscription list-price estimates
 as estimates rather than bills or quota consumption.
@@ -189,7 +199,7 @@ as estimates rather than bills or quota consumption.
 
 The person's normal practice is a planning session followed by a fresh
 implementation session receiving the approved plan. Neither p1 nor the main
-three-arm comparison tests this policy. Explain that limitation explicitly.
+two-arm comparison tests this policy. Explain that limitation explicitly.
 
 Use the optimized trial's phase-by-phase context measurements to propose a
 specific plan-to-implementation boundary, with original requirements, accepted
@@ -198,8 +208,8 @@ handoff. A plan-only handoff must not accidentally omit constraints that the pla
 failed to restate. Implementation and its short correction loop may then share
 a session.
 
-Document the smallest explicit policy/UI design and a separate matched trial
-needed to test it. Do not silently add session splitting to `run-optimized`, or
+Document the smallest explicit policy/UI design and what evidence would be
+needed to test it in future; do not run an additional experiment in this phase. Do not silently add session splitting to `run-optimized`, or
 claim savings for it from these trials. Implementing a new phase policy is a
 follow-up scope, rather than a prerequisite for measuring input optimization.
 
@@ -209,8 +219,10 @@ Commit/push code changes and required dependency/submodule pointers. Check
 current WFE runs and service ownership before activation; deploy matching
 versions without interrupting active writers or lifting holds. Newly started
 services follow localrule.md's LAN-access requirement. Execute the agent-operable
-deployment checks and one short continuation smoke check before asking for any
-human verification; count paid smoke usage within the cap.
+deployment checks before asking for any human verification. Reuse the single
+comparison pair as the real-harness continuation smoke check on the deployed
+revision; do not add a separate paid workflow run. Use deterministic checks for
+release identity and service health.
 
 Update session documentation and guides to describe ordinary compact
 continuation, targeted refresh, uncertain recovery and full reconstruction.
@@ -230,8 +242,9 @@ result is valid. Commit/push the final report and documentation as required by
   blanket history reads, with other observed material waste addressed.
 - Authoritative new input, current state, race handling and safe reconstruction
   remain correct across ordinary resumes and the changed failure boundaries.
-- Controlled RTS evidence separates the effect of input optimization from work
-  variation and cache expiry, including whole-run cost and quality.
+- One short RTS pair and offline before/after analysis document input reduction,
+  whole-run cost and quality, with work variation and causal uncertainty stated.
+  No long cache-expiry waits or repeated experimental runs are performed.
 - Plan/implementation session splitting is clearly distinguished as untested.
 - The optimization is verified, deployed, documented and committed/pushed, with
   a reproducible comparison and an evidence-based recommendation.
