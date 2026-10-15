@@ -51,7 +51,7 @@ recorded that.
 | --- | --- |
 | agdevworld | `6d8d1b5` (continuation, `wfe run state`, reconstruction, docs), `a642e27` (test) |
 | agautolab | `1f1ca20` (executor prompt, wfrun guide), `9382b1b` (test) |
-| pj-agdev | `d00a653`, `a8df20b` (pointers), plus this step's pointer commit |
+| pj-agdev | `d00a653`, `a8df20b` (pointers to the deployed commits) |
 | devdocs | reports 1–6, `report.md`, README_DEV *Workflow run sessions*, a follow-up link in p1's report |
 
 ## Documentation updated
