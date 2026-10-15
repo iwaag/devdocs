@@ -158,6 +158,49 @@ Pushed to Gitea `developer/pj-rts-vs-bot` `main`. The production workspace
 was fast-forwarded to it. No RTS run was in progress, and nothing else is
 deployed for the game.
 
+### Run records imported (`ba2daa7`, at the person's request)
+
+The person chose renamed records over a separate viewer. The six run
+records are committed in the RTS project as runs kept in the project tree,
+with unique ids per set:
+
+| Set | fresh | run |
+| --- | --- | --- |
+| A, rally points | `ex3-fresh/run-001` | `ex3-run/run-001` |
+| B, Shift waypoints | `ex3-fresh/run-002` | `ex3-run/run-002` |
+| C, save/load | `ex3-fresh/run-003` | `ex3-run/run-003` |
+
+**What changed in the records.** Only `<workflow>/run-001` was rewritten in
+sets B and C: paths, branch names and the run id, in 20 files. Presented
+content and its digests are unchanged. Each run folder has an `IMPORTED.md`
+naming:
+
+- its original identity;
+- the trial branch;
+- what was rewritten;
+- where its attempt logs and costs are.
+
+**How they appear.**
+- The project page and `/api/…/runs` list all six as accepted.
+- The run views show graph, questions, presentations, decisions and
+  reports.
+- The trial workflows `ex3-fresh` / `ex3-run` are not added to the
+  project; the run view shows their source as no longer present. That
+  keeps them from being offered as runnable workflows.
+- This workspace's exec store has no rows for their attempts.
+
+**Notifications.**
+- Before the commit landed, the six run keys were registered in the
+  notifier store as `skipped`, the state it gives runs created before
+  announcements began. A backup was taken first.
+- Result: no message was queued and no IO channel was made.
+- The notifier did provision the two workflow channels it makes for every
+  workflow with runs: `wf-rts-vs-bot.ex3-fresh` (#302) and `.ex3-run`
+  (#303). They are empty.
+
+Checked by rehearsing on a private service first, then on the production
+API and UI.
+
 ## Versions and conditions
 
 - **Deployed**:
