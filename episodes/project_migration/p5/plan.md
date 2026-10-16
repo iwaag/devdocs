@@ -1,5 +1,7 @@
 # project_migration p5 — implement and prove the cagent migration
 
+Execution result (2026-10-16): [report.md](report.md). Steps 1–9 are implemented and operator-verified; the report distinguishes actual Developer decisions, Omni interventions and deferred follow-ups.
+
 ## Basis and intended result
 
 Implement the managed cagent project approved in [pre1/design.md](pre1/design.md), following decisions D1–D14 in [pre1/decisions.md](pre1/decisions.md). [pre1/report.md](pre1/report.md) closes the investigation and design phase; it does not claim an implemented system. This plan covers the implementation phase following pre1.

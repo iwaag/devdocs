@@ -92,7 +92,36 @@ The ComfyUI notifier's command intake is an event queue too; the
 realm's API traffic on 2026-09-14) is read once at start and after a queue
 expiry. The whole measurement is `devdocs/episodes/better_zulip_call/`.
 
-## cagent (pj-clusterintent)
+## cagent (managed workflow project, project_migration p5)
+
+cagent is now the managed project `cagent` (`pj-cagent`, private repository
+because its cluster records name hosts). Its entrances are
+`wf-cagent.consult`, `.report`, `.scan`, `.change` and `.freework`, through
+request topics, the WFE run view or delegation.
+
+- `consult` explains reported/observed/desired state with evidence and ages.
+- `report` records installations, ownership and purpose with provenance;
+  verification uses existing observations, not an implicit host scan.
+- `scan` collects and ingests through `nctl observe`, records unavailable
+  hosts honestly and publishes `snapshot.json` (`cagent.snapshot.v1`).
+- `change` binds execution to the Developer's plan agreement, exact batch
+  hashes and host scope. `cagentctl` records external effects before
+  dispatch and recovers unknown outcomes from backend operation evidence.
+- Dependency hosts use the ordinary change path: the Developer removed the
+  self-dependency-host refusal. Destroy-class guest operations retain the
+  separately agreed human handoff. Missing tool coverage is not an
+  additional prohibition; direct nctl work uses the agreed plan and ledger.
+- Result acceptance and Git integration publish records; they do not undo
+  external effects. An unknown outcome is never a reason to repeat it.
+- `cluster:fetch` reads the latest completed scan artifact through WFE's
+  read-only file API. Snapshot metadata preserves source times and partial
+  coverage. The independent refresh job uses observation only.
+
+Front's routing and the argue host's consult invocation remain named
+follow-ups. Old HTTP/listener source, incidents and request evidence remain
+history; the section below describes those retired paths.
+
+## cagent (pj-clusterintent) — legacy implementation history
 
 - Responds to requests for explaining/observing/changing desired state and/or actual state of the cluster.
 - In-System workflow shold be designed so that cagent receive a report when cagent's explanation of the cluster found invalid.
