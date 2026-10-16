@@ -45,18 +45,44 @@ Record of the Step 3 discussion with the Developer, held in the ordinary human c
 
 ## Group 2 — operating model
 
-Pending: effects ledger and external waits (options §5), concurrency and target lock (§6), self-dependency targets (§7).
+Presented as four points on 2026-10-16. Developer response: "ok、提案を承認" — later clarified ("元の４提案を承認したんです") as approving these four points, not the stack question asked in between.
+
+### D6. Effects ledger and verification
+
+- Question: how are a run and an external operation linked, and what proves a result?
+- Evidence: options §5; forge's record-before-act precedent; WFE has no effects concept.
+- Alternatives: ledger entries written by `cagentctl` before and after each effect, verification by fresh drift, acceptance as a record not an authorisation (S); every effect as a WFE external wait (A, kept for long operations only).
+- Outcome: **agreed**.
+- Consequences: `effects/<n>.json` per effect in the run folder; `verify` node reads fresh host-scoped drift; a Git rollback never claims to undo an effect; long operations use `wait --external … --deadline`.
+
+### D7. Concurrency and changed prerequisites
+
+- Question: a per-target lock now, or nctl's lock plus WFE's slot?
+- Evidence: no recorded interleaving incident (hypothetical); the LXC incident and "no error is not proof" for prerequisite checks.
+- Outcome: **agreed** — target lock index designed but **deferred** until an interleaving is seen; the execute node re-reads drift and asks when the plan's assumptions changed.
+
+### D8. Interruption, partial success, cancellation
+
+- Question: what does recovery read, and when may an effect be retried?
+- Evidence: options §6; Observer p3 recovery contract.
+- Outcome: **agreed** — an entry without `ended` means unknown; recovery reads the ledger, then `nctl ops show`, then fresh drift; an unknown effect is never re-issued; retry only when the ledger says it never started or drift shows the pre-state; a cancellation after an effect names the open entry and who owes verification.
+
+### D9. Self-dependency targets
+
+- Question: may a run change the host that carries its own path?
+- Evidence: options §7; everything runs on one command node.
+- Outcome: **agreed** — targets that host cagent's dependencies (the command node, Nautobot's containers, Zulip, the executor) are person-operated: the run prepares commands and a verification, a person runs them, the ledger records `performed-by: person`; observation stays a launchd job independent of WFE.
 
 ## Group 3 — migration scope
 
-### D5. Stack disposition (decided early, as a premise of group 2)
+### D5. Stack disposition (raised early by the Developer, as a premise of group 2)
 
 - Question: are Nautobot/nintent, nctl, nodeutils/nauto and Ansible carried over, or replaced as part of this migration?
 - Evidence: report1 §5 (sole-owner responsibilities of nctl; every nctl read depends on Nautobot; Ansible performs all mutation and the collection itself); the p5 braindump expects a state-platform replacement to be its own phase.
 - Alternatives: keep and wrap through a thin project tool, replacement deferred (S); replace selected responsibilities now, which would turn pre1 into a state-platform selection phase (A).
 - Recommendation: S. Retire what has no caller: `executor/`, cagent's HTTP doors, CA, ledger, node client, Zulip listener and topic roles, the unused Ansible roles (`autolab_gateway`, `cagent_client`), the power webhook API.
-- Developer response (2026-10-16): asked whether the base tools are assumed carried over; after the reasoning above, "ok、提案を承認" (approve the proposal).
-- Outcome: **agreed** — keep Nautobot/nintent, nctl, nodeutils/nauto, Ansible for this phase; the listed retirements are in scope; state-platform replacement and nctl's long-term fate are **deferred** to a later phase and revisited after that decision.
+- Developer response (2026-10-16): asked whether the base tools are assumed carried over ("前提として、nautobot、ansible、nctlといった基本ツールは引き継ぎという判断ですか？"); the reasoning above was given. The "承認" that followed was clarified as approving group 2, not this item.
+- Outcome: **unresolved** — asked again explicitly in group 3. The proposal stands as written: keep Nautobot/nintent, nctl, nodeutils/nauto, Ansible for this phase; the listed retirements in scope; state-platform replacement and nctl's long-term fate deferred.
 - Consequences: `cagentctl` wraps nctl rather than re-implementing it; the observe-only refresh needs an nctl entry point or a wrapper limited to `observe_node`; retirement steps go into the migration plan with a Developer-applied Nautobot batch (as in p3/p4).
 
 Pending: migration order and trial target (§9), argue participation, `cluster:fetch`, Front routing (§12 Q7–Q10).
