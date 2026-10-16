@@ -81,8 +81,27 @@ Presented as four points on 2026-10-16. Developer response: "ok、提案を承�
 - Evidence: report1 §5 (sole-owner responsibilities of nctl; every nctl read depends on Nautobot; Ansible performs all mutation and the collection itself); the p5 braindump expects a state-platform replacement to be its own phase.
 - Alternatives: keep and wrap through a thin project tool, replacement deferred (S); replace selected responsibilities now, which would turn pre1 into a state-platform selection phase (A).
 - Recommendation: S. Retire what has no caller: `executor/`, cagent's HTTP doors, CA, ledger, node client, Zulip listener and topic roles, the unused Ansible roles (`autolab_gateway`, `cagent_client`), the power webhook API.
-- Developer response (2026-10-16): asked whether the base tools are assumed carried over ("前提として、nautobot、ansible、nctlといった基本ツールは引き継ぎという判断ですか？"); the reasoning above was given. The "承認" that followed was clarified as approving group 2, not this item.
-- Outcome: **unresolved** — asked again explicitly in group 3. The proposal stands as written: keep Nautobot/nintent, nctl, nodeutils/nauto, Ansible for this phase; the listed retirements in scope; state-platform replacement and nctl's long-term fate deferred.
+- Developer response (2026-10-16): asked whether the base tools are assumed carried over ("前提として、nautobot、ansible、nctlといった基本ツールは引き継ぎという判断ですか？"); the reasoning above was given. The "承認" that followed was clarified as approving group 2, not this item. Asked again as group 3 item 1; response "採用" (adopt) for all five group 3 items.
+- Outcome: **agreed** — keep Nautobot/nintent, nctl, nodeutils/nauto, Ansible for this phase; the listed retirements are in scope; state-platform replacement and nctl's long-term fate are **deferred** to a later phase.
 - Consequences: `cagentctl` wraps nctl rather than re-implementing it; the observe-only refresh needs an nctl entry point or a wrapper limited to `observe_node`; retirement steps go into the migration plan with a Developer-applied Nautobot batch (as in p3/p4).
 
-Pending: migration order and trial target (§9), argue participation, `cluster:fetch`, Front routing (§12 Q7–Q10).
+### D10. Migration order and trial target
+
+- Question: staged or big-bang; what is the `change` trial target?
+- Evidence: options §9; `change` is the only workflow with effects; no open legacy request exists.
+- Outcome: **agreed** — build and register `pj-cagent`; trial `consult` and `report` (from the Developer and from one managed project's delegate node), then `scan`, then `change` as one create-and-retire round trip of a disposable guest on the Proxmox host with plan agreement; then cutover: stop `cagent-zulip`, retirement intro in `#agents`, keep `cagent-api` until `cluster:fetch` is re-pointed, refresh job to observation only, Nautobot retirement batch applied by the Developer, unused Ansible roles retired. Legacy records stay as history; nothing is migrated.
+
+### D11. Argue participation
+
+- Outcome: **agreed** — cagent's argue role retires; an argue that needs cluster facts opens a `consult` request (same direction as archsage).
+
+### D12. `cluster:fetch` (agdevworld's cluster view)
+
+- Evidence: last snapshot 2026-08-10; the script asks cagent's human door to run nctl reads and upload.
+- Alternatives: read a snapshot the `scan` run publishes (recommended); read Nautobot directly; drop the view.
+- Outcome: **agreed** on the recommendation — the `scan` run publishes the drift/actual/workspaces snapshot as a run artifact the view can read; `cagent-api` retires once the view reads it. If the view turns out unused, dropping it is a one-line follow-up, not a redesign.
+
+### D13. Front routing
+
+- Outcome: **agreed** — left to Front's episode, recorded in the migration plan as a named follow-up with the exact `wf-cagent.*` channel names and the agent-requester entry Front needs.
+
