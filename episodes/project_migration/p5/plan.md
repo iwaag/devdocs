@@ -4,6 +4,8 @@ Prepared 2026-10-16 from the agreed design ([pre1/design.md](pre1/design.md)) an
 
 Source anchors at preparation: `pj-clusterintent` `ff2910da`, `pj-agdev/agdevworld` `47a365d0`, `pj-agdev/agautolab` `3fbafad8`. Step 1 records fresh revisions.
 
+Detailed implementation phase: [p2/plan.md](p2/plan.md). This document remains the overall handoff from pre1; p2 expands the execution order, verification and retirement criteria under the approved design.
+
 Scope separation: common-system changes (steps 1–2), the cagent project (3–4), backend change (2), trial preparation and trials (5–6), deployment and operational proof (7), legacy retirement (8), report (9). No state-platform work: that is a later phase by decision D5.
 
 ## Step 1 — common-system check and project skeleton
