@@ -105,3 +105,11 @@ Presented as four points on 2026-10-16. Developer response: "ok、提案を承�
 
 - Outcome: **agreed** — left to Front's episode, recorded in the migration plan as a named follow-up with the exact `wf-cagent.*` channel names and the agent-requester entry Front needs.
 
+
+## Step 4 — design review
+
+### D14. design.md approved
+
+- Presented 2026-10-16 with the three points the design adds beyond D1–D13: the observation-only nctl command (§6.3), the `change` trial as a create-and-retire round trip of a disposable guest with the retire half person-performed, and `cagentctl`'s three refusal rules (§6.2).
+- Developer response: "ok".
+- Outcome: **agreed** — [design.md](design.md) at this revision is the basis for the implementation plan. No remaining blocking decision; deferred items are listed in design.md §10.
