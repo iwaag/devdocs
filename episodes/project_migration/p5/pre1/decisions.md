@@ -49,4 +49,14 @@ Pending: effects ledger and external waits (options §5), concurrency and target
 
 ## Group 3 — migration scope
 
-Pending: stack disposition and retirements (§8), migration order and trial target (§9), argue participation, `cluster:fetch`, Front routing (§12 Q7–Q10).
+### D5. Stack disposition (decided early, as a premise of group 2)
+
+- Question: are Nautobot/nintent, nctl, nodeutils/nauto and Ansible carried over, or replaced as part of this migration?
+- Evidence: report1 §5 (sole-owner responsibilities of nctl; every nctl read depends on Nautobot; Ansible performs all mutation and the collection itself); the p5 braindump expects a state-platform replacement to be its own phase.
+- Alternatives: keep and wrap through a thin project tool, replacement deferred (S); replace selected responsibilities now, which would turn pre1 into a state-platform selection phase (A).
+- Recommendation: S. Retire what has no caller: `executor/`, cagent's HTTP doors, CA, ledger, node client, Zulip listener and topic roles, the unused Ansible roles (`autolab_gateway`, `cagent_client`), the power webhook API.
+- Developer response (2026-10-16): asked whether the base tools are assumed carried over; after the reasoning above, "ok、提案を承認" (approve the proposal).
+- Outcome: **agreed** — keep Nautobot/nintent, nctl, nodeutils/nauto, Ansible for this phase; the listed retirements are in scope; state-platform replacement and nctl's long-term fate are **deferred** to a later phase and revisited after that decision.
+- Consequences: `cagentctl` wraps nctl rather than re-implementing it; the observe-only refresh needs an nctl entry point or a wrapper limited to `observe_node`; retirement steps go into the migration plan with a Developer-applied Nautobot batch (as in p3/p4).
+
+Pending: migration order and trial target (§9), argue participation, `cluster:fetch`, Front routing (§12 Q7–Q10).
