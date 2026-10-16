@@ -99,6 +99,23 @@ because its cluster records name hosts). Its entrances are
 `wf-cagent.consult`, `.report`, `.scan`, `.change`, `.develop` and
 `.freework`, through request topics, the WFE run view or delegation.
 
+- **Backend (project_migration p6 ex2, 2026-10-17).** Every cagent workflow
+  declares `execution.profile: luna`: autolab's `codex` harness on
+  `openai/gpt-6-luna`, effort medium (`agautolab/agents.toml`). Claude
+  declined the Developer's chosen platform instead of developing for it.
+  The agent identity is still `cagent-agent`; Agent ≠ Model. Codex runs
+  record tokens, never cost, so the gauge shows nothing for them.
+  - `gpt-6-luna` needs a current codex CLI: 0.153.2 answered 400 "not
+    supported with a ChatGPT account"; 0.163.0 (`codex update`) runs it.
+  - pyagag runs codex with `features.shell_snapshot=false`. The snapshot
+    replays `~/.zshrc`, whose PATH entry for the old
+    `.local/workflow-editor-p2` area won over the executor's `wfe`; the
+    first codex run could record nothing.
+  - A held run moves to another profile by a person's resume
+    (`wfe run resume --profile <name>`, or the run view's resume form;
+    agdevworld `c6390a2`). Rollback is `profile: sonnet` in the workflow
+    files, re-approved, and a resume with `--profile sonnet` for a held run.
+
 - `develop` (project_migration p6 ex1) develops missing deployment and
   observation support in `backend/pj-clusterintent`, a run-owned copy of
   the superproject and its submodules (WFE owns nested submodules since

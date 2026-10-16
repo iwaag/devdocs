@@ -98,6 +98,10 @@ proposal.
 
 ## Step 2 — WFE: an adjustment may change the execution profile
 
+> Executed differently (2026-10-17): run-004 is held mid-node, where no
+> adjustment applies, so the change went into `run.resume --profile`
+> instead. See [report.md](report.md), *Deviation from the plan*.
+
 1. `server/runs.ts` (`adjust-access`): compare `execution` without
    `profile`; `agent`, `guides`, `session`, `repositories`, `intake` and
    `documentation` stay refused. A profile change alone is an executable
