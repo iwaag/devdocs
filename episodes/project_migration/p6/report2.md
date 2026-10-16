@@ -1,12 +1,10 @@
 # project_migration p6 — Step 2 report: NFS deployment tools for cagent
 
-Status: tools implemented, tested and published to the live deployment
-sources (2026-10-16). One handoff remains: **the pj-cagent commit is not
-pushed**. The local commit exists and run copies are cloned from that local
-workspace, but pushing it to the LAN Gitea was refused by the session's
-safety classifier because it would use a stored token. It is waiting for the
-Developer's push or approval (see "Open items"). No production NFS
-installation was performed. Test logs are in the ignored
+Status: tools implemented, tested, pushed and in place in the live deployment
+sources (2026-10-16). The pj-cagent push was first refused by the session's
+safety classifier because it used a stored token; it went through after the
+Developer approved it manually. No production NFS installation was
+performed. Test logs are in the ignored
 `pj-agdev/.local/project-migration-p6/step2/`.
 
 ## Platform scope
@@ -144,7 +142,7 @@ Not exercised here:
 | nctl | `a3a3500` (pushed) |
 | ansible_agdev | `0de64e3` (pushed) |
 | pj-clusterintent pins | `898dcf6` (pushed) — the `sources` value for a Step 3 plan |
-| pj-cagent | local commit on `main`, **not pushed** |
+| pj-cagent | `main` pushed after the Developer's manual approval |
 
 Deployment:
 - nctl, ansible_agdev and nodeutils are used live from the pj-clusterintent
@@ -155,10 +153,8 @@ Deployment:
 
 ## Open items
 
-- **Push pj-cagent `main` to Gitea.** The Omni session's push with the
-  Developer Gitea token was refused by the classifier. Its next run
-  integration would otherwise push it implicitly, which this report does not
-  rely on. This is a Developer action or an explicit approval.
+- Resolved: pushing pj-cagent `main` needed the Developer's manual approval
+  (the classifier refuses a token-authenticated push otherwise).
 - Not a defect for Step 3: in nctl, cross-host ordering of server before
   client is not a profile dependency. cagent orders the reconciles (server
   host first) in its plan.
