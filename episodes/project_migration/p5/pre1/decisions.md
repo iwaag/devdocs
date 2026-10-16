@@ -69,6 +69,8 @@ Presented as four points on 2026-10-16. Developer response: "ok、提案を承�
 
 ### D9. Self-dependency targets
 
+**Superseded on 2026-10-16:** the Developer instructed removal of this rule ("不要なルールなので消去してください。"). Dependency hosts now use the ordinary agreed-plan change path. [Amendment and implementation](../self-dependency-removal.md). The entry below records the original decision.
+
 - Question: may a run change the host that carries its own path?
 - Evidence: options §7; everything runs on one command node.
 - Outcome: **agreed** — targets that host cagent's dependencies (the command node, Nautobot's containers, Zulip, the executor) are person-operated: the run prepares commands and a verification, a person runs them, the ledger records `performed-by: person`; observation stays a launchd job independent of WFE.

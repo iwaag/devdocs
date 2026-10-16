@@ -13,7 +13,7 @@ Follow the workspace development policies and `localrule.md`: English artifacts,
 ## Implementation boundaries
 
 - The Developer agrees each change plan before cluster effects. A request, workflow-definition approval and result acceptance are distinct facts. Delegation does not give a parent agent the Developer's plan authority. Proxy authority is used only when explicitly delegated for this episode.
-- Destroy-class changes and changes to cagent's own dependencies remain person-operated, with commands and verification prepared by the agent. This is the agreed D4/D9 boundary, not an additional approval policy.
+- Destroy-class changes remain person-operated, with commands and verification prepared by the agent (D4). The Developer removed D9's self-dependency-host restriction on 2026-10-16; those hosts use the ordinary agreed-plan change path. See [the amendment](self-dependency-removal.md).
 - `cagentctl` enforces its own contract. Repository bindings, guides and tool wrappers do not establish OS-level isolation or prevent every direct shell route; describe that limit accurately.
 - Observation collects data on hosts and ingests it into Nautobot. It is not a database-only read, and must not run repair or provisioning actions. A scheduled observation job remains independent of WFE.
 - Unknown effects are investigated, not re-issued. Git integration publishes records; it neither authorizes earlier effects nor reverses them.
@@ -50,12 +50,12 @@ Repository: `pj-cagent`; narrowly scoped common-system changes only if Step 1 es
 
 1. Implement `read`, `observe`, `apply`, `reconcile`, `playbook`, `ledger` and `snapshot` with JSON output and discoverable `--help`. Reuse the old read-only adapter with source/commit provenance; do not recreate nctl's state model or executor.
 2. For changes, bind the active attempt to the agreed plan and exact batch content, command scope and targets. Refuse absent/mismatched agreement before effects. Re-read relevant prerequisites before execution; changed assumptions return to a question instead of extending the agreed scope.
-3. Resolve destroy-class and self-dependency effects before dispatch, including actions inferred by reconciliation rather than only explicit CLI flags. Refuse them with a concrete person-operated command and verification. If nctl cannot expose enough information to establish the action set, record the gap and resolve it before allowing that execution path.
+3. Resolve destroy-class effects before dispatch, including actions inferred by reconciliation rather than only explicit CLI flags. Refuse them with a concrete person-operated command and verification. If nctl cannot expose enough information to establish the action set, record the gap and resolve it before allowing that execution path.
 4. Persist an entry before each change effect, then append/update its outcome with operation references and evidence. Use durable writes and identities that survive attempt restart. Preserve an incomplete entry as unknown. Distinguish a prepared person handoff from a confirmed person action; preparing a command is not proof it ran.
 5. Make operation correlation usable after a lost response: retain the backend operation identifier as early as the backend permits and record the available lookup evidence. Recovery reads the ledger, `nctl ops show`, then fresh observation/drift. If correlation or outcome remains ambiguous, keep it unknown.
 6. Preserve the original agreed batch bytes and their digest, report provenance, duplicate/supersedes references and a discoverable records index. Ensure distinct runs cannot accidentally allocate the same record identifier. The target index remains advisory; do not introduce the deferred target lock.
 7. Build `snapshot` against the actual cluster view's drift/actual/workspace contract. Record source times, failures and artifact identity. A newer failed scan must not silently masquerade as a fresh complete snapshot.
-8. Test refusal-before-dispatch, altered batches, generated destroy actions, self-dependency handoff, partial success, interrupted ledger writes, lost responses, repeat recovery, scope selection, duplicate records and synthetic-secret redaction. Use fake effects for failure injection until the live trial is explicitly prepared.
+8. Test refusal-before-dispatch, altered batches, generated destroy actions, ordinary changes on dependency hosts, partial success, interrupted ledger writes, lost responses, repeat recovery, scope selection, duplicate records and synthetic-secret redaction. Use fake effects for failure injection until the live trial is explicitly prepared.
 
 Deliverable: `report3.md`, the tool and its tests. Acceptance: each allowed operation has traceable evidence; refused commands dispatch nothing; an unknown effect cannot be repeated as a recovery shortcut. Long-operation ownership and external-wait behavior are demonstrated with a fake operation before live use.
 
@@ -81,7 +81,7 @@ Deliverable: `report4.md`. Acceptance: all five definitions validate; the regist
 5. Specify interruption timing, process scope, operation lookup, cleanup and expected recovery. Distinguish interrupting an attempt from terminating its backend operation. Prepare all commands and evidence collectors before asking for trial agreement.
 6. Present the trial sheet and target to the Developer with ready request/run links. Record the agreement required by the approved design; do not infer it from the request to write this plan.
 
-Deliverable: `report5.md` with expected results, ownership and cleanup for each case. Acceptance: trial prerequisites are deployed and the agreed scope is recorded; the Developer is left only the human decisions and person-only operations required by D4/D9.
+Deliverable: `report5.md` with expected results, ownership and cleanup for each case. Acceptance: trial prerequisites are deployed and the agreed scope is recorded; the Developer is left only the human decisions and person-only operations required by D4.
 
 ## Step 6 — run staged trials and repair demonstrated defects
 
@@ -93,7 +93,7 @@ Deliverable: `report5.md` with expected results, ownership and cleanup for each 
 | T4 | Disposable guest creation through `change`, with delegation coverage | Developer agreement on batch/scope, closed effects entries, fresh observation and drift, service probes where relevant, result acceptance and integration. |
 | T5 | Interrupt T4 or a bounded follow-up at the prepared point | Durable unknown entry, held attempt, recovery reading ledger → operation evidence → fresh state, no repeated unknown effect; unresolved ambiguity remains explicit. |
 | T6 | Retire the disposable guest | Tool refusal before destruction, prepared command, person confirmation, evidence attributed to the person and fresh post-action verification. |
-| T7 | Harmless self-dependency handoff | Refusal before dispatch, prepared command/check, person execution if agreed, recorded performer and independent verification. |
+| T7 | Change on a dependency host | Uses the ordinary agreed-plan path, ledger and verification. The former self-dependency refusal was removed by the Developer on 2026-10-16; fake-adapter regression tests cover reconcile, batch and playbook without requiring a live host change merely to prove removal. |
 
 Use fake tests for altered prerequisites, duplicate delivery and unknown recovery where a live experiment would add no evidence. Exercise a changed prerequisite through a bounded live case only when needed to resolve a remaining implementation concern.
 
@@ -135,6 +135,6 @@ Review diffs for local environment details, secrets, unsupported claims and unre
 - Five managed workflows operate through the deployed path with the agreed authority and documentation behavior.
 - Observation-only collection is tested and used by the independent refresh job; scans do not repair drift.
 - Changes are linked to the Developer's agreed plan, exact inputs, durable effects evidence and fresh verification; ambiguous outcomes remain unknown and are not blindly retried.
-- Destroy-class and self-dependency operations use the agreed person-operated handoff, with no false claim that the agent performed them.
+- Destroy-class operations use the agreed person-operated handoff. Dependency hosts use the normal agreed-plan path without a separate host-based refusal.
 - T1–T7, delegated plan authority, snapshot consumption and cleanup have evidence; relevant defects are resolved before retirement.
 - Legacy paths are retired in both process and registered state, history is retained, follow-ups have owners, and all intended changes are committed and pushed.

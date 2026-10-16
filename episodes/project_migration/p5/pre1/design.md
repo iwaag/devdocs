@@ -2,6 +2,8 @@
 
 Written 2026-10-16 from [decisions.md](decisions.md) (D1–D13) over [report1.md](report1.md) and [options.md](options.md). This is a design for the implementation phase; it claims no operational result. Where a choice belongs to a later phase it says so.
 
+**Current amendment (2026-10-16):** the Developer removed the self-dependency-host refusal and person-only handoff in D9. Dependency hosts use the ordinary agreed-plan change path; historical D9 references below describe the original approved design. See [self-dependency-removal.md](../self-dependency-removal.md) and the updated [implementation plan](../plan.md).
+
 ## 1. Responsibilities
 
 cagent is the managed project `cagent` (repository `pj-cagent`, agent identity `cagent-agent`). It is responsible for:
