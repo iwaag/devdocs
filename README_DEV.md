@@ -96,8 +96,28 @@ expiry. The whole measurement is `devdocs/episodes/better_zulip_call/`.
 
 cagent is now the managed project `cagent` (`pj-cagent`, private repository
 because its cluster records name hosts). Its entrances are
-`wf-cagent.consult`, `.report`, `.scan`, `.change` and `.freework`, through
-request topics, the WFE run view or delegation.
+`wf-cagent.consult`, `.report`, `.scan`, `.change`, `.develop` and
+`.freework`, through request topics, the WFE run view or delegation.
+
+- `develop` (project_migration p6 ex1) develops missing deployment and
+  observation support in `backend/pj-clusterintent`, a run-owned copy of
+  the superproject and its submodules (WFE owns nested submodules since
+  agdevworld `b40378f`). Acceptance integrates the commits and pins; no
+  host changes. A change then plans `sources_update: true`, and
+  `cagentctl sources update` moves the live checkout to the integrated
+  commit through the ledger. An unsupported platform is a `develop`
+  request, not a reason to choose another host.
+- A macOS host can serve NFS (`nfs_server` dispatches by OS). It cannot
+  mount its own export: automountd substitutes a symlink. Its local
+  processes use the backing path, and the share owner is their identity.
+  macOS client mounts are marked fstab entries for the stock
+  `/- -static` map, with the marker on its own line because `getfsent`
+  drops entries with trailing comments.
+- Known gaps (p6 ex1 report3):
+  - nctl compares NFS placements by existence only, so a config change
+    needs the allow-listed setup playbook;
+  - one service cannot mix deployment profiles;
+  - cagentctl has no ledgered one-off privileged effect.
 
 - `consult` explains reported/observed/desired state with evidence and ages.
 - `report` records installations, ownership and purpose with provenance;

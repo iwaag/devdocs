@@ -168,3 +168,12 @@ Deployment:
   the ansible_agdev README.
 - **No production NFS installation is hidden in tool preparation.** Only
   disposable local containers were used, and they have been removed.
+
+## Later (2026-10-17, p6 ex1)
+
+This report's platform judgement is kept as history. The Developer chose
+the macOS execution host as the server. cagent then developed the macOS
+server support itself ([ex1/report2.md](ex1/report2.md)) and installed the
+share there through its change workflow ([ex1/report3.md](ex1/report3.md)).
+The installed share is served by the Mac, with the Linux autolab VM as its
+NFS client.
