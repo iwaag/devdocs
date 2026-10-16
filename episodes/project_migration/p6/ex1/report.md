@@ -88,13 +88,16 @@ cagent's behalf:
 
 ## Remaining limitations
 
+Follow-up (2026-10-17): [quick-fixes.md](quick-fixes.md) resolves item 3
+and documents the correct operating path for items 2 and 5. The other
+limitations below remain; no deferred host cleanup was performed.
+
 1. The Mac still has the dropped client placement's fstab lines and its
    `/Volumes/agshare` symlink (deferred by the Developer).
 2. nctl compares NFS placements by existence only. Configuration changes
    need the setup playbook.
-3. nctl's planner refuses one service with mixed deployment profiles. This
-   is an implementation limit that the Developer questioned; a candidate
-   `develop` request.
+3. **Resolved in the follow-up:** nctl now plans one action per service and
+   deployment profile, preserving host scope and same-host dependency order.
 4. cagentctl has no ledgered one-off privileged effect, so 1 and 2 needed a
    person or an allow-list edit.
 5. A macOS server cannot be its own NFS client. Local processes use the
