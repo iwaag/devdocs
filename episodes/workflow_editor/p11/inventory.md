@@ -5,7 +5,7 @@ Paths are relative to the projects directory; managed project paths are relative
 
 | ID | Owner / source | Active consumers and trigger | Existing effect | Disposition and proving scenario |
 | --- | --- | --- | --- | --- |
-| W01 | agdevworld `workflow_editor/server/execution.ts`, definition validation and intake | request/claim on an unapproved definition | execution refused | Remove approval prerequisite; execute an unapproved workflow through CLI/API/executor. |
+| W01 | agdevworld definition loading in `workflow_editor/server/runs.ts` and executor intake | request/claim on an unapproved definition | Approval status is already informational in the inspected creation path | Verify no indirect approval prerequisite; execute an unapproved workflow through CLI/API/executor. |
 | W02 | `shared/compile.ts`, `shared/run.ts`, `server/runs.ts` | generated plan/report completion | requires document, latest-plan answer and take-up | Documents become optional records; complete with no question, then change the plan. |
 | W03 | `shared/run.ts`, adjustment file layer | start, adjustment, completion, reopened work | predecessors, instruction acknowledgement, immutable started nodes and authorized source constrain work | Remove process prerequisites; start out of order, reopen, revise running/completed work. |
 | W04 | `server/exec.ts`, `server/integrate.ts`, `shared/approval.ts`, browser | integration | accepted revision, completed execution, unchanged target and result required | Integrate actual saved inputs without acceptance; final report and overlapping clean merge succeed. |
@@ -51,3 +51,5 @@ actual process ownership and atomic record writes are execution facts. They need
 accurate diagnostics and usable recovery. Their names do not exempt a behavioral
 veto. User stop/cancel instructions remain intent. Historic approvals/decisions
 remain facts, and no migration fabricates a person or decision.
+
+Project-specific dispositions and the active workflow list are in [project-rule-audit.md](project-rule-audit.md).

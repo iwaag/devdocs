@@ -1,7 +1,7 @@
 # p11 Step 1 — restriction inventory
 
 Work started on 2026-10-17 (JST). The implementation coverage is tracked in
-[inventory.md](inventory.md); implementation and regression results will update
+[inventory.md](inventory.md) and [project-rule-audit.md](project-rule-audit.md); implementation and regression results will update
 its open entries in subsequent steps.
 
 ## Baseline and ownership
