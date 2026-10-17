@@ -72,3 +72,7 @@ Project-specific dispositions and the active workflow list are in [project-rule-
   side; L01 root `localrule.md`, devpolicy `0efc981`, devdocs README_DEV;
   H01 recorded as an external limit. W06/W07 guide equivalents removed.
   Deployment and run-copy migration remain Step 5.
+- Step 5: 32 run records reprojected; WFE release `a129662` deployed and
+  healthy; all 75 runs readable. Step 6 not run by instruction; entries are
+  closed on source, regression and deployment evidence (report.md), except
+  H01, which is an external limit.
