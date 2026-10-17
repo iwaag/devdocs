@@ -1,8 +1,8 @@
 # project_migration p6 ex2 — report
 
-Status: steps 1–4 done up to the Developer's plan agreement (2026-10-17).
-cagent runs on Codex `gpt-6-luna`. `change/run-004` continued on it and
-now waits on q4, the Developer's agreement to its cleanup plan. Plan:
+Status: complete (2026-10-17). cagent runs on Codex `gpt-6-luna`.
+`change/run-004` continued on it, removed the dropped agstudio client
+placement through a person step, and was accepted and integrated. Plan:
 [plan.md](plan.md).
 
 ## Answer to the braindump's question
@@ -80,11 +80,46 @@ The question this execution was about, whether missing support is treated
 as work rather than a reason to refuse, was not exercised: the remaining
 subject is cleanup on a platform that is already supported.
 
+## run-004's end: the person step
+
+After agreement (q4–q5) the Developer asked cagent to run the command
+itself (q6–q7). cagent declined in q8, correctly: `cagentctl` cannot
+record an agent-performed one-off host effect before it starts, and `sudo`
+asks for a password in the executor's context. It offered "pause" rather
+than proposing a `develop` run for a macOS client-removal playbook, the
+path its own develop guide names; that is the one passive answer seen.
+The Developer then ran the cleanup by hand. It took four tries:
+
+1. **The prepared command was never tried on macOS.** BSD sed rejects
+   `{N;d}` ("extra characters at the end of d command"); it needs `{N;d;}`.
+   The `rm` and `automount -vc` that followed recreated the symlink from
+   the untouched fstab.
+2. **VS Code's integrated terminal cannot change `/etc/fstab`, even with
+   sudo.** `rm` answered "Operation not permitted" (a privacy protection
+   on the app, not a Unix permission), so the second sed and the first
+   `rm` also failed while `automount` kept working.
+3. **The next try ran on another Mac** (`agbach`), where there was nothing
+   to remove.
+4. On agstudio's own terminal the file went. Since fstab had held only the
+   agshare lines (created 00:25 by p6 ex1), it was removed whole:
+   `sudo rm /etc/fstab /etc/fstab.*~`, `sudo rm /Volumes/agshare`,
+   `sudo automount -vc`.
+
+Omni checked agstudio afterwards: no fstab, no `/Volumes/agshare`, the
+export to agautolab1 and `/opt/nfs/agshare` unchanged. cagent recorded the
+Developer's report (q8), noted that the command differed from the agreed
+one, verified with fresh reads and asked for the result decision (q9);
+accepted and integrated (pj-cagent `b4c0910`).
+
+Lessons for cagent's macOS work: a prepared command is tested with the
+host's own tools before it is handed to a person; a person step on agstudio
+names the terminal it needs; and the missing agent-performed one-off
+effect (ex1 limitation 4) is now the second seen case.
+
 ## Open
 
-- **q4 of `change/run-004`** waits for the Developer's agreement. After
-  agreement, cagent prepares the person step; the Developer runs the
-  three commands on agstudio and reports back.
+- A macOS NFS client-removal playbook (or a ledgered one-off privileged
+  effect in `cagentctl`) would let cagent do the next such cleanup itself.
 - This shell cannot push pj-cagent (no Gitea credential). WFE integration
   published the workflow commit; the workspace was fast-forwarded to it.
 - agdevworld's main checkout still holds another session's uncommitted
