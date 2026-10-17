@@ -1,6 +1,9 @@
 # Rule
 
-- Don't expose local pc/cluster info in non-ignored files.
+- Local PC/cluster details (addresses, host names, credentials) are kept in
+  ignored files; tracked files are read on other machines and by others.
+- Agents work without process gates (workflow_editor p11): approvals,
+  agreements, confirmations and acceptances are records, never permissions.
 
 # Adopted Deveopment Style
 
@@ -141,13 +144,14 @@ because its cluster records name hosts). Its entrances are
   verification uses existing observations, not an implicit host scan.
 - `scan` collects and ingests through `nctl observe`, records unavailable
   hosts honestly and publishes `snapshot.json` (`cagent.snapshot.v1`).
-- `change` binds execution to the Developer's plan agreement, exact batch
-  hashes and host scope. `cagentctl` records external effects before
-  dispatch and recovers unknown outcomes from backend operation evidence.
-- Dependency hosts use the ordinary change path: the Developer removed the
-  self-dependency-host refusal. Destroy-class guest operations retain the
-  separately agreed human handoff. Missing tool coverage is not an
-  additional prohibition; direct nctl work uses the agreed plan and ledger.
+- `change` executes from an ordinary run context or `--context DIR`, with no
+  plan agreement, approver, batch-hash, host or playbook allow-list
+  (workflow_editor p11 step 3). `cagentctl` records external effects,
+  actual inputs and outcomes, and recovers unknown outcomes from backend
+  operation evidence.
+- Destroy-class guest operations follow the same recorded execution path;
+  the person handoff was removed in p11. nctl has no `allow_destroy` or
+  imposed `allowed_hosts`; previews stay read-only unless `--yes`.
 - Result acceptance and Git integration publish records; they do not undo
   external effects. An unknown outcome is never a reason to repeat it.
 - `cluster:fetch` reads the latest completed scan artifact through WFE's
@@ -494,9 +498,8 @@ it relies on is WFE's `docs/observation.md`. Episode record:
   `request-<incident>` post in `#wf-agops.recover`; WFE's intake accepts it
   from Observer (`zulip.json` `intake.agents`) and the post becomes an
   `agops/recover` run. The recovery agent investigates and decides; to
-  continue it records `wfe run recover` (only interrupted/unknown holds or an
-  unowned continuation; never a person's stop; budget 2 per person's
-  instruction). Observer records `restored` only when the run's agent reports
+  continue it records `wfe run recover` (interrupted/unknown holds or an
+  unowned continuation; never a person's stop; no budget since p11). Observer records `restored` only when the run's agent reports
   work afterwards. A recovery run is never itself recovered; the executor's
   outage is told to the owners, not sent to recovery.
 - **Records.** `agobserver/.local/workflow/observer.sqlite` (incidents,
@@ -539,12 +542,12 @@ Contract: `agdevworld/workflow_editor/docs/delegation.md`; episode:
     abandoned`). Only then does the node complete.
 - **Waiting frees the slot**: the parent's attempt ends with the node
   waiting, and the child runs. A waking fact queues the parent (one job per
-  fact). An attempt that ignores a fact it was started for ends
-  `interrupted`.
+  fact). An attempt that ends without taking up a fact it was started for
+  ends `interrupted` (a liveness signal, like work left ready).
 - **Separate records**: the child's acceptance (its own decision from its
-  confirmation; refused as `delegate-scope` when `accepts: person` and only
-  the agent answered), the parent's receipt (take-up), its disposition, and
-  the parent's own result decision.
+  confirmation), the parent's receipt (take-up), its disposition, and the
+  parent's own result decision. None gates another since p11
+  (`delegate-scope` was removed).
 - **Controls**: a parent hold keeps facts and queues nothing. Stopping or
   cancelling the parent never touches the child (`wfe delegate cancel` is
   the explicit act). No replacement child is ever made automatically.

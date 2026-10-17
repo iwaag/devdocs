@@ -64,3 +64,11 @@ Project-specific dispositions and the active workflow list are in [project-rule-
   workaround remains open; S2 as a whole is not yet closed.
 - Current retained WFE source passes `npm run check`, 380/380 tests. No other
   inventory entry is counted as implemented, migrated or deployed.
+- Step 4 (source, not yet deployed): G01 wfrun guide rewritten (agautolab
+  `d820227`, `47f7f7c`); WFE help/docs/template/basics generators
+  (agdevworld `1b66bf4`, `507ba4a`, `a129662`); G02 all nine projects'
+  guides and workflows (see report4.md); P01 playprey delivery from the
+  working tree with provenance (`85389bba`), closing S2 on the producer
+  side; L01 root `localrule.md`, devpolicy `0efc981`, devdocs README_DEV;
+  H01 recorded as an external limit. W06/W07 guide equivalents removed.
+  Deployment and run-copy migration remain Step 5.
