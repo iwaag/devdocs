@@ -1,64 +1,64 @@
-# p11 Step 2 — WFE implementation progress
+# p11 Step 2 — WFE execution and integration
 
-Status: **in progress; Step 2 is not complete**. This report covers the tested
-publication and dotfile changes only. The remaining WFE changes and Steps 3–6
-are not implemented or deployed by these commits.
+Implemented in source. Deployment and application to existing records belong to
+Step 5; this report does not claim an installed release changed.
 
-## Implemented
+## Behavior
 
-- Removed both checkpoint file-size vetoes from `server/publish.ts`: intended
-  working files above 50 MiB are committed and pushed, and an agent's own
-  unpublished commits containing such files are pushed. There is no replacement
-  override flag or permissive mode. Shared storage remains available.
-- Replaced blanket dot-entry exclusion in `server/shares.ts` with explicit
-  transport/Git/OS metadata names. User dotfiles and nested dot directories now
-  pass through input sets, output publication, manifest verification, directory
-  listings and HTTP downloads. Exclusions are `.wfe-share.json`,
-  `.wfe-output.json`, `.partial-*`, `.staging-*`, `.git` and `.DS_Store`.
-  The output manifest itself is metadata, avoiding a self-referential file set.
-- Updated the maintained shared-area documentation and replaced the two
-  size-refusal tests with successful publication tests using real 51 MiB files.
-  Added a dotfile input → output → verification → HTTP regression.
+- Definition approval remains informational. Starting work needs no plan
+  agreement, completed predecessor or acknowledged instruction. Completed work
+  can reopen. Pending generated documentation no longer prevents authored work
+  completing; available document evidence is recorded without inventing agreement.
+- Graph revisions can change running/completed work, dependencies, bindings,
+  execution settings and documentation. The CLI defaults to an agent-sourced
+  revision. Explicit request citations identify actual input bytes rather than
+  granting authority. Stale writes, malformed graphs and actual attempt ownership
+  retain concrete diagnostics and agent-operated stop/resume/retry tools.
+- Protected/retired workspace metadata and readonly/if-unchanged binding declarations
+  no longer veto work or integration. Missing binding directories are informational;
+  actual file/Git operations report concrete failures.
+- Integration checkpoints actual working changes and merges the saved candidates
+  into target branches without an accepted revision or completed execution. Later
+  deliverable, plan and final-report edits require no renewed acceptance. Clean
+  changes to different parts of the same file merge. Real conflicts name files;
+  an agent can merge/resolve in its run copy and retry. Partial pushes retain
+  their journal and actual commits. A retry refreshes changed candidate commits.
+- Delegated answers/decisions need no person-only acceptance scope or prior
+  take-up. Delegate completion does not require a prescribed judgment sequence.
+  Recovery has no person-reset budget. Actual explicit stops/cancellations remain.
+- CLI help, generated step instructions, dynamic attempt briefs, browser integration
+  controls/status and maintained integration/revision documentation describe the
+  new semantics. Historical decisions remain records, not manufactured approvals.
 
-## Validation
+The existing integration-journal column called `decision` identifies the source
+history sequence for new requests; runtime code no longer looks it up as an
+acceptance index. Historical rows keep their original values. Pending requests
+share an unfinished integration so retries retain partial progress.
 
-The relevant publication/shared-area suites passed **16/16**. The large-file
-cases exercise both automatic checkpoint commits and an agent-created commit,
-then inspect the remote Git object size. The dotfile case verifies both
-`.gitignore` and `.config/settings.json`, including downloaded bytes and a
-folder listing that excludes transport metadata. Existing tests for interrupted
-publication, retries, tampered manifests and byte-range downloads also pass.
+## Publication and transport
 
-Full `npm run check` passed: **380/380 tests**, no failures or skips,
-TypeScript checking and the production Vite build successful. No installed release,
-executor setting, registered workflow, existing run copy or infrastructure
-resource has changed. The Developer-stopped p6 runs have not been resumed.
+The preceding source commit `4497e5b` removed both 50 MiB checkpoint/push vetoes.
+Real 51 MiB working files and agent-created commits publish to temporary bare
+remotes. User `.gitignore` and nested dot directories pass input selection,
+publication, verification, listings and HTTP download. Named Git/OS/transport
+metadata remains excluded, including the output manifest itself. Playprey's
+producer-side workaround is handled in Step 4.
 
-## Remaining work
+## Validation and migration support
 
-The WFE portion of S2/S5 is implemented in source; playprey's dotfile-dropping
-workaround and large-file instructions remain open. S3 (integration without
-acceptance), optional documentation/plan records, graph revision and reopening,
-path/binding policy removal, delegation changes, UI/help and existing-state
-migration still require implementation and regression coverage.
+`npm run check` passed **380/380 tests**, no failures or skips, with TypeScript
+checking and production Vite build successful. Coverage includes no-acceptance
+integration, final reports after acceptance in both devdocs storage modes,
+advanced targets, clean same-file merges, real conflicts/rejected pushes,
+reopening, concurrent/running-node revisions, no-agreement operations, delegation,
+large files and dotfile transport.
 
-A broader reducer/integration experiment was evaluated and set aside in ignored
-working evidence. It is not part of the committed implementation: the changed
-record semantics need a complete migration and cross-layer validation. A focused
-passing test of that draft is not evidence that the retained source supports it.
+An explicit projection migration script backs up original run.json bytes, replays
+actual events and rewrites derived state/change projections. Its regression proves
+actor/event preservation, no fabricated decisions, idempotency and preservation of
+a Developer stop while obsolete pending-document completion behavior disappears.
+Malformed histories remain errors. Frozen guides and installed sources need the
+separate deployment migration; source tests do not establish it.
 
-Inventory entries remain open until all their consumers and deployment proofs
-are covered. In particular, this report is not a claim that the six-step plan or
-its completion criteria have been fulfilled.
-
-## Published source revisions
-
-| Repository | Revision |
-| --- | --- |
-| agdevworld | `4497e5b` |
-| pj-agdev gitlink | `6248733` |
-
-Both source revisions are pushed. The installed WFE remains on its prior
-release; this partial source change has not been deployed as the complete p11
-change. Raw validation logs and the broader draft are in ignored
-`pj-agdev/.local/workflow-editor-p11/`.
+Raw logs are in ignored `pj-agdev/.local/workflow-editor-p11/`. No stopped p6 run
+was resumed. Source: agdevworld `b9886d5` (in addition to `4497e5b`).
