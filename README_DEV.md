@@ -1384,6 +1384,26 @@ Two additions came with it:
   `target-changed` when the target changed under the binding since the run
   built on it; reassessment is a successor run.
 
+## Shared areas (`shared://`, since `project_migration` p6, 2026-10-17)
+
+**Large inputs and outputs travel on a shared area, by reference and
+manifest, never through Git.** A person puts a folder on the share and
+writes `shared://<share>/<path>/` in the request; the run records the
+reference. `wfe run input` records the exact files used as an input set
+(hashes; staged into the run copy's `.local/inputs/` by default), `wfe run
+publish` puts an output folder on the share as `o<n>` of a named candidate
+(`.partial-*` then renamed; never partially visible), and `wfe run ask …
+--output <o>` binds the confirmation to that output's manifest. Contract:
+agdevworld `workflow_editor/docs/shares.md`.
+
+- Where a share is on a host is that host's `<area>/shares.json`; the share's
+  root carries `.wfe-share.json` naming it, so an empty mount point reads
+  `unmounted`, not "empty".
+- `wfe share list|resolve|ls|verify` work without a run; `wfe share verify
+  <manifest.json>` is how another PC checks a delivery it got by reference.
+- Downloads: `GET api/shares/<share>/<path>` (byte ranges) on the WFE
+  service, through the usual LAN address.
+
 ## archsage (workflow-editor project `archsage`, since `project_migration` p4, 2026-10-16)
 
 **archsage is a managed project, not an agag agent.** `developer/pj-archsage`,
