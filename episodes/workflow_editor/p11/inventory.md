@@ -53,3 +53,14 @@ veto. User stop/cancel instructions remain intent. Historic approvals/decisions
 remain facts, and no migration fabricates a person or decision.
 
 Project-specific dispositions and the active workflow list are in [project-rule-audit.md](project-rule-audit.md).
+
+## Verified implementation progress
+
+- W06: both WFE size-based checkpoint/push vetoes removed in agdevworld
+  `4497e5b`; two regression cases publish real 51 MiB files to temporary
+  remotes. Project/shared instructions and installed releases remain open.
+- W07: WFE input/output/HTTP transport carries intended dotfiles, with named
+  transport metadata excluded. End-to-end regression passes. Playprey's
+  workaround remains open; S2 as a whole is not yet closed.
+- Current retained WFE source passes `npm run check`, 380/380 tests. No other
+  inventory entry is counted as implemented, migrated or deployed.
