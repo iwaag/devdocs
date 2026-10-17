@@ -1403,6 +1403,22 @@ agdevworld `workflow_editor/docs/shares.md`.
   <manifest.json>` is how another PC checks a delivery it got by reference.
 - Downloads: `GET api/shares/<share>/<path>` (byte ranges) on the WFE
   service, through the usual LAN address.
+- **Operating it as a person.** Put a folder anywhere under the share (from
+  the server host or a client's mount) and name it in the request with any
+  explanation; there is no upload form. An accepted output is the `o<n>` the
+  run's confirmation names: open its download link from the run view, or
+  `wfe share resolve` it and copy it off the share before using it (tools
+  that import or compile write next to their files; p6 step 7 wrote
+  `__pycache__` into a published output that way). Dot entries are never
+  carried: a delivery must not list one.
+- **An unavailable share** shows as `unmounted`, `absent` or a hang in
+  `wfe share resolve`, not as an empty folder. The share is a cagent-managed
+  service (`agshare`, changes `run-005`–`run-007` in pj-cagent's records):
+  report the state and the host to cagent as a `change` request; do not
+  repair mounts by hand outside it.
+- **Retention** of inputs and accepted outputs belongs to the person or the
+  project. Rejected, superseded or unaccepted outputs also stay until the
+  person decides; no run or cleanup deletes them incidentally.
 
 ## archsage (workflow-editor project `archsage`, since `project_migration` p4, 2026-10-16)
 
