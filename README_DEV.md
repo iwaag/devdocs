@@ -211,7 +211,8 @@ for their requests and coordination. It has no conversational entrance and
 no introduction on the board.
 
 - **Executor** (`agautolab.wfexec`, launchd `com.agdev.agautolab-wfexec`):
-  one execution slot. It claims a queued run (`wfe exec claim`) and launches
+  the coordinator's local execution node `studio`, one slot of its own (see
+  *Execution nodes* below). It claims a queued run of its node (`wfe exec claim`) and launches
   the agent the workflow names, in the run's own copy of the project. The
   prompt is the common contract (`agent/guides/wfrun/guide.md`), the run's
   scoped context and its brief. It reports the end (`wfe exec finished`),
@@ -241,6 +242,44 @@ These are gone:
 Development work for a project is a WFE workflow request. Old `pj-<slug>`,
 `work-m<id>` and `workplan-…` conversations remain as history. Nothing serves
 them, and the mission branches they name are all integrated.
+
+## Execution nodes (`project_migration` p7, 2026-10-19)
+
+WFE runs are performed by **execution nodes** (workers) of one coordinator
+(the WFE service and its store on agstudio). Contract: agdevworld
+`workflow_editor/docs/workers.md`; recipe for another PC: pj-clusterintent
+`nctl/docs/add-a-wfe-worker.md`; episode: `devdocs/episodes/project_migration/p7/`.
+
+- **Nodes now**: `studio` (local, the coordinator's host, default) and
+  `gpupc` (agpc: Ubuntu, NVIDIA GPU, desktop `:0`, Godot 4.7.2, Claude Code,
+  `agshare` at `/mnt/agshare`). Listed in `<area>/workers.json`; each has
+  one slot, so two runs execute at once.
+- **Choosing**: `wfe request … --node <id>` (or the browser route's
+  `node`), else the workflow's `execution.node`, else the project's, else
+  the default. Recorded in `run.create`; every attempt runs there;
+  `wfe run assign` moves a run between attempts, never anything by itself.
+  A job its node cannot serve waits with the reason; a lost node's runs wait.
+- **Records stay central**: the coordinator's record copy holds the
+  authoritative `run.json`. The PC works in a copy of its own
+  (`~/wfe-worker/copies/…`), materialized from the published run branch;
+  its `wfe` forwards every run operation to the coordinator (uploading the
+  run folder and named files first), ships the attempt log, and publishes
+  its copy at the end, after which the record copy follows. Questions,
+  answers, decisions, integration, Zulip and Observer are unchanged and
+  central.
+- **Views**: the run view (Detail) names the node, its last contact and the
+  attempt "on <node>"; Home has one chip per node; `wfe exec workers`,
+  `GET /api/workers`, `wfe observe` `workers[]`.
+- **Contact lost** is not a lost process: the attempt stays open; the
+  PC's agents survive an executor restart (`KillMode=process`) and the
+  executor adopts them (`wfe exec adopt`); a gone process ends with the
+  exit its launch gate recorded (`<log>.exit`), or as `unknown`.
+- **Deployment**: deployment profile `wfe_worker` (ansible_agdev), placement
+  `agautolab-agpc`; installed by cagent `change/run-008`. A pin change of
+  the placement needs the setup playbook (nctl compares by existence).
+- **Limits**: a worker offers every profile of `agents.toml` (only `sonnet`
+  works on the PC); an external wait (`wfe run wait`) is woken only by a
+  resume.
 
 ## Opsroom Observer (not an agent)
 
