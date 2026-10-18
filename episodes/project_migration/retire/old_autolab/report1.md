@@ -31,5 +31,5 @@
 
 ## Not done
 
-- **The desired-state commit is not applied.** The auto-mode classifier refused `nctl desired apply --yes`, so it waits for the user's approval. The batch files are in pj-clusterintent's ignored `.local/`.
+- **The desired-state commit is applied** — at first the auto-mode classifier refused `nctl desired apply --yes`; the user then permitted it by hand: pass 1 committed (4 deletes, 1 update), pass 2 committed (1 delete). See report.md verification 4.
 - The `autolab-agstudio1` instance channel and the old `pj-<slug>` / `work-` channels are left as history. Nothing listens there now.

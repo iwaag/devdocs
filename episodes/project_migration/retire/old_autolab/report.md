@@ -12,11 +12,7 @@ The old `workplan-*`/`workrun-*` system no longer receives, routes or executes w
 
 autolab remains as the WFE executor with its Zulip transports. One managed workflow run, `cagent consult/run-004`, completed through the restarted executor and was delivered to Zulip.
 
-**One part is pending:** the Nautobot desired-state commit (report1). The auto-mode classifier refused `nctl desired apply --yes`. Until it is applied:
-- Nautobot still declares the `agautolab-agautolab1` placement and the `autolab-agautolab1` agent;
-- both placements still declare the deleted `autolab_node` profile, so `nctl render production` and `nctl reconcile` will reject them.
-
-The batch files are `pj-clusterintent/.local/retire-old-autolab-pass{1,2}.yaml`. The pass 1 preview was clean (4 deletes, 1 update, 0 conflicts).
+The Nautobot desired-state commit was first refused by the auto-mode classifier, then permitted by the user and applied: both passes committed, 0 conflicts. Nautobot now has only `agautolab-agstudio` (`manual_toolchain`, process `agautolab\.wfexec`) and DesiredAgent `autolab-agstudio`. The rows `agautolab-agautolab1`, `autolab-agautolab1`, the workspace `agautolab-agautolab1` and both `:8791` endpoints are deleted.
 
 ## Commits
 
@@ -42,9 +38,11 @@ The batch files are `pj-clusterintent/.local/retire-old-autolab-pass{1,2}.yaml`.
    - The frontend `tsc` and build are clean.
    - The retained modules import, and the executor resolves its profiles.
 3. **Real run**. `consult/run-004`: queued, launched, exit 0, `answer.md` recorded, notified (message 19775). Afterwards the executor reported "available" and intake "Transport: ok". The request came through `wfe request`, not a Zulip post under the Developer's account.
-4. **Nautobot recheck: not done**, because it waits for the commit above.
-   - Direct process checks (2026-10-19): only `com.agdev.agautolab-wfexec` runs among the autolab labels, and agautolab1 has no autolab unit.
-   - Recorded observation: `nctl relations` before the change showed both placements `satisfied`, an observation from before the stop. Its age was not re-read after the stop.
+4. **Nautobot recheck** (2026-10-19, after the commit).
+   - The first `nctl reconcile agstudio --refresh-observation --max-rounds 1 --yes` (it also re-rendered production with 20 placements) still showed `agautolab: service_observed_on_wrong_node`. The cause was an HTTP-probe observation of agautolab1's gateway from 13:09 UTC, recorded before the gateway was stopped.
+   - After `nctl observe agstudio agautolab1` and `nctl agents observe`, the recorded observations are fresh. `nctl relations` shows `agautolab` converged with one placement, `agautolab-agstudio`, satisfied. `nctl drift` shows `agautolab` and `autolab on agstudio` converged. The agent's liveness is `unobserved` (info; no status file, because the listener's status file is retired).
+   - The only drift error left on the cluster is `agobserver: service_missing`, which this episode did not touch.
+   - The direct process checks (only `wfexec` among the autolab labels; no unit on agautolab1) were taken before this recheck.
 
 ## Remaining historical-only references
 
@@ -55,11 +53,11 @@ The batch files are `pj-clusterintent/.local/retire-old-autolab-pass{1,2}.yaml`.
 
 ## Follow-ups
 
-- Apply the Nautobot batch, then run `nctl reconcile agstudio --refresh-observation --max-rounds 1 --yes` and `nctl agents observe`, and recheck relations and drift (verification 4).
+- `agobserver: service_missing` in drift (pre-existing, unrelated).
 - `agag.trace`/`agag.progress`/`holds` still read missions and acceptance from history. They can go once the panel no longer needs to show those conversations. pyagag's unused scripted fixture responder can go as well.
 - The 13 pre-existing notifier/conversation test failures against the current WFE.
 - The intros `intro-archsage-agstudio1` and `intro-agforge-agstudio1` are still live on the board, although both agents are retired. They were outside this episode.
 
 ## Mistake
 
-Clearing the removed `agent/front` workspace member also deleted its ignored `.local/topics/` chatlogs. Those were trial mission records from 2026-08-13. They were untracked and are lost.
+Clearing the removed `agent/front` workspace member also deleted its ignored `.local/topics/` chatlogs. Those were trial mission records from 2026-08-13. They were untracked and are lost. The user said afterwards that the old mission logs are not needed.
