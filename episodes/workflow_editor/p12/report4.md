@@ -100,3 +100,30 @@ touched. All changed workflow graphs validated before use.
 - A real Git conflict between a parent and a child: none occurred.
 - The manual copy dialog on the person's own browser: both engines copied
   through `execCommand` in the checks.
+
+## Follow-up after the Developer's review (2026-10-18)
+
+The Developer found that the playprey page did not say where the Godot
+project can actually be tried (which PC, which path). My Step 4 check had
+only confirmed that the page's buttons worked, not that the page answered
+the braindump's playprey example. Three `boast` runs followed, each from
+the Developer's words or a reviewed finding:
+
+| Run | Result | Review |
+| --- | --- | --- |
+| `boast/run-003` p1 | "Try it live": machine, checkout path, `Launch.command` steps | sent back: it said wolf/cheetah/horse_combined play from the checkout, but the checkout has no runtime assets (`model_profiles.py check` fails); no copy action |
+| `boast/run-003` p2 | the checkout is marked "needs assets first" with the fetch command; delivery cards resolve `shared://` in the panel to machine, path and launch commands; copy buttons | accepted; in the deployed panel the cards resolved and copy reported "Copied to the clipboard". After accepting, I saw the launch steps imported **in place on the share**, against `knowledge/delivery.md` |
+| `boast/run-004` | copy off the share, verify, import twice, launch | the steps were run on a copy of run-005 `o1`: verify passed, import succeeded, Godot loaded `eagle_beakfit` headless; the share's output gained no `.godot/` |
+
+Pages on main: playprey `5f4af48`.
+
+**Model.** The executor's attempts had run Claude Sonnet 5.0
+(`claude-sonnet-5`): `agautolab/agents.toml` pinned it, and the CLI glob
+pointed at a stale `~/.vscode-server` copy of Claude Code (2.1.283). The
+`sonnet` profile now uses the Claude Code alias `anthropic/sonnet`, and the
+ignored overlay's glob points at `~/.vscode/extensions` (newest by mtime,
+2.1.301). The alias resolves to `claude-sonnet-5-5` there; after restarting
+`com.agdev.agautolab-wfexec`, the next attempt's log shows
+`claude-sonnet-5-5` (agautolab `a73491a`, pj-agdev pin `da09897`). Front,
+Observer, forge and cagent still pin `claude-sonnet-5` in their own
+`agents.toml` files.
