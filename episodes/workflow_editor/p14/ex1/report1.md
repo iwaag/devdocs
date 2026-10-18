@@ -28,8 +28,8 @@ Home, the forge page and the forge Context section).
     *Not verified*, *Edited outside WFE*, *Cannot be read*) — and one
     action;
   - a short instruction (≤ 3 rendered rows at the list's width, wide
-    characters counted twice) reads in full in its row and its action is
-    *Edit*; everything else is *Open*;
+    characters counted twice; tightened to ≤ 2 in Step 2) reads in full
+    in its row and its action is *Edit*; everything else is *Open*;
   - panel: title, kind · *Managed by* · scope; banners (problem, external
     edit, failed refresh with its detail, concurrent change, results); the
     body as prose (paragraphs, lists, headings, `code`, built as DOM text);
@@ -68,7 +68,11 @@ no next-attempt fingerprint.
 
 | Check | Chromium | WebKit | Chromium 390 px | WebKit 390 px |
 | --- | --- | --- | --- | --- |
-| `contextBlocks` | pass | pass | pass | pass |
+| `contextBlocks` | pass | pass | pass | (see note) |
+
+Correction (found in Step 2): the "WebKit 390 px" run was launched with
+both variables in one unsplit zsh word, so it ran Chromium at desktop
+width. Step 2 re-ran every check in all four configurations correctly.
 
 Unit tests 401/401. Found while running WebKit: the Add menu closed on
 `focusout` before the click landed (Safari does not focus a clicked
