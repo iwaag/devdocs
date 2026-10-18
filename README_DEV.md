@@ -607,10 +607,13 @@ details and its own revisions. Contract: agdevworld
 `workflow_editor/docs/context.md`; episode:
 `devdocs/episodes/workflow_editor/p14/`.
 
-- **People** edit cards in the Context sections (Home, project, workflow,
-  run card) in Simple; each card shows kind, *Managed by*, *Last edited
-  by*, freshness, a failed refresh and size. Ownership is shown, not
-  enforced; a stale save conflicts and keeps the draft.
+- **People** use the Context sections (Home, project, workflow, run card)
+  in Simple (p14 ex1): each block is a row like a workflow in the
+  Workflows list — title, manager, scope where needed, a short exception —
+  and opens in a side panel for its full text, details, *Ask*, *Edit*
+  (Remove is there) and *Evidence & history*; sizes and hashes are in
+  Detail. Ownership is shown, not enforced; a stale save conflicts and
+  keeps the draft. Episode: `devdocs/episodes/workflow_editor/p14/ex1/`.
 - **Agents** use `wfe context list|get|set|check|refresh-failed|remove|history|detail`
   (`--base` = the content revision read; `--project` required for project
   writes; `--service <url>`/`WFE_SERVICE` from another host). `check` is
@@ -623,7 +626,9 @@ details and its own revisions. Contract: agdevworld
   a prompt.
 - **cagent** maintains `cagent-cluster` (system) and `cagent-resources`
   (per project) through its `context` workflow (`wf-cagent.context`,
-  guide `agent/context.md`). A refresh is an explicit request; no
+  guide `agent/context.md`): an overview of what is relevant, the
+  uncertainty that matters and where to read more; chronology, methods
+  and provenance live in details and evidence (p14 ex1). A refresh is an explicit request; no
   recurring trigger exists yet (designed as the next step: scan/change
   results, new projects, project-intent changes, coalesced).
 - The p13 single overrides were converted into Developer-managed
