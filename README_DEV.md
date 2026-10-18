@@ -571,6 +571,29 @@ Contract: `agdevworld/workflow_editor/docs/delegation.md`; episode:
   channel was not ready at the receipt. The run view's title band links
   Conversation · Progress · Detailed IO.
 
+## Scoped context (`workflow_editor` p13, 2026-10-18)
+
+What a run or an authoring session is given besides the run's records is a
+scoped bundle: system / project / workflow, each a repository-owned
+default (contract, `project.yaml` intent, goals and `guides`, workflow
+intent and `execution.guides`) and a local override of the WFE area
+(`<area>/.local/contexts/`, never in Git). Run input keeps its own records.
+Contract: agdevworld `workflow_editor/docs/context.md`; episode:
+`devdocs/episodes/workflow_editor/p13/`.
+
+- Edit preferences in the editor (`#/context`, or Context on a project or
+  workflow) or with `wfe context set|clear` (revisioned, conflict-checked).
+  A saved preference reaches the next attempt only; steering current work
+  is still an instruction.
+- Each attempt records a snapshot id and hashes; the run view's Context
+  section and `wfe context run <run>` compare it with the next attempt.
+- Project guides are declared once in `project.yaml` (`guides`); a
+  workflow's `execution.guides` hold only its own.
+- Scope is breadth, not precedence: an explicit request refines a general
+  preference.
+- The authoring entry for an IDE agent is `<area>/authoring/` (generated on
+  every release); never place `AGENTS.md`/`CLAUDE.md` above run copies.
+
 ## Workflow run sessions (`agent_session` p1, 2026-10-14)
 
 A workflow chooses how its runs use harness conversations:
