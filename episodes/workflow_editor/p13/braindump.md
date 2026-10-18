@@ -1,0 +1,14 @@
+runやworkflow編集で各projectに与えられるコンテキストの構造化と可視化を進めたい。
+
+マトリックスで、まず横軸に適用範囲として、agdev固有project横断のsystem wide、project固有workflow横断のproject wide、workflow固有run横断のworkflow wide、run固有ノード横断のrun wide。縦軸にリポジトリでバージョン管理されないoverrideとリポジトリー管理されるdefault。
+
+たとえば全プロジェクトファイルの基本言語は英語にしたいときはsystem wideのoverrideコンテキスに「指示がないかぎり制作物のテキストの言語は英語」と記述。「NFSのアドレスはagstudio/nfs/folder」みたいなローカルクラスタの共有リソースの情報もgit管理ではなくsystem wideのoverrideとして渡るべきだ。一方で、projectの目的とかはproject wideのdefaultであることが正しい。開発者によってコロコロ変わるような情報ではないからだ。
+
+マトリックスと現在の実装状況や実装必要性は以下のような感じか。
+
+||system wide|project wide|workflow wide|run wide
+|default|実装済み？(pj-agdevで強制的にprojectに与えているコンテキストはあるか確認)｜実装済み(project概要?)|実装済み(workflow概要?)|不要(runは動的に生成されるからrunレベルで事前にバージョン管理するコンテキストはないはず)
+|override|必須(開発者個人の開発ポリシーなど)|欲しい(バージョン管理に出したくないがかといって毎回プロンプトにも書きたくないプロジェクトの指示はけっこうある)|欲しい(左と同じ理由)|実装済み(braindumpに書けばいいはず)
+
+defaultの方はバージョン管理フォルダのどのファイルに記述するかという問題だろう。一方、overrideはどう渡すか考える必要がある。ユーザーの思いつきで頻繁に変わる可能性もある。editor GUI経由でzulipにあらかじめユーザーが記述してcliから読めるようにして、それを読むようにとの指示をrunやworkflow編集の開始時にエージェントに固定で渡すようにすればいいだろうか？
+
