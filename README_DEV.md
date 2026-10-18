@@ -578,13 +578,17 @@ scoped bundle: system / project / workflow, each a repository-owned
 default (contract, `project.yaml` intent, goals and `guides`, workflow
 intent and `execution.guides`) and a local override of the WFE area
 (`<area>/.local/contexts/`, never in Git). Run input keeps its own records.
-Contract: agdevworld `workflow_editor/docs/context.md`; episode:
-`devdocs/episodes/workflow_editor/p13/`.
+Contract: agdevworld `workflow_editor/docs/context.md`; episodes:
+`devdocs/episodes/workflow_editor/p13/` (and `p13/ex1/`).
 
-- Edit preferences in the editor (`#/context`, or Context on a project or
-  workflow) or with `wfe context set|clear` (revisioned, conflict-checked).
-  A saved preference reaches the next attempt only; steering current work
-  is still an instruction.
+- Edit preferences where you work (p13 ex1): the Context section of Home
+  (all projects), a project or a workflow editor, and a run's Context card,
+  in Simple and Detail alike; or `wfe context set|clear` (revisioned,
+  conflict-checked). Purpose, goals and guides are edited there too, with
+  the file's own save; local instructions save separately. `#/context` is
+  the cross-scope overview. A saved preference reaches the next attempt
+  only; steering current work is an instruction (the run card's *Add an
+  instruction for this run*, the conversation, or `wfe run instruct`).
 - Each attempt records a snapshot id and hashes; the run view's Context
   section and `wfe context run <run>` compare it with the next attempt.
 - Project guides are declared once in `project.yaml` (`guides`); a
