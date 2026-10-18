@@ -598,6 +598,37 @@ Contract: agdevworld `workflow_editor/docs/context.md`; episodes:
 - The authoring entry for an IDE agent is `<area>/authoring/` (generated on
   every release); never place `AGENTS.md`/`CLAUDE.md` above run copies.
 
+## Context blocks and cagent's contributions (`workflow_editor` p14, 2026-10-18)
+
+Local context is a set of **independently managed blocks** per scope
+(system = this WFE area, project, workflow), each with a title, a kind
+(`instruction` or `information`), a manager, a last editor, evidence,
+details and its own revisions. Contract: agdevworld
+`workflow_editor/docs/context.md`; episode:
+`devdocs/episodes/workflow_editor/p14/`.
+
+- **People** edit cards in the Context sections (Home, project, workflow,
+  run card) in Simple; each card shows kind, *Managed by*, *Last edited
+  by*, freshness, a failed refresh and size. Ownership is shown, not
+  enforced; a stale save conflicts and keeps the draft.
+- **Agents** use `wfe context list|get|set|check|refresh-failed|remove|history|detail`
+  (`--base` = the content revision read; `--project` required for project
+  writes; `--service <url>`/`WFE_SERVICE` from another host). `check` is
+  bookkeeping and changes no prompt or session; everything in a block's
+  delivered section (facts, evidence times and status, a failed refresh,
+  details, consultation) changes the fingerprint.
+- **Evidence** keeps publication, observation and verification times
+  apart; observation is the source's own time, never the publication's.
+  Details (`context:<scope>/<block>/<name>`) are read on demand, never in
+  a prompt.
+- **cagent** maintains `cagent-cluster` (system) and `cagent-resources`
+  (per project) through its `context` workflow (`wf-cagent.context`,
+  guide `agent/context.md`). A refresh is an explicit request; no
+  recurring trigger exists yet (designed as the next step: scan/change
+  results, new projects, project-intent changes, coalesced).
+- The p13 single overrides were converted into Developer-managed
+  `developer` blocks with their history.
+
 ## Workflow run sessions (`agent_session` p1, 2026-10-14)
 
 A workflow chooses how its runs use harness conversations:
