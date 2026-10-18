@@ -204,137 +204,43 @@ the `tasks / plane` screen, the provisioning credentials and the deployment
 itself. Nothing in the realm reaches a second system for a work record any
 more: **a conversation is the record**, and a message id is its name.
 
-## autolab agent(pj-agdev/agautolab)
+## autolab (pj-agdev/agautolab) — the workflow executor
 
-- Responds to request for explaining/observing/developing projects.
-- Its entrance is the Zulip channel named after its instance — questions
-  only, nothing is started there. Development work goes in a `workplan-…`
-  topic in the project's own `pj-<slug>` channel, because the channel is what
-  says which project the work is for. Its own introduction in `#agents` is the
-  authority on both (`agent_standardize` p4).
-- Since p9 a `workplan-` topic's tasks each get a `workrun-` topic that
-  **says what it is for**: a `[rootchat]` note naming the mission
-  conversation and — since `refactor` p1, where the Plane Sub-Work it used to
-  name went away — a `[task]` note naming the mission by the message id that
-  *is* it, written before the visible description. Nothing is read from the topic's name or its
-  channel's description any more.
-- **autolab progresses an authorized mission itself** (`robust_workflow`
-  p1). "You may start" starts task 1, and the requester's acceptance of task
-  N starts task N+1 — autolab posts one visible line naming nobody and a
-  `[selfnote][start]` (pyagag `agag.selfnote.start_note`), which is the one
-  note that makes its own listener serve a conversation only it has spoken
-  in. The per-task start post Front used to relay is gone, and with it the
-  stall class behind adventure_game p3's 24 minutes. `hold.flag` (the
-  requester asking the next task to wait) marks it `held`; a post there
-  starts it. A task's report reaches the requester through the parent
-  conversation's root note (`agag.zulip.parent_rootchat`) even though the
-  requester never posted in that task.
-- **An agreement posted in the plan closes nothing** (`failsafe` p3). The
-  plan serving reads `status.md` (each task's state and the result that
-  waits for agreement in which topic), and when the requester spoke in the
-  plan after a task showed its result, its reply carries a line from the
-  record: the task is still open and closes only in its own topic. The
-  planner guide forbids calling a task closed unless its status says
-  `completed`. Cancelling a mission leaves finished tasks finished. The
-  trial faults mark the run they hit (`executions/<run>.injected`).
-- **Resumption is not acceptance** (`failsafe` p2). A requester's post
-  closes a task only if autolab showed a result before it (a post declaring
-  `intent=report`, or a request for confirmation). "Continue", a resume
-  after a stop, or the answer to a question asks for work, and the resumed
-  run's result only asks for confirmation. Every run
-  inside a serving keeps a live execution record in
-  `agautolab/.local/executions/`, which is what Observer probes. The trial
-  faults are `faults/silent-exit` and `faults/freeze-after-tool`.
-- **A task closes only on its requester's agreement, and the mission's
-  close is the requester's record** (`robust_workflow` p3). The close-out
-  runs only when the serving's processed input holds a requester's post —
-  autolab's own start note never counts (p3 trial G closed a task nobody had
-  accepted). When the last task closes, the mission is done once its
-  requester **records** the acceptance: `agentchat accept <mission id>
-  --evidence <the post that accepted it>` (pyagag `agag.acceptance`) writes
-  `[state] accepted` on each finished task, `[selfnote][acceptance] #<post>
-  by <user>`, `[state] done`, and ✔ — selfnotes only, so nobody runs to
-  acknowledge it, and a repeat or an interrupted attempt ends on the same one
-  record. It refuses, writing nothing, while a task is open, without
-  evidence, or on evidence that is not the decision holder's (since
-  `failsafe` p5: the requester chain or a person who reserved it, whoever
-  records; never the owner; after the shown result — see *Waiting and
-  finishing studies*). A person without the tool says it in the `workplan-` topic
-  (`accept.flag`, the same operation); `mission_done` and the operation
-  room's completion door write the same record. Posting the acceptance into
-  the plan for autolab to "note" — two paid runs and no record — is what
-  this replaced.
-- **Each mission works in its own copy of the project** (`robust_workflow`
-  p3 ex1, `agautolab.missionspace`). The copy is
-  `.local/missions/<slug>/m<id>/`: one git worktree per repository of the
-  project folder, on branch `autolab/m<id>`, found again by the mission's
-  id. Its pushes are refused. Task runs work there, and planning stays in
-  the project folder, which holds integrated work only. What a planning run
-  writes there is committed as its notes.
-  - A worker's commit is a **checkpoint**. After each serving that changed
-    the copy, `[selfnote][change] checkpoint` records its exact content.
-  - The requester's agreement closes a task: everything in the copy is
-    committed and bound to exact commits (`[change] accepted <repo>=<commit>
-    #<post>`) before anything shared moves.
-  - Then comes integration under a per-project lock. A shared branch that
-    has not moved is fast-forwarded. One that moved is merged when the two
-    sides touched different files. The same file on both sides, conflicting
-    or not, is `returned` and the task stays open: the worker merges the
-    shared branch into its copy and the requester reviews the combined
-    result.
-  - `main`, `direction` and `devlog` are published by the push that
-    integrates them, a compare-and-swap that is never forced. Other
-    repositories are published only when the worker names them in
-    `publish.flag`.
-  - Only then is the task `completed`, so a mission's acceptance never
-    leaves integration outstanding.
-  - A repeat is recognized by ancestry. A close-out cut short is finished
-    from its `accepted` note without another run, and its result is never
-    posted twice.
-- **An answer to a shown result is reviewed, never worked again**
-  (`failsafe` p4). Which run a serving is, is the listener's decision from
-  the record: a requester's post after a shown result gets a **review** of
-  that result (`workrun_supercoder/review.md`). The prompt frames the task
-  as done and quotes the shown post. It also gives the checkpoint written
-  with it (what the requester reviewed), whether the copy is still exactly
-  that, and any files outside every repository. The review agrees
-  (`close.flag`), repairs a deficiency, or makes a requested change and
-  shows it; every other post gets the task's work, and cannot close
-  anything. The close is refused while the copy differs from the reviewed
-  checkpoint or holds files outside the repositories, so a changed result
-  needs a new agreement. The task's record is the shown post, word for word
-  (`[change] accepted … +shown=<id> +checkpoint=<id>`), never text the
-  closing run wrote: p4 step 1 found such a text saying "ran once" of a
-  command that had run twice. Files outside every repository are said under
-  every reply and are kept and named at release.
-- **A wrong state note is corrected by one more note**
-  (`python -m agautolab.correct_state <task> --note <wrong> --because …`,
-  p4): refused unless the record shows a `completed` the wrong note
-  overwrote; appends `[state] completed` and `[selfnote][correction]`;
-  unarchives an archived work channel for the two writes only.
-  - Cancellation, replacement, the last close-out and archiving release the
-    copy: uncommitted work is committed to its branch, the worktrees are
-    removed and the branch is kept. Unattributable dirt found in a project
-    folder at rollout went onto `autolab/set-aside-20260924`.
+autolab is the host that executes WFE workflow runs, and the Zulip transport
+for their requests and coordination. It has no conversational entrance and
+no introduction on the board.
 
-**A project channel files itself (2026-09-04).** A `pj-<slug>` channel is
-still opened by a human, but every serving of it now files it in the
-channel folder of its own name, minting the folder if needed, using the
-provisioner credential the node holds. One folder per project is the
-standard; `work-` channels inherit the parent's folder, which is why a
-project channel filed wrongly by hand used to carry its whole fleet with it
-(`devdocs/episodes/agautolab/channel_folder/report.md`).
+- **Executor** (`agautolab.wfexec`, launchd `com.agdev.agautolab-wfexec`):
+  one execution slot. It claims a queued run (`wfe exec claim`) and launches
+  the agent the workflow names, in the run's own copy of the project. The
+  prompt is the common contract (`agent/guides/wfrun/guide.md`), the run's
+  scoped context and its brief. It reports the end (`wfe exec finished`),
+  carries out stops, and reconciles vanished processes every minute. The
+  session rules are in *Workflow run sessions*; every state rule lives in
+  WFE.
+- **Transports**, threads of the executor:
+  - `wfnotify` posts each run's coordination to its `run-…` topic in the
+    workflow's `wf-…` channel;
+  - `wfintake` hands the posts of routed channels to `wfe intake receive`.
+  
+  Both use the autolab bot (`autolab-agstudio1`, user 11). Nautobot:
+  placement `agautolab-agstudio` (`manual_toolchain`, process
+  `agautolab\.wfexec`) and DesiredAgent `autolab-agstudio`.
+- **Profiles**: a workflow selects one with `execution.profile` (`sonnet`,
+  `luna`, …), from `agents.toml`; the role is `wfrun`. Agent ≠ Model.
 
-**Since `agent_standardize` p10 an instance's own channel answers about its
-work.** Ask forge or autolab in its own channel where its plans stand and it
-surveys its board — its own topics for forge, every `pj-` channel and their
-derived `work-` channels for autolab — and says so. Told to close out what is
-finished, it verifies by reading, resolves those topics, and (autolab) marks
-the mission Work Done with `python -m agautolab.mission_done`. **It never
-tidies on its own**: that is contract, not shackle. Each serving keeps a
-streamed transcript, because an answer that skipped a project reads exactly
-like one that found nothing in it — which is how a whole project went
-unreported for one round of p10.
+**The old development system is retired (`retire/old_autolab`, 2026-10-19).**
+These are gone:
+- the Zulip listener and its `workplan-`/`workrun-`/`bmining-` topics;
+- missions, tasks and their acceptance (`agag.acceptance`, `agentchat
+  accept`/`reserve`, `mission_done`, `correct_state`);
+- mission working copies, project init/archive and study setup;
+- the `:8791` gateway (both placements) and the `autolab` CLI;
+- the `autolab_node` Ansible role and agentroom's Project Room.
+
+Development work for a project is a WFE workflow request. Old `pj-<slug>`,
+`work-m<id>` and `workplan-…` conversations remain as history. Nothing serves
+them, and the mission branches they name are all integrated.
 
 ## Opsroom Observer (not an agent)
 
@@ -878,7 +784,8 @@ Record: `devdocs/episodes/failsafe/p5/`.
   wait later confirmed legitimate closes `excused`. A first post in a topic
   nobody has served belongs to the agent whose `#agents` roster serves it.
 - **Acceptance is the decision holder's, whoever records it**
-  (`agag.acceptance`). Holders: the mission's requester and everyone up
+  (`agag.acceptance`; retired with the mission system in `retire/old_autolab`,
+  so what follows is history — `agag.trace` still reads such notes). Holders: the mission's requester and everyone up
   its root notes to the request's origin — unless a person reserved it
   (`agentchat reserve --evidence <their post>`, `[selfnote][approval]
   reserved …`), then only them. Evidence: a holder's post after the last
@@ -1645,9 +1552,9 @@ every participant means the same thing by it:
   advice — study first (a new study, or a research plan in an existing one)
   when exploring would widen or firm up the idea, else a project. `agproject
   open <slug> --kind project --doc …` creates the `pj-<slug>` channel
-  (humans, autolab, Front; its own folder), posts the goal, and asks
-  autolab in `workplan-setup-<slug>` to prepare the workspace — setup only,
-  no `workrun-`, no routine; **a new study is asked of archsage** in its
+  (humans, Front; its own folder) and posts the goal; repositories and
+  workflows belong to a WFE managed project (`wfe create`), and the old
+  autolab setup handshake is gone (`retire/old_autolab`); **a new study is asked of archsage** in its
   own channel since `sage` p2 (it answers the argue when the study, its
   routine and its sage exist); `agproject plan <study> --doc …`
   posts one plan into an existing study. Front's outcome reply ends in an
@@ -1716,20 +1623,8 @@ with no rendering yet is shown as written, so nobody waits for a rendering
 to read or reply. Resuming a ✔'d argue resumes the discussion and nothing
 downstream.
 
-**The Project Room** (`agdevworld` `/?view=project`, `project_room` p1,
-2026-09-19) is where a human follows a project or a study from its purpose
-through its plans and runs and talks in the selected one. The relay reads
-it all off the mirror (`/projects`): the channel is the project, its kind is
-read from the description or stays `unknown`; `goal` / `researchplan-`
-topics are documents (not executable work, never assigned a mission by
-name), `workplan-setup-` is setup that plans no mission, a `[mission]` note
-makes a mission and a `[task]` note a task, by anchor id. Two states are
-shown side by side — autolab's recorded `[state]` word and the ops engine's
-reply verdict — with task counts and an explicit *incomplete* when a work
-channel is not mirrored. A comment goes into the mission's planning
-conversation or the task's execution conversation, located from the anchor
-at send time; a document is refused with the path to Front; a ✔'d target is
-resumed only on a second, explicit press.
+**The Project Room** (`project_room` p1) is gone with the old autolab
+mission system (`retire/old_autolab`, 2026-10-19).
 
 ## forge (workflow-editor project `forge`, since `project_migration` p3, 2026-10-14)
 
@@ -2025,7 +1920,7 @@ answer. Every post can now say so itself, with one machine line at its end
   pending), `withdrawn`, `superseded` or `closed`. Only the recipient's
   speech settles one; progress, acks and third parties never do. An answer
   is a receipt — approval and acceptance stay where they were.
-- The rooms (Front Desk, Arguing Room, routine chat, Project Room) label each
+- The rooms (Front Desk, Arguing Room, routine chat) label each
   post with an icon and words, list what waits for *you* above the dialogue,
   and let you pick which question your next post answers (the relay writes
   `re=`) — or mark it "not an answer" (`answer=none`), which leaves every
