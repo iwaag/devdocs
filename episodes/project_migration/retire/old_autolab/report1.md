@@ -29,7 +29,7 @@
   
   Service `agautolab`, placement `agautolab-agstudio` and DesiredAgent `autolab-agstudio` (bot 11, used by wfnotify/wfintake) stay active.
 
-## Not done
+## Afterwards, and left as is
 
 - **The desired-state commit is applied** — at first the auto-mode classifier refused `nctl desired apply --yes`; the user then permitted it by hand: pass 1 committed (4 deletes, 1 update), pass 2 committed (1 delete). See report.md verification 4.
 - The `autolab-agstudio1` instance channel and the old `pj-<slug>` / `work-` channels are left as history. Nothing listens there now.
