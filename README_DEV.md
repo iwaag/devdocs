@@ -1412,6 +1412,29 @@ lessons. Episode: `devdocs/episodes/project_migration/p8/`.
   - the Front Desk keeps a few legacy labels, and its progress and contexts
     panels read the relay.
 
+## Front from Slack (`slack_connect` p1, 2026-10-19)
+
+**The Developer can also talk with Front from Slack** (the iPhone app
+included): direct messages with a private Front bot in one workspace. It is a
+second door to the same WFE conversations, not a second Front. Episode:
+`devdocs/episodes/slack_connect/p1/`; code and operations: agdevworld
+`integrations/slack/README.md`.
+
+- A new top-level DM is a new conversation; replies in its thread continue it.
+  Each accepted message is one WFE message (`via: slack`) and so one Front
+  turn; 📥 marks it accepted. Front's replies, questions, progress and results
+  come back in the thread with their run.
+- Front Desk words in a Slack-linked conversation are mirrored into its
+  thread; the desk shows Slack words as `iwaag (via slack)`.
+- Edits, deletions and attachments start nothing; the bot explains.
+- Separate process `com.agdev.slack-front` (Socket Mode, outbound only), its
+  own release (`scripts/slack-release.sh`) and transport store; WFE and its
+  runs do not depend on it. Nautobot: service `slack-front`.
+- Text needs no home network or VPN; run, artifact and desk links need the
+  phone's Tailscale.
+- Automated trials post as `Omni Agent (for Developer)` via `slack-trial`
+  (`slack-front trial`), never as the Developer.
+
 ## agfront (pj-agdev/agfront) — retired 2026-10-19 (project_migration p8)
 
 The listener `com.agdev.agfront-zulip` is booted out (plists in
