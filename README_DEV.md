@@ -1407,10 +1407,53 @@ lessons. Episode: `devdocs/episodes/project_migration/p8/`.
   `…/wfe/api/projects/<p>/runs/<wf>/<run>/raw?path=…`.
 - Known limits:
   - one conversation slot, which Front's own long work also uses;
-  - a shell process left behind keeps an attempt open;
+  - a shell process left behind no longer keeps an attempt open once the
+    session wrote its final result (p8 ex1); one left while the session
+    still works does;
   - definitions Front edits are saved, not committed;
   - the Front Desk keeps a few legacy labels, and its progress and contexts
     panels read the relay.
+
+## Waits and run status (`project_migration` p8 ex1, 2026-10-19)
+
+**A wait is the run's record, never a process, and every view says in a
+few words why a run stands still.** Episode:
+`devdocs/episodes/project_migration/p8/ex1/`; contracts: agdevworld
+`workflow_editor/docs/runs.md` (*Status in short*, *Why a hold was
+derived*), `docs/delegation.md`, `docs/observation.md`.
+
+- **Delegation waits.** An attempt dispatches, ends and frees its slot; the
+  child's facts start new attempts, minutes or days later, through
+  restarts. Every other node it started must be completed, failed or
+  waiting by then — run-027 left `talk` running and was held twice. Front
+  completes `talk` at the adjustment that adds the delegate node and
+  handles the result in a node after it; `wfe delegate request` names
+  nodes still running. A child's completion is relayed once, after its
+  completing attempt ended.
+- **Executor**: a harness that wrote its final result but stays alive for
+  something it backgrounded is stopped after 30 s and its attempt ends as
+  the session did (trial converse/run-029 held the conversation slot ten
+  minutes for a `find /`).
+- **Holds keep a cause** (`left-running`, `left-ready`,
+  `nothing-recorded`, `missed-event`, `process`, `lost`) beside the
+  sentence; an attempt that records nothing of its work is an interruption.
+- **One status reading** (`shared/status.ts`): `Waiting · Your answer` /
+  `· jevlab study result` / `· <external>`, `Queued · Waiting for an
+  execution slot`, `Paused · <reason>`, `Interrupted · Talk node left
+  running at exit`, `Unknown · Process lost; outcome unconfirmed`. Run lists,
+  run views (details hold the long text), `wfe run list|show`,
+  `wfe conversation show` and the Front Desk (run links, the conversation's
+  unfinished work) use it. `situation()` splits `awaiting-person|
+  -delegation|-external` and adds `due`.
+- **Repairs**: reconcile requeues lost instruction/resume jobs; the notifier
+  re-queues a missing delegation post row and searches its marker before
+  posting. Observer leads an interruption's fact with its cause, gives the
+  recovery agent every delegation by identity, sends the same cause after
+  two recoveries to the owners, and says (not concludes) an unreadable
+  child. Recovery runs must record their `investigate` node.
+- Known limits: the Slack bridge's `due` polling change is committed but its
+  release was not redeployed; the repeat rule applies to holds recorded
+  since this release.
 
 ## Front from Slack (`slack_connect` p1, 2026-10-19)
 
