@@ -158,8 +158,8 @@ because its cluster records name hosts). Its entrances are
   read-only file API. Snapshot metadata preserves source times and partial
   coverage. The independent refresh job uses observation only.
 
-Front's routing and the argue host's consult invocation remain named
-follow-ups. Old HTTP/listener source, incidents and request evidence remain
+Front reaches cagent through its workflows (project_migration p8); the
+argue host's consult invocation retired with the argues. Old HTTP/listener source, incidents and request evidence remain
 history; the section below describes those retired paths.
 
 ## cagent (pj-clusterintent) — legacy implementation history
@@ -277,6 +277,10 @@ WFE runs are performed by **execution nodes** (workers) of one coordinator
 - **Deployment**: deployment profile `wfe_worker` (ansible_agdev), placement
   `agautolab-agpc`; installed by cagent `change/run-008`. A pin change of
   the placement needs the setup playbook (nctl compares by existence).
+- **Lanes** (p8): a worker may declare extra slots per named lane
+  (`workers.json` `lanes`); a workflow names its lane (`execution.lane`).
+  Studio has `conversation: 1` for Front; remote workers refuse extra lanes
+  for now.
 - **Limits**: a worker offers every profile of `agents.toml` (only `sonnet`
   works on the PC); an external wait (`wfe run wait`) is woken only by a
   resume.
@@ -316,7 +320,11 @@ credential of its own (the Developer's) with no fallback in either direction. A
 relay without it reads routines and cannot answer in them, and says so on the
 screen rather than at submit time.
 
-## Routines (`refine_routine` p1)
+## Routines (`refine_routine` p1) — retired with the legacy Front (project_migration p8)
+
+Nothing runs a routine any more; the channels and guides stay readable. A
+recurring need is a request to Front or a project workflow. History below.
+
 
 A routine is a **process guide kept in Zulip** and the runs made of it.
 The `routine` channel folder holds one public channel per routine,
@@ -1354,7 +1362,69 @@ notice. The outcome carries `claims` per serving and `claims_final`.
 instead of a model (its prompt goes to `<out>/prompt-<n>.md`), then lets
 the model run. That is how run-0183 is reproduced exactly.
 
-## agfront(pj-agdev/agfront)
+## Front (managed project `front`, project_migration p8, 2026-10-19)
+
+**Front is the Developer's conversational entrance, and an ordinary managed
+project.** `developer/pj-front`, workspace `front`, agent `front-agent`
+(profile `sonnet`). It understands a request, works with the projects that
+do the work (creating one when none serves), performs what agdevworld offers
+on the Developer's behalf, and remembers preferences and coordination
+lessons. Episode: `devdocs/episodes/project_migration/p8/`.
+
+- **The entrance.** The Developer talks at the Front Desk
+  (`http://<host>:8093/?view=frontdesk`), which reads and posts WFE
+  conversations (`api/conversations`; agdevworld
+  `workflow_editor/docs/conversations.md`; `wfe conversation help`).
+  - Each message of the person starts one bounded run of `front/converse`,
+    by receipt, so a replay or restart starts nothing twice.
+  - That run reads the conversation and its linked runs, and records what the
+    message is to them (`new`, `follow-up`, `steer`, `answer`, …). It then
+    answers, works, steers or asks.
+  - Replies name their run and what they answer.
+  - Zulip is not on the Developer's path.
+- **Its work** is the run's own graph: delegate nodes added by adjustment
+  entrust work to other projects' workflows; their questions and results
+  continue the run.
+  - It can answer a specialist itself when the request and preferences
+    settle the question.
+  - Other runs are steered with `wfe run instruct`. An instruction continues
+    a run nobody executes.
+  - From its attempt, Front records as itself (`operator`); the Developer's
+    words stay theirs (`--from`, `--source-message`).
+  - Agent requests: `wfe request --request`.
+  - Projects, workflows and context: `wfe create`,
+    `wfe workflow|project show|save --base`, `wfe context`.
+- **Responsiveness**: a worker lane. The coordinator's worker has an extra
+  `conversation` slot (`workers.json` lanes; `execution.lane`), so a turn is
+  served while specialist work holds the default slot. It was measured at
+  18 s with a cagent child running.
+- **Knowledge**:
+  - system context block `developer-preferences` and project blocks of the
+    same id (managed by front-agent);
+  - coordination lessons in `pj-front/knowledge/`;
+  - run state only in run records.
+- **Delivery links**: a run's file opens in the browser at
+  `…/wfe/api/projects/<p>/runs/<wf>/<run>/raw?path=…`.
+- Known limits:
+  - one conversation slot, which Front's own long work also uses;
+  - a shell process left behind keeps an attempt open;
+  - definitions Front edits are saved, not committed;
+  - the Front Desk keeps a few legacy labels, and its progress and contexts
+    panels read the relay.
+
+## agfront (pj-agdev/agfront) — retired 2026-10-19 (project_migration p8)
+
+The listener `com.agdev.agfront-zulip` is booted out (plists in
+`agfront/.local/archive/project-migration-p8-20261019/`), the retirement
+introduction is `#agents` #19888 (✔), and Nautobot has the service retired,
+the placement disabled and the agent retired. The checkout, its run records,
+mirror and journal, and every Zulip conversation stay as history.
+- The relay's Zulip writes that only it served answer 410: desk posts,
+  re-voicing, argues, routine chat and "Ask Front to run it".
+- Routines, argues and character re-voicing are retired with it.
+- What follows is history.
+
+### agfront as it was
 
 - Responds to any requests from Human and sends messages to other agents.
 - Since `argue` p2 it also **renders**: a presentation role and a job worker
@@ -1458,8 +1528,9 @@ studies, and supplements a project's wedo only where that project assigned it.
   archsage's pin, never another project's pin.
 
 The autolab studies (`autodev/*`) stay autolab's; their routines (v4 guides,
-2026-10-16) no longer ask archsage to refresh. Front's guides still name the
-old `@**archsage**` / `sage:` addressing — the Front episode re-points them.
+2026-10-16) no longer ask archsage to refresh. Front's legacy guides named the
+old `@**archsage**` / `sage:` addressing; the managed Front (project_migration p8) reaches
+archsage through its workflows.
 
 ## archsage — the knowledge council — retired 2026-10-16
 
@@ -1557,7 +1628,11 @@ synced to that revision). Since `progress_panel` p1 the last is a record:
 study's routine afterwards, and the guide archsage writes ends with asking
 archsage to refresh the sage. `devdocs/episodes/sage/p2/`.
 
-## Argues (`argue` p1, 2026-09-16)
+## Argues (`argue` p1, 2026-09-16) — retired with the legacy Front (project_migration p8)
+
+The Arguing Room reads history only. Developing a vague desire is an
+ordinary conversation with Front. History below.
+
 
 An **argue** is `#argue › argue-<stem>`: a conversation in which a human
 develops a desire — vague and far-reaching at first — with every agent.
@@ -1697,7 +1772,7 @@ plainly when it cannot, and keeps the demand.
 
 Listener and request service stopped, plists archived, retirement
 introduction posted to `#agents`; the checkout stays (comfynotify's venv).
-Front's guide still names forge as a destination until the Front episode.
+Front reaches forge through its workflows since project_migration p8.
 What follows is history.
 
 
