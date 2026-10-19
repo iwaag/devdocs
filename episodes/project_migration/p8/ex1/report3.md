@@ -16,7 +16,7 @@ Date: 2026-10-19. Source and fixture work; deployment is Step 5.
 | Parent exits without recording its wait or taking up a fact | WFE + Observer | interruption with its structured cause (Step 2); the Observer fact leads with it in short and `affected` names the children concerned; the recovery request lists every delegation by identity | new |
 | The same interruption keeps coming back | Observer | after two recoveries in a row with the same cause (kind and what it names), the incident goes to the owners, not a third recovery | new: `wfclassify.repeated` |
 | Relay or delivery stays stalled, dispatch never bound | Observer | `relay-stalled`, `unbound-dispatch` → owners (existing); `unrelayed[].at` is now when the fact became tellable, so a child that completes late in a long attempt is not reported stalled at once | adjusted |
-| Recovery run ends with no work recorded (Step 1 finding 5) | WFE + recovery guide | the end is `interrupted` / `nothing-recorded` (Step 2); pj-agops guide: start and complete `investigate` with `report.md` | pj-agops `bc73863` (pushed in Step 5) |
+| Recovery run ends with no work recorded (Step 1 finding 5) | WFE + recovery guide | the end is `interrupted` / `nothing-recorded` (Step 2); pj-agops guide: start and complete `investigate` with `report.md` | pj-agops `72bb685` (pushed in Step 5) |
 
 A long elapsed wait alone is never a failure: a delegation wait observed
 eight hours on, with its child working, is `awaiting-delegation` with no
@@ -30,7 +30,7 @@ incident (tested).
   `docs/observation.md`.
 - pj-agdev `edf445c` — Observer: cause text, repeat rule, unreadable child,
   recovery-request delegation context; `agobserver/docs/workflow.md`.
-- pj-agops `bc73863` — recovery guide.
+- pj-agops `72bb685` — recovery guide.
 
 ## Failure-injection evidence (fixtures; all pass)
 
