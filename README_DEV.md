@@ -1524,8 +1524,10 @@ agdevworld `workflow_editor/docs/discussions.md` (`wfe discussion help`).
     nothing; reopening replays nothing. Unavailable participants fail
     visibly and block nobody.
 - **Participants**: `argue/facilitate` (facilitator), `forge/discuss`,
-  `archsage/discuss`, `aghangout/discuss` (`conversations.json`
-  `discussions`). Shared facts for every participant: agautolab wfrun
+  `archsage/discuss`, `aghangout/discuss`, and since argue p3
+  `front/discuss`, `rts-vs-bot/discuss` (agent `rts-vs-bot-agent`) and
+  `jevlab/discuss` (`conversations.json` `discussions`). Front's
+  conversation-only facts live in `pj-front` `agent/converse.md`. Shared facts for every participant: agautolab wfrun
   guide, *A run that speaks in a discussion*. Real work is the project's
   ordinary workflow (forge's `discuss` entrusts `provide` by a delegate
   node and presents the result).
@@ -1548,6 +1550,16 @@ agdevworld `workflow_editor/docs/discussions.md` (`wfe discussion help`).
 - **Measured**: a brief reached a two-project synthesis in 2 min 40 s on one
   `conversation` slot; a second participant queued up to 68 s; turns ran
   at once beside a `provide` run in the default lane. Capacity unchanged.
+- **Commissioned work returns to review (argue p3, 2026-10-20).** The
+  facilitator can await the result of a run already working (`wfe
+  discussion await --run … --note …`; store v6 `invitations.awaits`):
+  answered by that run's next `result`/`synthesis`, or settled when it
+  ends. What a facilitator run awaited after it *completed* goes to one
+  new facilitator turn (receipt-bound), so a finished turn no longer drops
+  results. Contract: `docs/discussions.md` *Awaiting a result*. Episode:
+  `devdocs/episodes/argue/p3/`. The trial itself (one RTS × Jev match,
+  reviewed in the same discussion, 11 min 36 s) needed no await: the
+  participants executed inside their turns, against their guides.
 - **Known limits**: participants answer one after another on the one
   conversation slot; delegation answers still travel through Zulip (53 s
   seen across a restart); a requested `synthesize` run reports to the
