@@ -1535,9 +1535,9 @@ mirror and journal, and every Zulip conversation stay as history.
 `gitea.json` `principals`). The service and every other `wfe` operation keep
 the service principal (`developer`). An agent pushes as another principal
 only through this command. The token is never printed or stored, and force
-pushes are refused. p9: Front's preparation pushes to `pj-lowerpoly` were
-trustedagent; registration, freework placement aside, run checkpoints and
-integration are `developer`. Run commits carry the host's Git user name;
+pushes are refused. p9: Front's preparation pushes to `pj-lowerpoly`
+(project.yaml, guide, freework) were trustedagent; registration, the
+workspace clone, run checkpoints and integration are `developer`. Run commits carry the host's Git user name;
 the run record names the agent.
 
 ## Project access (`wfe projects`, since `project_migration` p4, 2026-10-16)
