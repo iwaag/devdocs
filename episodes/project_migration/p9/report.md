@@ -108,3 +108,17 @@ lessons in `knowledge/review-pages.md`, and both held in the later turns
 - **Omni could not read the trustedagent credential.** Its own session
   classifier refused direct reads of the file. The tool reads it by
   reference, and Omni verified it only through `wfe gitea whoami --as`.
+
+## Closing (2026-10-20 06:43Z)
+
+The Developer said the goal is the project migration and the quality of
+the outputs does not matter, and asked to close everything. Omni relayed
+those words verbatim as #83 (`p9-lowerpoly-reuse`) and #84 (`p9-lowerpoly`).
+
+- Front (converse/run-036, 037, 038) withdrew the open review questions.
+- Front stopped all four presentations ("stopped by its owner; verified
+  gone"). Ports 8300–8302 no longer answer.
+- freework/run-002, lod-chain/run-001 and lod-chain/run-002 are completed.
+- `wfe observe` shows no unfinished p9 run.
+
+The visual evaluation is no longer pending: the Developer waived it.
