@@ -1509,6 +1509,37 @@ mirror and journal, and every Zulip conversation stay as history.
   a routine's channel is a conversation of Front's own, served by the
   `routine_run` role (see *Routines* above).
 
+## lowerpoly (managed project `lowerpoly`, project_migration p9, 2026-10-20)
+
+**An existing repository onboarded by Front, not created.** Gitea
+`trustedagent/pj-lowerpoly` (history kept from `a31efb8`), workspace
+`lowerpoly`, agent `lowerpoly-agent` (profile `sonnet`). Mesh simplification
+/ LOD research for Meshy GLBs. Local areas `study/`, `wedo/`, `lab/`
+(ag.project.v2 `areas`) live in the root's history. Episode:
+`devdocs/episodes/project_migration/p9/`.
+
+- Workflows `freework` (exploration) and `lod-chain`: one input GLB on the
+  share → Phase 2 default LOD chain, evaluation, comparison with the
+  recorded table, `wfe run publish`, review page. The workflow's intent says
+  which trial run each node came from.
+- **Toolchain** (Blender with Metal bake, Python venv, gltfpack, msimplify,
+  mdt_lod, KTX-Software, gltf-transform) exists only in the original working
+  copy on the coordinator host. Runs link it read-only
+  (`lab/first_experiment/tools/check_toolchain.sh --link`), so lowerpoly runs
+  only on worker `studio`.
+- **Review pages stay up until the Developer closes them.** Front's
+  `knowledge/review-pages.md` holds why: p9's first page was stopped by a
+  "relayed" answer, and a promised link had no run to carry it.
+
+**Gitea as a named principal** (`wfe gitea whoami|repo|git --as <name>`;
+`gitea.json` `principals`). The service and every other `wfe` operation keep
+the service principal (`developer`). An agent pushes as another principal
+only through this command. The token is never printed or stored, and force
+pushes are refused. p9: Front's preparation pushes to `pj-lowerpoly` were
+trustedagent; registration, freework placement aside, run checkpoints and
+integration are `developer`. Run commits carry the host's Git user name;
+the run record names the agent.
+
 ## Project access (`wfe projects`, since `project_migration` p4, 2026-10-16)
 
 **Reading any managed project is a system capability, not an agent's.**
