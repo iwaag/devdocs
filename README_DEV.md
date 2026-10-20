@@ -1501,6 +1501,58 @@ destination is that project's conversational workflow.** Episode:
   - agents sometimes paraphrase the person's words when recording an answer
     (the source message reference stays exact).
 
+## Discussions and argue (`workflow_editor` p16, 2026-10-20)
+
+**A discussion is a person, a facilitator and project agents with their own
+missions and contexts in one shared conversation; argue keeps what it
+finds.** Episode: `devdocs/episodes/workflow_editor/p16/`. Contract:
+agdevworld `workflow_editor/docs/discussions.md` (`wfe discussion help`).
+
+- **WFE owns delivery and execution.** A discussion is the conversation
+  store's second kind (store v5): members with a join/leave history,
+  verbatim messages each under the participant WFE recorded (with agent,
+  run, attempt and invitation), and **invitations — the only thing that
+  starts a run** (receipt `discussion:<id>:invitation:<n>`; horizon;
+  outcome `answered`/`unanswered`/`failed`/`withdrawn`/late).
+  - The person's message invites whom it addresses; addressing nobody
+    invites the facilitator. A reply naming a participant's question goes to
+    **the run that asked** (as the answer to its WFE question).
+  - Only the person and the facilitator invite; a contribution starts
+    nothing. The facilitator's invitations are awaited: its node waits, and
+    one instruction continues it when all are resolved.
+  - Close withdraws what has not started, continues nobody and cancels
+    nothing; reopening replays nothing. Unavailable participants fail
+    visibly and block nobody.
+- **Participants**: `argue/facilitate` (facilitator), `forge/discuss`,
+  `archsage/discuss`, `aghangout/discuss` (`conversations.json`
+  `discussions`). Shared facts for every participant: agautolab wfrun
+  guide, *A run that speaks in a discussion*. Real work is the project's
+  ordinary workflow (forge's `discuss` entrusts `provide` by a delegate
+  node and presents the result).
+- **argue** (managed project, Gitea `developer/pj-argue`, agent
+  `argue-agent`): `discussions/<id>/{manifest.json,transcript.jsonl}` (the
+  archive), `summary.md` and `knowledge/` (its runs' interpretation),
+  `tools/argue` (list, show, validate, cite). Workflows `facilitate`
+  (conversation lane), `synthesize` (summary, knowledge with *Revisions*,
+  hand-off as an ordinary request with a pinned `argue@<commit>:…` source,
+  linked back as `handoff`), `freework`.
+- **The archive has one writer**: WFE's `DiscussionArchive`, in every
+  executor reconcile and `wfe discussion archive`, in its own clone under a
+  lock. It appends from the **published** manifest's horizon (the
+  repository is the truth), so an interrupted export never duplicates;
+  status (`current`/`behind`/`failed`) is in the view, aghangout's Records
+  and Home.
+- **Clients**: aghangout meeting rooms (`/hangout/?discussion=<id>`: the
+  members at the table, To:, History of original speech, Invitations,
+  Members, Records); WFE Home's *Discussions* card.
+- **Measured**: a brief reached a two-project synthesis in 2 min 40 s on one
+  `conversation` slot; a second participant queued up to 68 s; turns ran
+  at once beside a `provide` run in the default lane. Capacity unchanged.
+- **Known limits**: participants answer one after another on the one
+  conversation slot; delegation answers still travel through Zulip (53 s
+  seen across a restart); a requested `synthesize` run reports to the
+  discussion only if it says so itself (guide since p16 step 4).
+
 ## Waits and run status (`project_migration` p8 ex1, 2026-10-19)
 
 **A wait is the run's record, never a process, and every view says in a
@@ -1816,8 +1868,9 @@ archsage to refresh the sage. `devdocs/episodes/sage/p2/`.
 
 ## Argues (`argue` p1, 2026-09-16) — retired with the legacy Front (project_migration p8)
 
-The Arguing Room reads history only. Developing a vague desire is an
-ordinary conversation with Front. History below.
+The Arguing Room reads history only. Discussions with several project
+agents returned in workflow_editor p16 (*Discussions and argue*, above);
+nothing of the Zulip argues was imported. History below.
 
 
 An **argue** is `#argue › argue-<stem>`: a conversation in which a human
