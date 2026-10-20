@@ -293,11 +293,11 @@ conversation: it is the credential the agdevworld relay's **mirror** reads
 the realm with (`agdevworld/agentroom`, `operation_room` p2; since
 `better_zulip_call` p1 every read the relay makes comes from that one
 persisted copy, and the Developer's credential only writes). Since
-retire_old_ui p1 those reads are the Front Desk's progress panel, the
-Arguing Room and its completion preview; the agent room, the ops board and
-the routines are retired. It
-exists so the relay's reading never comes out of the quota the agents' own
-listeners or the Developer spend.
+workflow_editor p15 the relay reads no Zulip at all (the Front Desk's
+progress panel and the Arguing Room were its last readers), so this
+credential is no longer used by anything running. It existed so the relay's
+reading never came out of the quota the agents' own listeners or the
+Developer spend.
 It is **read-only by operation** — Zulip has no read-only API key — and its one
 write to the realm is subscribing to public channels, which an event queue
 requires and a read does not. It posts **only** in `#ops-testbed`, which no
@@ -744,7 +744,7 @@ default, which stays `fresh`; `run` is a reasonable choice
   the agent elsewhere), and a prepared reply redelivered after a restart is
   re-located by its anchor.
 
-## The progress panel (`progress_panel` p1, 2026-09-27)
+## The progress panel (`progress_panel` p1, 2026-09-27) — retired with the Front Desk (workflow_editor p15)
 
 The Front Desk has a **`▦ progress`** toggle: a panel in the right column
 listing every request in flight in *any* Front conversation, the one open in
@@ -1372,10 +1372,13 @@ do the work (creating one when none serves), performs what agdevworld offers
 on the Developer's behalf, and remembers preferences and coordination
 lessons. Episode: `devdocs/episodes/project_migration/p8/`.
 
-- **The entrance.** The Developer talks at the Front Desk
-  (`http://<host>:8093/?view=frontdesk`), which reads and posts WFE
-  conversations (`api/conversations`; agdevworld
-  `workflow_editor/docs/conversations.md`; `wfe conversation help`).
+- **The entrance.** The Developer talks with Front in aghangout
+  (`http://<host>:8093/hangout/?with=front`) or from Slack. Both are
+  clients of WFE conversations (`api/conversations`; agdevworld
+  `workflow_editor/docs/conversations.md`; `wfe conversation help`). Since
+  workflow_editor p15 the Developer can also talk with forge and archsage
+  directly; Front is one destination among several (*Conversations with
+  project agents* below).
   - Each message of the person starts one bounded run of `front/converse`,
     by receipt, so a replay or restart starts nothing twice.
   - That run reads the conversation and its linked runs, and records what the
@@ -1407,18 +1410,18 @@ lessons. Episode: `devdocs/episodes/project_migration/p8/`.
 - **Delivery links**: a run's file opens in the browser at
   `…/wfe/api/projects/<p>/runs/<wf>/<run>/raw?path=…`.
 - Known limits:
-  - one conversation slot, which Front's own long work also uses;
+  - one conversation slot, shared with forge's and archsage's turns
+    (workflow_editor p15), which long work done inside a turn also holds;
   - a shell process left behind no longer keeps an attempt open once the
     session wrote its final result (p8 ex1); one left while the session
     still works does;
-  - definitions Front edits are saved, not committed;
-  - the Front Desk keeps a few legacy labels, and its progress and contexts
-    panels read the relay.
+  - definitions Front edits are saved, not committed.
 
-## The agdev site (`retire_old_ui` p1, 2026-10-20)
+## The agdev site (`retire_old_ui` p1, `workflow_editor` p15, 2026-10-20)
 
-**Home is the agdev dashboard** (`http://<host>:8093/wfe/`; a bare
-`http://<host>:8093/` or `:8090/` redirects there). It shows:
+**Home is the agdev dashboard** (`http://<host>:8093/wfe/`). A bare
+`http://<host>:8093/`, any other path, and `:8090/` redirect there. Home
+shows:
 
 - projects and their runs, linked;
 - execution nodes and what each runs;
@@ -1426,13 +1429,77 @@ lessons. Episode: `devdocs/episodes/project_migration/p8/`.
 - Usage: subscription windows, and what workflow executions used with its
   coverage (agdevworld `workflow_editor/docs/usage.md`);
 - User nodes;
-- a link to the Front Desk.
+- a link to aghangout.
 
-The Front Desk (`/?view=frontdesk[&conv=<id>]`) is unchanged and links Home.
-The world views, the operation room and ops board, the routine dashboard and
-the cost gauge page are retired with their relay routes. Their history stays
-in the episodes. A future episode takes up the Front Desk's own design
-(agdevworld `README_DEV.md`).
+agdevworld serves no screen of its own any more. The embedded Front Desk and
+Arguing Room were retired in workflow_editor p15. An old Front Desk link
+(`/?view=frontdesk&conv=<id>`) opens that conversation in aghangout. The
+relay (`agentroom`, `:8094`) keeps only `/budget` and `/cost` for Usage, and
+holds no credential. The world views, the operation room and ops board, the
+routine dashboard and the cost gauge page were retired in retire_old_ui p1.
+Their history stays in the episodes.
+
+## Conversations with project agents (`workflow_editor` p15, 2026-10-20)
+
+**A person talks with a project's agent directly, in a conversation whose
+destination is that project's conversational workflow.** Episode:
+`devdocs/episodes/workflow_editor/p15/`. Contract: agdevworld
+`workflow_editor/docs/conversations.md`.
+
+- **WFE owns conversations and execution.**
+  - Each conversation records its destination (`front/converse`,
+    `forge/converse`, `archsage/converse`). The destination is named by the
+    first message's `target`, must be a configured target
+    (`<area>/conversations.json`), and never changes.
+  - Every message starts one run of the destination workflow, by receipt.
+  - A destination that cannot take a turn leaves the message `failed` with
+    the reason. It is retried there, never sent elsewhere.
+  - `GET api/conversations` lists the targets and their availability.
+  - The view gives each linked run's status, run view, file route and
+    serving review pages.
+- **aghangout** (managed project `aghangout`, Gitea
+  `developer/pj-aghangout`, agent `aghangout-agent`) is the place to meet
+  the agents: `http://<host>:8093/hangout/`.
+  - It is a visual novel: a lobby of the partners, then each partner's room,
+    portrait and dialogue, with History, Work and Talks panels.
+  - It owns characters, rooms, playback, navigation, input, drafts and
+    outbox. WFE owns everything else.
+  - Its own `scripts/deploy.sh` installs releases into
+    `<area>/hangout/releases/<commit>` and switches `current`. The agdev
+    origin serves `current` read-only, so a redeploy needs nothing from
+    agdevworld. aghangout-agent made and deployed a change this way in
+    `change/run-001`.
+  - Nautobot: service `aghangout`, profile `aghangout_web` (an HTTP check of
+    `/hangout/`).
+- **Other clients.**
+  - Slack names `front/converse` for new DMs; its links open aghangout.
+  - A future client (XR, …) uses the same contract.
+- **The agents.**
+  - `front/converse`: coordination across projects.
+  - `forge/converse` and `archsage/converse` (each with its `converse.md`):
+    answer within their role, and entrust real work to their own workflows
+    (`provide`, `consult`, `study`, …) with a delegate node, which frees the
+    conversation slot.
+  - Shared facts for every conversational run are in the agautolab wfrun
+    guide, *A run that serves a conversation message*:
+    - replies name `--re`;
+    - questions are posted in the conversation too;
+    - a child's question is asked as the run's own question from its
+      delegate node;
+    - the person's later words go to the running work with
+      `wfe run instruct|answer --from --source-message`.
+- **Responsiveness.**
+  - The three agents share the coordinator's one `conversation` slot. A
+    turn waits only behind another turn.
+  - Measured: Front 12 s while specialist work held the default slot;
+    archsage 44 s when queued behind Front's turn.
+  - Long work inside a turn delays everyone (forge's inline icon took 81 s).
+- **Known limits:**
+  - one conversation slot (the executor runs one claim loop per lane);
+  - a message to a destination that stays unavailable is retried by every
+    reconcile until the destination exists;
+  - agents sometimes paraphrase the person's words when recording an answer
+    (the source message reference stays exact).
 
 ## Waits and run status (`project_migration` p8 ex1, 2026-10-19)
 
@@ -1487,8 +1554,10 @@ second door to the same WFE conversations, not a second Front. Episode:
   Each accepted message is one WFE message (`via: slack`) and so one Front
   turn; 📥 marks it accepted. Front's replies, questions, progress and results
   come back in the thread with their run.
-- Front Desk words in a Slack-linked conversation are mirrored into its
-  thread; the desk shows Slack words as `iwaag (via slack)`.
+- Words the person writes in aghangout in a Slack-linked conversation are
+  mirrored into its thread; aghangout shows Slack words with `via slack`.
+  New DM conversations name the destination `front/converse` (workflow_editor
+  p15), and result and question posts link the conversation in aghangout.
 - Edits, deletions and attachments start nothing; the bot explains.
 - Separate process `com.agdev.slack-front` (Socket Mode, outbound only), its
   own release (`scripts/slack-release.sh`) and transport store; WFE and its
