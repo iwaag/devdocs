@@ -41,8 +41,9 @@ The notifier posts its own introduction in `#agents`
 - why a mention inside a sentence gets a refusal.
 
 It is in every run's `tools/agents.md` and in `agentchat intro`. Its roster
-block declares no channel and no prefixes, so the operation room shows it
-as an instance with nothing to serve rather than as an unreadable agent.
+block declares no channel and no prefixes, so the operation room (retired in
+retire_old_ui p1) showed it as an instance with nothing to serve rather than
+as an unreadable agent.
 The daemon posts it at start-up when the board's newest one differs;
 `comfynotify intro` posts it by hand. autolab's worker guide now only
 points at it.
@@ -154,9 +155,9 @@ because its cluster records name hosts). Its entrances are
   imposed `allowed_hosts`; previews stay read-only unless `--yes`.
 - Result acceptance and Git integration publish records; they do not undo
   external effects. An unknown outcome is never a reason to repeat it.
-- `cluster:fetch` reads the latest completed scan artifact through WFE's
-  read-only file API. Snapshot metadata preserves source times and partial
-  coverage. The independent refresh job uses observation only.
+- `cluster:fetch` read the latest completed scan artifact through WFE's
+  read-only file API into agdevworld's cluster views; both are retired
+  (retire_old_ui p1). The independent refresh job uses observation only.
 
 Front reaches cagent through its workflows (project_migration p8); the
 argue host's consult invocation retired with the argues. Old HTTP/listener source, incidents and request evidence remain
@@ -290,9 +291,11 @@ WFE runs are performed by **execution nodes** (workers) of one coordinator
 `Opsroom Observer` is a Zulip bot with no listener, no runs and no
 conversation: it is the credential the agdevworld relay's **mirror** reads
 the realm with (`agdevworld/agentroom`, `operation_room` p2; since
-`better_zulip_call` p1 every read the relay makes — the agent room, the ops
-board, the routines, the Front Desk, every completion preview — comes from
-that one persisted copy, and the Developer's credential only writes). It
+`better_zulip_call` p1 every read the relay makes comes from that one
+persisted copy, and the Developer's credential only writes). Since
+retire_old_ui p1 those reads are the Front Desk's progress panel, the
+Arguing Room and its completion preview; the agent room, the ops board and
+the routines are retired. It
 exists so the relay's reading never comes out of the quota the agents' own
 listeners or the Developer spend.
 It is **read-only by operation** — Zulip has no read-only API key — and its one
@@ -303,9 +306,9 @@ in a public channel reaches a bot that is not in the room, which is the
 `zulip_command` lesson that cost one paid Front run per lap.
 
 Since `operation_room` p2 ex2 the relay it reads with is **always on** —
-launchd `com.agdev.agentroom` on agstudio. `/ops` is a running reconstruction
+launchd `com.agdev.agentroom` on agstudio. Its mirror is a running copy
 rather than a per-request read, so a relay somebody has to remember to start is
-a board that is not there when it matters.
+a panel that is not there when it matters.
 
 **One direct message is the exception** (`robust_workflow` p2): the relay's
 watchdog over Observer's request monitor DMs the realm's owners — humans, no
@@ -313,12 +316,10 @@ agent named, so it buys no run — when the monitor goes into a failing state
 and when it comes back. `#ops-testbed` has no human owner in it, so a post
 there would have reached nobody.
 
-**The observer still never posts.** Since `operation_room` p3 the same relay
-*can* post — `POST /chat`, into a routine's own `guide` or run topics, and
-a run request into a Front Desk conversation — but on a third
-credential of its own (the Developer's) with no fallback in either direction. A
-relay without it reads routines and cannot answer in them, and says so on the
-screen rather than at submit time.
+**The observer still never posts.** The same relay writes on a credential of
+its own (the Developer's) with no fallback in either direction. Since
+retire_old_ui p1 its one write is closing an argue; `POST /chat` and the
+routine run requests are gone.
 
 ## Routines (`refine_routine` p1) — retired with the legacy Front (project_migration p8)
 
@@ -1238,8 +1239,8 @@ For the other agents, before p2: archsage `df6e0af`, autolab `aab6810`.
 
 - The kit sets `AGAG_RECORDS_ROOT`, so every `AgentSpec` puts serving
   workspaces and run records under `<out>/records/<agent>/.local/`
-  (`--records` to choose). The relay's cost gauge and in-flight view read
-  only the agents' checkouts, so trial spend is never counted live. Each
+  (`--records` to choose). The relay's cost read (history since
+  retire_old_ui p1; the in-flight view is retired) reads only the agents' checkouts, so trial spend is never counted live. Each
   driver has a test that a dry run from the main checkout leaves that
   checkout's `.local/agent` and `.local/topics` as they were.
 - `agproject status` on a fixture reads the fixture's own repositories
@@ -1413,6 +1414,25 @@ lessons. Episode: `devdocs/episodes/project_migration/p8/`.
   - definitions Front edits are saved, not committed;
   - the Front Desk keeps a few legacy labels, and its progress and contexts
     panels read the relay.
+
+## The agdev site (`retire_old_ui` p1, 2026-10-20)
+
+**Home is the agdev dashboard** (`http://<host>:8093/wfe/`; a bare
+`http://<host>:8093/` or `:8090/` redirects there). It shows:
+
+- projects and their runs, linked;
+- execution nodes and what each runs;
+- Context;
+- Usage: subscription windows, and what workflow executions used with its
+  coverage (agdevworld `workflow_editor/docs/usage.md`);
+- User nodes;
+- a link to the Front Desk.
+
+The Front Desk (`/?view=frontdesk[&conv=<id>]`) is unchanged and links Home.
+The world views, the operation room and ops board, the routine dashboard and
+the cost gauge page are retired with their relay routes. Their history stays
+in the episodes. A future episode takes up the Front Desk's own design
+(agdevworld `README_DEV.md`).
 
 ## Waits and run status (`project_migration` p8 ex1, 2026-10-19)
 
@@ -1788,7 +1808,7 @@ could not be, since the ComfyUI notifier accepts commands under `✔` on
 purpose. The one rule is asked at `agag.listen`'s intake, mention route,
 recovery and again at execution time, in `serve_topic`, in the mirror's note
 index and `own_notes` / `mentions`, by `agentchat send` (no root note there),
-by the notifier's two intake paths and by the relay's ops board. **A consumer
+by the notifier's two intake paths and (until retire_old_ui p1) by the relay's ops board. **A consumer
 with an intake of its own must ask it too.** A memo names what it presents
 with `[selfnote][memosource] <message id>` — never `rootchat`, which takes
 part in callback routing, `threads/` and completion discovery.
@@ -2256,7 +2276,8 @@ It is the realm's only way to say an instance is gone: a project can be
 deleted from every machine and Zulip never hears about it, which is how
 `agping-agstudio1` — `runsmoke1`'s agent-created fixture — sat on the
 operation room board as an unroutable *unknown* for a whole phase. A retired
-instance leaves the agent room and the operation room, its channel stops being
+instance left the agent room and the operation room (both retired in
+retire_old_ui p1), its channel stops being
 walked for open work, and both name what they retired rather than letting a
 card quietly stop being drawn. It is a flag, not a deletion: un-✔ the topic
 and the agent is back.
