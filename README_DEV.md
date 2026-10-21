@@ -1737,6 +1737,73 @@ agdevworld `workflow_editor/docs/discussions.md`, *Reading a discussion*.
   - the panels' inner texts (Progress, Invitations, Records) are still
     partly English.
 
+## Workflows beside the speech (`argue` p4 ex3, 2026-10-21)
+
+**A reader sees which workflow a discussion turn referenced, created, edited
+or executed, at the version that turn had, beside the speech.** Episode:
+`devdocs/episodes/argue/p4/ex3/`. Contract: agdevworld
+`workflow_editor/docs/discussions.md`, *Workflows in a discussion*;
+`wfe discussion help` (`workflow attach|link|list|show|repair`).
+
+- **WFE** (agdevworld `2eb1976`, conversation store **v10**):
+  - `workflow_refs` records, each with:
+    - the relation and the role (`subject` / `progression`, the
+      conductor's own graph);
+    - the target (a definition file, or a run);
+    - the versions before and after: byte sha256, semantic digest, commit
+      or run revision with `seq`, and `at` (when that version came to be);
+    - the turn (run, attempt, invitation, ponder activity, `origin` for a
+      delegated or requested child), the messages, the evidence
+      (`operation` / `claim` / `backfill`) and the operation;
+  - every named version's bytes in `workflow_snapshots`, and later message
+    associations in `workflow_ref_events`;
+  - **recorded by the operations themselves** from a discussion turn:
+    - `wfe workflow save|new` (journaled, recovered from the file);
+    - `wfe request --request` (journaled by receipt);
+    - `wfe run adjust` and `discussion ponder` (from the run's history);
+    - `wfe delegate request` (once the child exists);
+    - an explicit `wfe discussion workflow attach` for consulted material,
+      which proves retrieval, not comprehension;
+  - **not recorded**: reads by shell and edits in the editor;
+  - reads at `api/discussions/<id>/workflows[/<n>[/current]]`: the pinned
+    graph with replayed node states, the comparison by node id and edge,
+    and the current target labelled apart. Nothing is executed or
+    dispatched;
+  - the archive carries `workflow` and `workflow-link` records and
+    `discussions/<id>/workflows/<sha256>.yaml`;
+  - **`/wfe/embed/graph.js`**: the editor's Canvas, read-only, in a shadow
+    root (`src/embed/graph.ts`, `vite.embed.config.ts`), with change marks
+    as words and patterns.
+- **aghangout** (`96d1b99`):
+  - cards under the messages WFE names;
+  - a turn's operations with its speech (「このターンの操作」), or as
+    「発言のない操作」 rows when the turn said nothing;
+  - progression folded into 「進行の更新 N件」;
+  - one ワークフロー panel (a sheet on a phone):
+    - このターン時点 first, 現在 labelled as not the recorded version;
+    - 変更後 / 変更前 with the change listed;
+    - node details with the messages recorded about a node;
+    - the state at the recorded point;
+    - the way back to the turn, and 「エディタで開く（現在の内容）」.
+  - Browser checks need `AGHANGOUT_WFE_EMBED=<agdevworld>/workflow_editor/dist/embed/graph.js`
+    for the graph cases.
+- **Guides**: the agautolab wfrun guide, *A run that speaks in a
+  discussion* (agautolab `c08f117`), and pj-ponderer `agent/conduct.md`
+  (`acb25ae`): one fact each.
+- **Backfill**: `wfe discussion workflow repair --all`, run once at
+  deployment.
+  - 36 records came from proven sources only: conductor revisions with
+    their ponder activity, delegated children, and hand-off links.
+  - Each is `evidence: backfill`, with its source in the note.
+  - The versions' `at` was added a few minutes later, verified against
+    the runs. The archive's transcript lines for the first three
+    (exported before that) lack it.
+- **Known limits**:
+  - no record of what an agent read by shell, or of edits made in the
+    editor;
+  - a definition saved before this episode has no captured history;
+  - the graph's type labels and "Fit" are the editor's English.
+
 ## Waits and run status (`project_migration` p8 ex1, 2026-10-19)
 
 **A wait is the run's record, never a process, and every view says in a
