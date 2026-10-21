@@ -1550,9 +1550,10 @@ agdevworld `workflow_editor/docs/discussions.md` (`wfe discussion help`).
   repository is the truth), so an interrupted export never duplicates;
   status (`current`/`behind`/`failed`) is in the view, aghangout's Records
   and Home.
-- **Clients**: aghangout meeting rooms (`/hangout/?discussion=<id>`: the
-  members at the table, To:, History of original speech, Invitations,
-  Members, Records); WFE Home's *Discussions* card.
+- **Clients**: aghangout meeting rooms (`/hangout/?discussion=<id>`; since
+  argue p4 ex2 overview-first with the verbatim conversation, the members at
+  the table behind 再生表示, To:, Progress, Invitations, Members, Records,
+  Details); WFE Home's *Discussions* card (ordinary discussions).
 - **Measured**: a brief reached a two-project synthesis in 2 min 40 s on one
   `conversation` slot; a second participant queued up to 68 s; turns ran
   at once beside a `provide` run in the default lane. Capacity unchanged.
@@ -1677,6 +1678,64 @@ agdevworld `workflow_editor/docs/discussions.md` (*Conductor*, *Activities*,
   "on branch" and "nothing owed" were stale against WFE's own records.
 - Known limits: one ask carries one question text for all its addressees;
   aghangout's dialogue can show the previous line's typing after a jump.
+
+## Reading discussions (`argue` p4 ex2, 2026-10-21)
+
+**A person picks a discussion by what it is for and what came of it, and
+enters it on that.** Episode: `devdocs/episodes/argue/p4/ex2/`. Contract:
+agdevworld `workflow_editor/docs/discussions.md`, *Reading a discussion*.
+
+- **WFE** (agdevworld `5d6f511`, conversation store **v9**):
+  - **category**: `discussion` | `check`. It is set at creation
+    (`create --category check`, API `category`) and corrected with
+    `wfe discussion meta … --note`;
+  - **display title**: recorded explicitly, never derived from the
+    original;
+  - both have an append-only `discussion_meta` history. A metadata write
+    sends nothing, invites nobody, reopens nothing and does not touch
+    `updated`;
+  - **overview**: append-only revisions with purpose, outcome and
+    unresolved points. Every part cites `[#n]`, and WFE refuses a part
+    with no source. Each revision records `through` (the coverage),
+    author, run and note. It is an interpretation, not speech or
+    agreement;
+  - the overview is written with `wfe discussion overview` (from ponderer's
+    runs, or by a named author) or `POST …/overview`. Without one, readers
+    get the **brief**, labelled as the request;
+  - **status** comes from WFE's records: open/closed, working, owed,
+    whose answer is awaited (`you` only when the receiver is the
+    configured person; a `talk` question goes to the requester, possibly
+    a run), failed invitations and held runs;
+  - `GET api/discussions?category=&state=&limit=&offset=` returns counts
+    per view and computes overview, brief, status and `newest` for the
+    page's rows only;
+  - the archive gains `meta` and `overview` records and the manifest
+    fields `category`, `displayTitle` and `overview`.
+- **ponderer** owns the overview (`agent/conduct.md`): written in Japanese
+  for the readers, citing the original speech, revised when purpose,
+  outcome or open points change. It is not required at every turn. In the
+  ex2 check it published one unprompted (`argue-p4-ex2-check`).
+- **aghangout** (`c66bd02`):
+  - **the lobby's 議論 list**: one column on a plain surface. Each row has
+    its title (wrapping), 結論 or 目的 (or 依頼文の抜粋), status words, the
+    participating projects, the time and the action;
+  - views 議論 and 動作確認 with 進行中/終了/すべて, counts and
+    「さらに表示」. The list's place is kept in the address and restored;
+  - **rooms open on the overview**: 目的/結論/未解決, `[#n]` opening the
+    original, coverage, and 次に必要なこと;
+  - then the verbatim conversation and the composer. The visual novel is
+    「再生表示」, and 詳細 corrects the category and display title.
+- **Classification and backfill**:
+  - 6 historical checks: `p3-s2-fixture`, `p4-s3-check`, `p4-s5-a`,
+    `archsage-topic-line`, `forge-media-gap` and
+    `20261020-233458-r93d5v`;
+  - 6 ordinary discussions given Omni-written overviews and display
+    titles (handoff candidate for ponderer).
+- **Known limits**:
+  - an overview is only as current as its last revision. Readers see
+    "以降に発言N件", but nothing refreshes it automatically;
+  - the panels' inner texts (Progress, Invitations, Records) are still
+    partly English.
 
 ## Waits and run status (`project_migration` p8 ex1, 2026-10-19)
 
