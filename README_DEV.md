@@ -2054,8 +2054,12 @@ Two additions came with it:
 
 **Large inputs and outputs travel on a shared area, by reference and
 manifest, never through Git.** A person puts a folder on the share and
-writes `shared://<share>/<path>/` in the request; the run records the
-reference. `wfe run input` records the exact files used as an input set
+names it in their own words (`/agshare/x`, `agshare/x`, `x`, "the x folder
+on the NFS"); since `workflow_editor` fix1 the agent turns that into a
+reference with `wfe share resolve` (one stat per reading, inside configured
+roots) or `wfe share find` (bounded name search that says when it was
+incomplete), and the records keep the reference. A `shared://` reference
+written in the request is still recorded by `run.create`. `wfe run input` records the exact files used as an input set
 (hashes; staged into the run copy's `.local/inputs/` by default), `wfe run
 publish` puts an output folder on the share as `o<n>` of a named candidate
 (`.partial-*` then renamed; never partially visible), and `wfe run ask …
@@ -2065,7 +2069,7 @@ agdevworld `workflow_editor/docs/shares.md`.
 - Where a share is on a host is that host's `<area>/shares.json`; the share's
   root carries `.wfe-share.json` naming it, so an empty mount point reads
   `unmounted`, not "empty".
-- `wfe share list|resolve|ls|verify` work without a run; `wfe share verify
+- `wfe share list|resolve|ls|find|verify` work without a run; `wfe share verify
   <manifest.json>` is how another PC checks a delivery it got by reference.
 - Downloads: `GET api/shares/<share>/<path>` (byte ranges) on the WFE
   service, through the usual LAN address.
@@ -2077,8 +2081,9 @@ agdevworld `workflow_editor/docs/shares.md`.
   that import or compile write next to their files; p6 step 7 wrote
   `__pycache__` into a published output that way). Dot entries are never
   carried: a delivery must not list one.
-- **An unavailable share** shows as `unmounted`, `absent` or a hang in
-  `wfe share resolve`, not as an empty folder. The share is a cagent-managed
+- **An unavailable share** shows as `unmounted`/`unavailable` ("absence is
+  not confirmed") or a hang in `wfe share resolve`, not as an empty folder
+  or an absent item. The share is a cagent-managed
   service (`agshare`, changes `run-005`–`run-007` in pj-cagent's records):
   report the state and the host to cagent as a `change` request; do not
   repair mounts by hand outside it.
