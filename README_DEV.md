@@ -1804,6 +1804,101 @@ or executed, at the version that turn had, beside the speech.** Episode:
   - a definition saved before this episode has no captured history;
   - the graph's type labels and "Fit" are the editor's English.
 
+## Character dialogue (`argue` p5, 2026-10-21)
+
+**A discussion reads as short character lines: each agent message as one
+line in its speaker's voice, with a portrait. Selecting a line shows the
+original in place.** The lines are presentation only. The original speech
+is what everything else works from. Episode: `devdocs/episodes/argue/p5/`.
+Contracts:
+
+- agdevworld `workflow_editor/docs/dialogue.md` (`wfe dialogue help`);
+- aghangout `renderer/README.md`;
+- pj-characters `docs/format.md`.
+
+- **The cast is the managed project `characters`** (Gitea
+  `developer/pj-characters`, agent `characters-agent`).
+  - **Origin.** It was imported with its history from GitHub
+    `iwaag/agdevworld-settings`; that repository is no longer read.
+  - **Data.** `manifest.toml` (`ag.characters-manifest.v2`) lists each
+    character with lore, a short speaking style, accent, portrait and
+    provenance, plus the rooms.
+  - **Tools.** `tools/characters list|show|validate|normalize|add|export`.
+    Diagnostics name the file and the fix, and web derivatives are checked
+    against the originals by hash.
+  - **Workflows.** `character` (add or change one) and `freework`.
+  - **No runtime identity.** Which participant a character stands for is
+    each consumer's mapping; the old `agents` lists are in `HISTORY.md`.
+- **aghangout consumes a pinned export.**
+  - `app/public/cast/` is `characters.json` (`ag.characters.v1`) with web
+    assets, refreshed by `npm run characters -- <rev>`.
+  - `app/cast.json` maps WFE participants to characters, rooms and lobby
+    lines: front, forge, archsage and ponderer. Everyone else is plain.
+  - Adding or changing a character needs no UI source change.
+- **The renderer is aghangout's** (`renderer/render.ts`, version
+  `dialogue-9`, model `sonnet`).
+  - **Input**: one snapshot of original speech. **Output**: one structured
+    line.
+  - **The model call**: Claude Code print mode, with no tools, no MCP and
+    no setting sources.
+  - **Rules**, each from a failure seen in the trial (report5):
+    - stance and function are kept, and asks to the human are kept;
+    - one register per speaker, and nobody calls themself by their
+      nickname;
+    - suggestions stay suggestions;
+    - no message numbers;
+    - the requested language, checked by script with one corrected retry.
+  - **Installation**: `scripts/deploy.sh` installs it beside each release
+    as `hangout/renderer/<commit>` and `renderer-current`, which is not
+    served.
+- **WFE keeps the lines apart from the speech** (agdevworld `35b3474`).
+  - **Storage.** `<archive workspace>/.local/character-dialogue/dialogue.sqlite`,
+    today pj-ponderer's. It is refused unless Git ignores it. It is never
+    in the archive (the writer has its own clone) and never in a run copy
+    (only regular `.local/` files are copied).
+  - **Identity.** A line is keyed by renderer, model, the speaker's voice
+    and the exact request: the target, the replied-to and four earlier
+    originals, nothing later. A changed input is a new line; the old one is
+    kept but never shown as current.
+  - **Jobs** are durable rows with a holder (`host:pid:nonce`). A dead
+    holder's job is reclaimed at once; otherwise it waits out its 5-minute
+    lease. Each job has 3 tries, and result and completion are one
+    transaction (store v2).
+  - **The worker** lives in the WFE service process and holds no executor
+    slot. It follows new agent speech (`ja`) from its first start and never
+    renders history wholesale. A reader's read queues at most 40 missing
+    lines and calls no model.
+  - **Routes.** `GET api/discussions/<id>/dialogue?lang=`, `POST
+    …/dialogue/retry` and `GET api/dialogue`.
+  - **Untouched.** Discussion reads, `show`/`state`, overviews, the archive
+    and run context are unchanged.
+  - **Configuration.** `conversations.json` `dialogue`.
+- **Reading** (aghangout `97806f5`):
+  - **The line.** A portrait (or initials) and a bubble. The bubble is a
+    button (click, Enter, Space) that opens the original in place, keeping
+    the place and focus.
+  - **Citations** open the cited original.
+  - **The person's words** are always shown as written.
+  - **Lines not ready.** Pending and failed lines leave the original, and
+    a failed one offers a retry.
+  - **表示.** 短い表示（日本語/English） / 原文, kept in the browser.
+  - **The player** uses the same lines.
+  - **Replies and cards** always name the original.
+- **Measured** on p16-s3-room's 14 agent messages (deployed; costs as
+  reported by Claude Code at list price):
+  - about 6–8 s and $0.014 per line;
+  - Japanese lines average 167 characters against 1,920 in the originals;
+  - a new agent message became a line in 6–9 s, with no reader involved;
+  - a service restart mid-render left no duplicates.
+- **Known limits:**
+  - adherence is probabilistic: in the final reading one message number
+    and one run name remained, and English lines run longer (mean 381
+    characters);
+  - one renderer process per line (about 5 s of CLI start each);
+  - characters other than front, forge, archsage and ponderer have no
+    mapping, so their lines use a neutral voice;
+  - lines are not shown in Slack or the WFE run views.
+
 ## Waits and run status (`project_migration` p8 ex1, 2026-10-19)
 
 **A wait is the run's record, never a process, and every view says in a
