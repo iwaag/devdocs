@@ -1501,12 +1501,13 @@ destination is that project's conversational workflow.** Episode:
   - agents sometimes paraphrase the person's words when recording an answer
     (the source message reference stays exact).
 
-## Discussions and argue (`workflow_editor` p16, 2026-10-20)
+## Discussions (`workflow_editor` p16, 2026-10-20)
 
 **A discussion is a person, a facilitator and project agents with their own
-missions and contexts in one shared conversation; argue keeps what it
-finds.** Since argue p4 the facilitator is ponderer's conductor run and
-`argue/facilitate` is retired (*ponderer conducts discussions* below). Episode: `devdocs/episodes/workflow_editor/p16/`. Contract:
+missions and contexts in one shared conversation.** Since argue p4 the
+facilitator is ponderer's conductor run; since argue p4 ex1 ponderer also
+keeps the records and the argue project is retired (*ponderer conducts,
+keeps and learns from discussions* below). Episode: `devdocs/episodes/workflow_editor/p16/`. Contract:
 agdevworld `workflow_editor/docs/discussions.md` (`wfe discussion help`).
 
 - **WFE owns delivery and execution.** A discussion is the conversation
@@ -1524,7 +1525,8 @@ agdevworld `workflow_editor/docs/discussions.md` (`wfe discussion help`).
   - Close withdraws what has not started, continues nobody and cancels
     nothing; reopening replays nothing. Unavailable participants fail
     visibly and block nobody.
-- **Participants**: `argue/facilitate` (facilitator), `forge/discuss`,
+- **Participants** (as configured in p16; now see the ponderer section):
+  `argue/facilitate` (facilitator), `forge/discuss`,
   `archsage/discuss`, `aghangout/discuss`, and since argue p3
   `front/discuss`, `rts-vs-bot/discuss` (agent `rts-vs-bot-agent`) and
   `jevlab/discuss` (`conversations.json` `discussions`). Front's
@@ -1532,8 +1534,9 @@ agdevworld `workflow_editor/docs/discussions.md` (`wfe discussion help`).
   guide, *A run that speaks in a discussion*. Real work is the project's
   ordinary workflow (forge's `discuss` entrusts `provide` by a delegate
   node and presents the result).
-- **argue** (managed project, Gitea `developer/pj-argue`, agent
-  `argue-agent`): `discussions/<id>/{manifest.json,transcript.jsonl}` (the
+- **argue** (retired in argue p4 ex1; its records are in pj-ponderer,
+  `HISTORY.md` there) was a managed project (Gitea `developer/pj-argue`,
+  agent `argue-agent`): `discussions/<id>/{manifest.json,transcript.jsonl}` (the
   archive), `summary.md` and `knowledge/` (its runs' interpretation),
   `tools/argue` (list, show, validate, cite). Workflows `facilitate`
   (conversation lane), `synthesize` (summary, knowledge with *Revisions*,
@@ -1541,7 +1544,9 @@ agdevworld `workflow_editor/docs/discussions.md` (`wfe discussion help`).
   linked back as `handoff`), `freework`.
 - **The archive has one writer**: WFE's `DiscussionArchive`, in every
   executor reconcile and `wfe discussion archive`, in its own clone under a
-  lock. It appends from the **published** manifest's horizon (the
+  lock, into the configured archive project's repository (pj-ponderer since
+  argue p4 ex1; each publication record names the repository it was
+  verified in, store v8). It appends from the **published** manifest's horizon (the
   repository is the truth), so an interrupted export never duplicates;
   status (`current`/`behind`/`failed`) is in the view, aghangout's Records
   and Home.
@@ -1566,7 +1571,62 @@ agdevworld `workflow_editor/docs/discussions.md` (`wfe discussion help`).
   seen across a restart); a requested `synthesize` run reports to the
   discussion only if it says so itself (guide since p16 step 4).
 
-## ponderer conducts discussions (`argue` p4, 2026-10-21)
+## ponderer conducts, keeps and learns from discussions (`argue` p4, p4 ex1, 2026-10-21)
+
+**Since argue p4 ex1 ponderer owns discussions end to end: progression,
+records, evaluation and the decision to change its practice.** argue is
+retired. Episode: `devdocs/episodes/argue/p4/ex1/`.
+
+- **pj-ponderer**:
+  - `discussions/<id>/` holds the archive (WFE writes it) and
+    `summary.md`;
+  - `episodes/` holds evaluations and the comparison index
+    (`ag.argue.episodes.v1`);
+  - `tools/discussions --help` lists, shows, validates and cites
+    discussions, and shows the pinned wedo;
+  - `HISTORY.md` records the import of argue's history: pj-argue `main`
+    merged without rewriting, run branches as tags
+    `history/argue/wfe/argue/…`. `argue@<commit>:…` citations resolve
+    in pj-ponderer.
+- **Workflows**:
+  - `conduct` (conversation lane);
+  - `synthesize`: a summary, requested by the conductor through an
+    ordinary delegate node. A participant is a workspace, and an
+    invitation to `ponderer` reaches the conductor;
+  - `evaluate`: episodes, research commissions, wedo revisions,
+    adoption;
+  - `freework`.
+- **Knowledge**:
+  - `developer/wedo-argue` holds reusable discussion findings with
+    trials, contrary observations and revisions;
+  - `developer/study-argue` holds literature research, written by
+    archsage `study` runs that ponderer commissions. archsage binds it as
+    a study destination.
+
+  Both are submodules of pj-ponderer (`wedo/`, `study/`), and both carry a
+  `knowledge.yaml` (maintainer ponderer). ponderer adopts a revision by
+  moving its pin.
+- **Subject findings stay with their owners**: asset provenance from
+  p16-s4-provenance is forge's `knowledge/asset-provenance.md`. archsage's
+  index has a `discussions` domain.
+- **WFE** (agdevworld `153bdad`; aghangout `6210d30`):
+  - `conversations.json` `discussions.archive` is `ponderer`;
+    `argue/synthesize` is no longer a participant;
+  - store **v8** `archives.destination`. A publication verified in another
+    repository is `unverified`, never current; the writer clone is rebuilt
+    on a destination change;
+  - a run of an unregistered (retired) project keeps its name in views
+    but gets no run-view link.
+- **argue retired**:
+  - `wfe project unregister argue`;
+  - the workspace (with its ignored run store) is in
+    `.local/agdev/.local/retired/pj-argue`;
+  - the Gitea repository is left unchanged and unused.
+
+  Historical speech keeps participant `argue`, author `argue-agent` and
+  runs `argue/…`.
+
+### As delivered in argue p4
 
 **A discussion's progression is one conductor run of `ponderer/conduct`
 (agent `ponderer-agent`, conversation lane), whose graph grows with the
@@ -1578,10 +1638,10 @@ agdevworld `workflow_editor/docs/discussions.md` (*Conductor*, *Activities*,
   `developer/pj-ponderer`) owns progression: the issue, who is asked what,
   sufficiency, the end and its account. Front owns the Developer's purpose
   and which projects take part (`wfe discussion join` from its `discuss`
-  run). Participants work in their own workflows. argue keeps archives,
-  summaries, knowledge and the episode index; `argue/facilitate` is
-  retired (its runs stay history) and `argue/synthesize` is invitable as
-  `argue`. Nobody's "go" is needed.
+  run). Participants work in their own workflows. (In p4 argue still kept
+  archives, summaries, knowledge and the episode index and `argue/synthesize`
+  was invitable; p4 ex1 moved all of that to ponderer, above.) Nobody's
+  "go" is needed.
 - **Activities** are node metadata (`activity: announce | ask | ponder |
   talk` on do/talk nodes), each bound to the discussion's records by its
   command (`wfe discussion announce|ask|settle|ponder|talk --node`).
@@ -1608,9 +1668,9 @@ agdevworld `workflow_editor/docs/discussions.md` (*Conductor*, *Activities*,
 - **Views.** aghangout meeting room *Progress* panel (conductor, what it asks
   whom, decisions with sources, activities, what is owed; annotations in
   Records); run view activity badges; Home Discussions "now:/last:".
-- **Episodes.** pj-argue `episodes/index.json` (`ag.argue.episodes.v1`) and
-  one analysis per episode (`tools/argue episodes [validate]`): argue-p3,
-  argue-p3-ex1, argue-p4.
+- **Episodes.** pj-ponderer (pj-argue until p4 ex1) `episodes/index.json`
+  (`ag.argue.episodes.v1`) and one analysis per episode (`tools/discussions
+  episodes [validate]`): argue-p3, argue-p3-ex1, argue-p4.
 - **Trial (argue-p4-trial)**: progression, participation and delegated
   execution came from the agents with no hint (9 min 25 s); the conductor
   concluded without the protocol's results review, and its conclusion's
@@ -1934,7 +1994,7 @@ archsage to refresh the sage. `devdocs/episodes/sage/p2/`.
 ## Argues (`argue` p1, 2026-09-16) — retired with the legacy Front (project_migration p8)
 
 The Arguing Room reads history only. Discussions with several project
-agents returned in workflow_editor p16 (*Discussions and argue*, above);
+agents returned in workflow_editor p16 (*Discussions*, above);
 nothing of the Zulip argues was imported. History below.
 
 
