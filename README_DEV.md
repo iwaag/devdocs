@@ -1505,7 +1505,8 @@ destination is that project's conversational workflow.** Episode:
 
 **A discussion is a person, a facilitator and project agents with their own
 missions and contexts in one shared conversation; argue keeps what it
-finds.** Episode: `devdocs/episodes/workflow_editor/p16/`. Contract:
+finds.** Since argue p4 the facilitator is ponderer's conductor run and
+`argue/facilitate` is retired (*ponderer conducts discussions* below). Episode: `devdocs/episodes/workflow_editor/p16/`. Contract:
 agdevworld `workflow_editor/docs/discussions.md` (`wfe discussion help`).
 
 - **WFE owns delivery and execution.** A discussion is the conversation
@@ -1564,6 +1565,58 @@ agdevworld `workflow_editor/docs/discussions.md` (`wfe discussion help`).
   conversation slot; delegation answers still travel through Zulip (53 s
   seen across a restart); a requested `synthesize` run reports to the
   discussion only if it says so itself (guide since p16 step 4).
+
+## ponderer conducts discussions (`argue` p4, 2026-10-21)
+
+**A discussion's progression is one conductor run of `ponderer/conduct`
+(agent `ponderer-agent`, conversation lane), whose graph grows with the
+discussion's activities.** Episode: `devdocs/episodes/argue/p4/`. Contract:
+agdevworld `workflow_editor/docs/discussions.md` (*Conductor*, *Activities*,
+*Annotations*); `wfe discussion help`.
+
+- **Roles.** ponderer (managed project `ponderer`, Gitea
+  `developer/pj-ponderer`) owns progression: the issue, who is asked what,
+  sufficiency, the end and its account. Front owns the Developer's purpose
+  and which projects take part (`wfe discussion join` from its `discuss`
+  run). Participants work in their own workflows. argue keeps archives,
+  summaries, knowledge and the episode index; `argue/facilitate` is
+  retired (its runs stay history) and `argue/synthesize` is invitable as
+  `argue`. Nobody's "go" is needed.
+- **Activities** are node metadata (`activity: announce | ask | ponder |
+  talk` on do/talk nodes), each bound to the discussion's records by its
+  command (`wfe discussion announce|ask|settle|ponder|talk --node`).
+  WFE completes an ask when its invitations are resolved and continues the
+  run once; `ponder --next` records a decision with its sources and the run
+  revision adding the next nodes; `talk` asks the requester (the person, or
+  the run that delegated to ponderer). `wfe discussion state` is the
+  conductor's compact read.
+- **Routing.** A person's untargeted message goes to the open conductor run
+  (the answer to its question, else an instruction); only without one is a
+  new conductor run started. Late outcomes after a conductor completed
+  start a new conductor run. `wfe discussion post` refuses an executing
+  attempt.
+- **Records.** Store v7: `activities` + `activity_events`, `annotations`
+  (interventions, recoveries, evaluations, corrections — never speech),
+  `conductor`, `requester`, `messages.node`. Archive transcript records
+  `activity`, `annotation`. `announce --conclude` snapshots obligations
+  (who owes what, who receives it). Reconcile completes a node whose
+  message was delivered but left running (p3 rts-vs-bot) and lifts that
+  hold. `contribute --completing <node>` speaks and completes at once.
+- **Where integrated work is**: `wfe projects run <p> <wf>/<run>
+  --integration` — run.integrate records, published branch, local workspace,
+  kept apart (ex1's "not on main").
+- **Views.** aghangout meeting room *Progress* panel (conductor, what it asks
+  whom, decisions with sources, activities, what is owed; annotations in
+  Records); run view activity badges; Home Discussions "now:/last:".
+- **Episodes.** pj-argue `episodes/index.json` (`ag.argue.episodes.v1`) and
+  one analysis per episode (`tools/argue episodes [validate]`): argue-p3,
+  argue-p3-ex1, argue-p4.
+- **Trial (argue-p4-trial)**: progression, participation and delegated
+  execution came from the agents with no hint (9 min 25 s); the conductor
+  concluded without the protocol's results review, and its conclusion's
+  "on branch" and "nothing owed" were stale against WFE's own records.
+- Known limits: one ask carries one question text for all its addressees;
+  aghangout's dialogue can show the previous line's typing after a jump.
 
 ## Waits and run status (`project_migration` p8 ex1, 2026-10-19)
 
