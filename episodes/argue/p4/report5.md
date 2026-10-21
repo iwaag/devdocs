@@ -53,20 +53,30 @@
 Both reruns (B2) passed. WFE tests: 20 discussion/activity tests pass
 (475 in the full suite at `a770891`; the later commits add one test).
 
-## Not done in this step: LAN verification
+## LAN verification (after the network was restored)
 
-During this step agstudio's wired interface lost its DHCP lease (en0 has
-only `169.254.53.94`; outbound traffic leaves by a VPN tunnel that reaches
-the model API but not GitHub). Consequences:
+During this step agstudio's wired interface lost its DHCP lease (en0 had
+only `169.254.53.94`; the Developer found the DHCP server down and
+restored it). Afterwards agstudio has `192.168.0.100` again, and every
+pending GitHub push went through.
 
-- agpc (192.168.0.110) is unreachable from agstudio, and agstudio has no
-  home-LAN address, so the LAN check (`step5/lan-check.mjs`, ready) cannot
-  run;
-- pushes to GitHub (devdocs, agdevworld, agautolab, pj-agdev) are
-  committed locally and wait; Gitea (local) is unaffected.
+From agpc (`step5/lan-check.mjs`, Chrome), **17/17 passed**:
+- the facilitator is `ponderer/conduct`, and `argue/synthesize` is
+  invitable;
+- for `p4-s3-check`, `p4-s5-a` and `archsage-topic-line`:
+  - the conductor and requester are as recorded, with nothing owed and
+    nothing waiting;
+  - the conductor's run view and the archive answer 200;
+- the deployed Progress panel shows the conductor, the settled ask and the
+  unavailable participant;
+- Home states what the conductors did last;
+- there are no page errors.
 
-Renewing the lease needs the Developer's hand (sudo or the network
-settings). The check and the pushes follow when the address is back.
+The first run reported 16/17. Its check expected lowerpoly as `failed`,
+but closing the fixture had withdrawn that invitation, and the room showed
+`withdrawn`. The page was right; the check was corrected. From agpc the
+trial room, its API view, Home, the trial archive, the episode index and
+pj-ponderer all answer 200.
 
 ## Closing
 

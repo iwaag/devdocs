@@ -112,20 +112,15 @@ Step reports:
 - **Single trials** differ in brief, guidance, system and reusable
   artifacts. Differences are described, not attributed.
 - **Network.** During steps 5–6 agstudio's wired interface lost its DHCP
-  lease (link-local `169.254.53.94`), with outbound traffic only through a
-  VPN. As a result:
-  - **the LAN check from another PC was not run**;
-  - **pushes to GitHub** (devdocs, agdevworld, agautolab, pj-agdev) are
-    committed locally but not pushed;
-  - Gitea (local) pushes for the projects succeeded.
-
-  Both follow when the address is back. The check is ready at
-  `.local/argue-p4/step5/lan-check.mjs`.
+  lease (the DHCP server was down; the Developer restored it). After
+  recovery:
+  - all GitHub pushes went through;
+  - the LAN check from agpc passed 17/17 (report5);
+  - the review links below answer 200 from agpc.
 
 ## Review links
 
-The links below use agstudio's host name. They open from this host now,
-and from the LAN once agstudio has its address back.
+Each link below answers 200 from agpc.
 
 - Trial room: `http://agstudio.local:8093/hangout/?discussion=argue-p4-trial`
   (open the *Progress* tab).
