@@ -1830,8 +1830,14 @@ question of a run that speaks for an open discussion there.** Episode:
 
   gimmickimg/freework/run-001…004 did all their work inside freework's
   one talk.
-- Deployed agdevworld `3d7b6fb`; agautolab `40f32e7`; pj-ponderer
-  `ec06b3b`. run-020 q1 was rescued as #301.
+- Completing outside the discussion's commands warns rather than refuses
+  (`run complete` / `adjust --completing` on announce, ask or ponder, or
+  ending a conductor run whose open discussion it never concluded). The
+  warning records nothing; `--yes` accepts. run-020 had ended its
+  discussion with nothing said.
+- Deployed agdevworld `25c74c4`; agautolab `40f32e7`; pj-ponderer
+  `b76fcad`. run-020 q1 was rescued as #301, and its conclusion by
+  run-021 (#303).
 
 ## Character dialogue (`argue` p5, 2026-10-21)
 

@@ -70,3 +70,35 @@ as q1's answer.
   notifier's link.
 - gimmickimg's behaviour is untested after the wording change. The next
   gimmickimg run shows whether "as far as possible" is enough.
+
+## Addendum: the conclusion run-020 never spoke (2026-10-22)
+
+The person answered #301 with #302: 「期待していた以上の良好な結果です。今回のargueともども、完了としてください。」 (better than expected; mark it complete, together with this argue).
+
+- run-020 took the answer up and relayed "accepted" to the child.
+- When the child completed, a later attempt disposed d1. It completed its
+  last ponder node `ponder-after-try` with plain `wfe run complete`.
+  - The run completed with no decision, no announcement and no close.
+  - The discussion stayed open with nothing said.
+- fix3 contributed. Before it, an untargeted #302 would have reached
+  run-020 as an instruction from the discussion. Now it arrives as the
+  answer to q1 on the delegate node, and was read as the child relay only.
+
+Rescue: Omni invited ponderer (invitation 92). `conduct/run-021`
+concluded with #303 and closed the discussion.
+
+Changes (Developer: warnings, not hard barriers):
+
+- **agdevworld `25c74c4`** (deployed). Two completions now record
+  nothing; they print the risk and the recommended command, and the same
+  command with `--yes` records them:
+  - `wfe run complete` or `run adjust --completing` on an announce, ask or
+    ponder node;
+  - a `run complete` that would end a conductor run whose open discussion
+    it never concluded.
+
+  Also: `--yes` is a global flag, documented in the help and in
+  discussions.md *Activities*. One new test (517/517 pass).
+- **pj-ponderer `b76fcad`**: a person's answer is their speech in the
+  discussion and may ask more than the question did. The guide cites
+  run-020.
