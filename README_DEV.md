@@ -485,6 +485,11 @@ Contract: `agdevworld/workflow_editor/docs/delegation.md`; episode:
   it (`wfe delegate request`). Delivery is the notifier's: the request is
   posted in the target workflow's channel as a new `request-…` topic. The
   child is an ordinary run created by that workflow's intake.
+  - Every workflow has that intake unless it declares `intake: {zulip: ""}`
+    (workflow_editor fix2). Conversation and discussion turns (`converse`,
+    `discuss`) do opt out. Before fix2, a file without a declaration loaded
+    as "none" although creation wrote `requests`. Two aghangout workflows
+    could therefore not be delegated to (front/converse/run-045).
   - The intake binds a post to a delegation only by the message id that a
     sent delivery recorded. The child's `request.md` is the parent's file,
     checked by hash.
