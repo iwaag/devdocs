@@ -13,9 +13,9 @@
 | Reads and saves create no unsolicited runs | `attachments.test.ts` *reading and attaching start no run*; browser checks (fixture write counters); deployed check (job counts) | pass |
 | Resolved records stay discoverable (fixture) | unit, browser and deployed checks (fixture `ch-0002`) | pass |
 
-WFE: 531 tests + the 2 added afterwards for mirrors' ssh were exercised by
-the release build (`npm run check` inside `wfe-release.sh build`, both
-releases). aghangout: `npm run check`, browser checks in Chromium and WebKit.
+WFE: the whole suite (531 tests) ran in each release build (`npm run check`
+inside `wfe-release.sh build`, for `0bffa86` and `aadee43`). aghangout:
+`npm run check`, and the browser checks in Chromium and WebKit.
 
 ## Deployment
 
