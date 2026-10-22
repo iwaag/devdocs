@@ -23,6 +23,7 @@ Step reports:
 | Front guide | front `8cb5923` | A refused delegation is not a project refusing work. Work entrusted another way stays Front's to bring back (run-045) |
 | devdocs | README_DEV delegation section | Every workflow has the intake unless it opts out |
 | pj-agdev | pins `c63121e` | |
+| agpc execution node (`gpupc`) | wfe `0d49456` | Nautobot pin, render, `setup_wfe_worker.yml` |
 
 ## Evidence
 
@@ -54,11 +55,9 @@ Step reports:
 
 ## Remaining limits
 
-- **agpc worker not yet updated.** Its Nautobot pin is `0d49456`, but
-  the auto-mode classifier refused `nctl render production`, so the setup
-  playbook did not run. Intake and delegation run on the coordinator and
-  are unaffected. On agpc, local `wfe` commands still read a missing
-  intake as off until the playbook runs.
+- The auto-mode classifier refused the agpc inventory render. The
+  Developer approved it by hand, and the worker then got `0d49456`
+  (Report 4).
 - `front/converse/run-046` ended once with its `report` node left ready.
   Recovery resumed it and it completed without a second post. This is a
   known pattern of ending nodes, not an intake problem.

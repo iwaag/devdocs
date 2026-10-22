@@ -17,14 +17,15 @@
 | WFE on the coordinator | agdevworld `0d49456` (previous `1e2fbed`) | `wfe-release.sh deploy` (release check 515/515); the service and `bin/wfe` report the commit; no store change |
 | Workflow opt-outs, Front guide | workspaces (Step 2, Step 3) | committed and pushed before the release |
 | pj-agdev | pins `c63121e` | |
-| agpc execution node (`gpupc`) | **pending** | Nautobot placement `agautolab-agpc` `wfe_version` → `0d49456` is applied (dry run: 1 update, then committed). The auto-mode classifier refused `nctl render production`, so the setup playbook has not run |
+| agpc execution node (`gpupc`) | wfe `0d49456` (was `1e2fbed`), executor unchanged `69142b8` | Nautobot placement `agautolab-agpc` `wfe_version` (dry run: 1 update, then committed), `nctl render production`, `setup_wfe_worker.yml` (ok 22, changed 3, failed 0) |
 
-The agpc worker is not needed for this fix. Intake, routing, delegation
-and the notifier run only on the coordinator. Until the playbook runs,
-the agpc node's own `wfe` still loads a workflow without intake as "off".
-That reading only affects local commands such as `wfe validate` on that
-PC. nctl compares placements by existence, so the pending pin does not
-show as drift.
+The auto-mode classifier refused `nctl render production`. The Developer
+approved it by hand, and the render and the playbook then ran. After the
+update, agpc's `wfe version` names `0d49456`, its unit is active, and
+both workers report `available`. `nctl drift` is unchanged: 46
+converged, 2 pre-existing drifts. The worker is not part of intake or
+delegation. They run on the coordinator. The update keeps the PC's own
+`wfe` reading the same as the coordinator's.
 
 ## After the release
 
