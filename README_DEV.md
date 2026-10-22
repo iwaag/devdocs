@@ -1809,6 +1809,30 @@ or executed, at the version that turn had, beside the speech.** Episode:
   - a definition saved before this episode has no captured history;
   - the graph's type labels and "Fit" are the editor's English.
 
+## One way to ask, and catalog nodes (`workflow_editor` fix3, 2026-10-22)
+
+**A question is one thing: the run's `wfe run ask`. WFE posts every open
+question of a run that speaks for an open discussion there.** Episode:
+`devdocs/episodes/workflow_editor/fix3/`. Contract: agdevworld
+`workflow_editor/docs/discussions.md` *Questions*.
+
+- Why: `ponderer/conduct/run-020` relayed gimmickimg's delegated question
+  with `wfe run ask` alone. The discussion said it awaited nobody while the
+  run awaited the person (`awaiting-person`).
+- Posting is done after `wfe run ask` and by `wfe exec reconcile`, once per
+  question. On the conductor's talk node the question is the talk
+  activity. `status.awaiting` names whom the run asked.
+- `wfe discussion talk` and `contribute --kind question` are refused.
+- The node catalog's meaning (brief, `wfe run nodes`, wfrun guide):
+  - perform a relevant activity as a node of its own **as far as
+    possible**, not inside a talk;
+  - not an absolute rule.
+
+  gimmickimg/freework/run-001…004 did all their work inside freework's
+  one talk.
+- Deployed agdevworld `3d7b6fb`; agautolab `40f32e7`; pj-ponderer
+  `ec06b3b`. run-020 q1 was rescued as #301.
+
 ## Character dialogue (`argue` p5, 2026-10-21)
 
 **A discussion reads as short character lines: each agent message as one
