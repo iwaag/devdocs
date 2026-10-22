@@ -59,9 +59,9 @@ Step reports:
   playbook did not run. Intake and delegation run on the coordinator and
   are unaffected. On agpc, local `wfe` commands still read a missing
   intake as off until the playbook runs.
-- `front/converse/run-046` is held `interrupted`. Front answered the
-  requester but left its own `report` node unstarted. This is a known
-  pattern of ending nodes, not an intake problem.
+- `front/converse/run-046` ended once with its `report` node left ready.
+  Recovery resumed it and it completed without a second post. This is a
+  known pattern of ending nodes, not an intake problem.
 - Saving an existing file that has no intake keeps it without a
   declaration. Only new files show the setting.
 - `intake: {zulip: null}` (an empty YAML value) reads as the default, not

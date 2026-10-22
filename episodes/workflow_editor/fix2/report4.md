@@ -64,13 +64,12 @@ front/discuss was created.
 
 ## Observations
 
-- Front posted its result from the attempt that judged the child. It then
-  ended without starting the `report` node that it had added after the
-  delegate node. `front/converse/run-046` is therefore held as
-  `interrupted` (report ready, nothing waiting). The requester already
-  has the answer. I left the run held: resuming it would let Front post
-  again. The node-ending lesson is already in Front's guide (run-027).
-  This failure is not about intake or delegation.
+- Front posted its result from the attempt that judged the child. It
+  then ended without starting the `report` node it had added after the
+  delegate node, so `front/converse/run-046` was held `interrupted`. The
+  recovery path resumed it about a minute later. Front completed the node
+  ("Answer posted as #271 …") without posting again, and the run is
+  completed. This failure is not about intake or delegation.
 - `wfe run show` prints the child's input as "entrusted by note \"\""
   for a delegated run. The record (`entrustedBy.kind = delegation`) is
   correct. This is a display oddity only, and it predates this change.
