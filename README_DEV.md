@@ -1934,6 +1934,71 @@ Contracts:
     mapping, so their lines use a neutral voice;
   - lines are not shown in Slack or the WFE run views.
 
+## Challenges (`challenge` p1, 2026-10-23)
+
+**A challenge is a problem found during work that is worth keeping after
+it: a durable, shared record any project can find, read and carry into a
+later conversation, discussion or request.** Finishing the work resolves
+none. Episode: `devdocs/episodes/challenge/p1/`. Contract: agdevworld
+`workflow_editor/docs/challenges.md` (`wfe challenge help`).
+
+- **Records**: one Gitea repository, `developer/pj-challenges` (a data
+  repository; no agent, workflow or service of its own).
+  - `challenges/<id>.md`: frontmatter `id` (`ch-0001`, allocated by WFE,
+    immutable), `title`, `state` (`open` | `resolved` | `withdrawn`),
+    `projects`; the Markdown body is free-form;
+  - `evidence/<id>/` holds essential files (≤ 32 MiB each; Gitea has no LFS);
+  - who wrote what, when, from which run, attempt and message is the Git
+    history (author = actor; `Challenge-*` trailers), never form fields.
+- **WFE writes, Git is the truth.**
+  - Every create/edit goes through a journal (request identity, base
+    revision) and a serialized writer clone; it is pushed without force.
+  - A stale base is refused with the current record. A remote change after
+    acceptance becomes `conflict` and keeps the draft.
+  - A failed or unseen push is `unsynced`, retried by every reconcile. A
+    request already in the remote history is recognised, never written
+    twice.
+  - The SQLite index is derived and rebuildable (`wfe challenge reindex`).
+  - Backup: a mirror on agpc's disk, pushed after each publication
+    (`wfe challenge status`); recovery is a clone of it plus `reindex`.
+- **Reads**: `wfe challenge list|show|history|evidence`,
+  `api/challenges…`. Current reads vs pinned reads (`--at <commit>`).
+  Reading or recording starts no run.
+- **Carrying into work** (conversation store **v11** `attachments`):
+  - a person's message in a chat or a discussion (`challenges` on the post,
+    `--challenge <id>[@<commit>]`), or a request (`wfe request
+    --challenge`), carries challenges pinned to a revision;
+  - the run it starts gets that revision's file
+    (`attachments/<id>@<commit12>.md`) and `input.attachments`, named in its
+    brief;
+  - a reply delivered to a working run carries them in `source.attachments`;
+  - archive transcripts keep them. A later edit never changes an earlier
+    turn.
+- **aghangout** `6e311e4`: the 課題 tab in chat and meeting rooms and its own
+  page (`?challenges`, `?challenge=<id>[&at=<commit>]`):
+  - a cross-project list with filters, a record's view (evidence, history,
+    sources) and a simple editor whose draft survives failures and
+    conflicts;
+  - 課題に記録 on any message;
+  - attaching to the draft (removable), the version sent vs the latest;
+  - この課題で議論を始める.
+- **Guides**: agautolab wfrun guide *Challenges* (facts, no mandatory
+  steps); Front records "solve some day" feedback as a challenge as
+  front-agent for the Developer (converse/run-055 had put it in a context
+  block).
+- **First record**: `ch-0001` — object extraction leaves the surrounding
+  image at the edges of cut-outs (gimmickimg freework/run-006, the
+  Developer's #310), with its evidence. gimmickimg's `improvement-feedback`
+  context block now points to it.
+- **Known limits**:
+  - evidence upload over the agdev origin is capped by nginx's default body
+    size (use the CLI for larger files);
+  - direct conversations have no export yet (their attachments are in the
+    store and in each run's input);
+  - `wfe challenge evidence --out` on an execution node writes on the
+    coordinator (read evidence over HTTP there);
+  - the unification of chat and discussions is the next phase.
+
 ## Waits and run status (`project_migration` p8 ex1, 2026-10-19)
 
 **A wait is the run's record, never a process, and every view says in a
