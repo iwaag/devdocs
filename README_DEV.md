@@ -2064,6 +2064,7 @@ agdevworld `workflow_editor/docs/conversations.md` (`wfe conversation help`;
   - the agautolab wfrun guide (`ba9e2c1`) has one section, *A run that
     speaks in a conversation*;
   - Front, forge, archsage, aghangout and ponderer guides are updated;
+  - the agpc worker pins WFE `21a094e` and executor `ba9e2c1` (nctl);
   - ponderer has a `converse` workflow for direct consultation without
     leading.
 - **Verified** (report6): a deployed check room went one-to-one → member
@@ -2071,9 +2072,6 @@ agdevworld `workflow_editor/docs/conversations.md` (`wfe conversation help`;
   both run inputs. A repeated token gave the same message and request. The
   LAN check from agpc passed 7/7.
 - **Known limits**:
-  - the agpc worker still pins WFE `aadee43` and executor `227ef1c`. The
-    prepared nctl batch was not applied (report7). Conversation turns run
-    on studio's `conversation` lane;
   - a `?conv=` room without a partner briefly shows 宛先を選んでください
     until its first read returns;
   - turns still share one `conversation` slot.

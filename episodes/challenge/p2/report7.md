@@ -62,29 +62,24 @@ since are #316–#321, all in the check room.
   is gone. No second conversation engine remains; the only traces are tests
   asserting that `api/discussions` returns 404.
 
-## Not done: agpc worker pins
+## agpc worker pins (applied after the Developer's permission)
 
-The agpc worker should pin WFE `21a094e` and executor `ba9e2c1`; it still
-pins `aadee43` and `227ef1c`.
+The session's auto-mode classifier first refused `nctl desired apply`. The
+Developer then gave permission, and the change was applied with gpupc idle:
 
-- **Prepared.** The batch is
-  `pj-clusterintent/nctl/.local/challenge-p2/agpc-pin-batch.yaml`. It
-  changes only those two fields, and the export before the change is
-  `desired-before.yaml`. gpupc was idle.
-- **Refused.** The session's auto-mode classifier refused `nctl desired
-  apply` twice: once with `--yes`, and once as a preview without it. The
-  render and the playbook were therefore not run either.
-- **Impact.** Conversation turns run only on studio's `conversation` lane,
-  so rooms are unaffected. Exposure remains only if a default-lane run on
-  agpc calls the conversation CLI: the old CLI would use `api/discussions`,
-  which is gone.
-- **To apply**, from `pj-clusterintent/nctl`:
-
-```sh
-uv run nctl desired apply -f .local/challenge-p2/agpc-pin-batch.yaml --yes
-uv run nctl render production --out ../ansible_agdev/inventories/generated
-cd ../ansible_agdev && ansible-playbook -i inventories/generated/production.yml -l agpc playbooks/services/setup_wfe_worker.yml
-```
+- `nctl desired apply` with `pj-clusterintent/nctl/.local/challenge-p2/agpc-pin-batch.yaml`
+  updated one placement (`agautolab-agpc`): `wfe_version` `aadee436` →
+  `21a094ee`, `executor_version` `227ef1c6` → `ba9e2c1a`. The export before
+  the change is `desired-before.yaml`.
+- `nctl render production` applied 23 placements (0 not applied).
+- `setup_wfe_worker.yml -l agpc`: ok=22, changed=4, failed=0 (log
+  `agpc-playbook.log`).
+- On agpc, `~/wfe-worker/src` has agdevworld `21a094e` and agautolab
+  `ba9e2c1`. Its `wfe conversation` is the new command, and gpupc is
+  `available`.
+- nctl drift: converged=46, drifting=2 (the pre-existing pair).
+- **Rollback:** set the two pins back in the batch, then repeat the apply,
+  the render and the playbook.
 
 ## Recovery
 

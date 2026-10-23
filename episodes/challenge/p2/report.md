@@ -24,7 +24,7 @@ computer.
 | wfrun guide | agautolab `ba9e2c1` |
 | project guides | pj-front `66492de`, pj-forge `415b1a8`, pj-archsage `31c8908`, pj-aghangout `9604695`, pj-ponderer `ef7ac65` |
 | pj-agdev | `53af114` |
-| agpc worker | **unchanged** (WFE `aadee43`, executor `227ef1c`; see limits) |
+| agpc worker | WFE `21a094e`, executor `ba9e2c1` (nctl) |
 
 ## Steps
 
@@ -47,15 +47,11 @@ computer.
 | Questions, instructions, late results, retries and restarts keep the recipient/run and do not duplicate | Met: tests (report2), live duplicate-token check |
 | Durable archives for existing and new rooms, visible status, verified recovery | Met: 63/63 current; fresh-clone restore |
 | History, authorship, run IDs, receipts and citations survive migration | Met: legacy receipts kept, citations and `?discussion=` resolve |
-| Slack, agent tools, remote executors and aghangout use the common contract | **Partly**: Slack, guides, studio's executor and aghangout use it. The agpc worker pins are not updated. |
+| Slack, agent tools, remote executors and aghangout use the common contract | Met: the agpc worker was re-pinned through nctl after the Developer's permission |
 | Deployed LAN flow verified; reports with evidence, limits and recovery | Met |
 
 ## Known limits
 
-- **agpc worker pins.** The pins (WFE `21a094e`, executor `ba9e2c1`) are
-  prepared as an nctl batch. The session's classifier refused to apply it.
-  The commands are in report7. Conversation turns run on studio, so rooms
-  work meanwhile.
 - **Composer during load.** A `?conv=` room without a partner shows
   宛先を選んでください for a moment, until its first read returns.
 - **One slot.** Conversation turns still share one `conversation` slot.
