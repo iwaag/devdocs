@@ -17,7 +17,7 @@ still shows the files.
      link to the input. It was published from agpc.
    - `idea-separate-speech`: an idea only.
    - `files-only`: files with no summary.
-2. Click 「この版」 or open `?challenge=ch-0003&at=a7fc0db`. This is an older
+2. Open `?challenge=ch-0003&at=a7fc0db`. This is an older
    revision with only the idea, and the page names what the latest revision
    adds.
 3. Open `?challenge=ch-0002`. It is resolved and still takes trials:
