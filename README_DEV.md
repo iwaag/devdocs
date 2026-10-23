@@ -1847,6 +1847,40 @@ question of a run that speaks for an open discussion there.** Episode:
   `b76fcad`. run-020 q1 was rescued as #301, and its conclusion by
   run-021 (#303).
 
+## An answer reaches the run that asked; freework's work as nodes (`workflow_editor` fix4, 2026-10-24)
+
+**A person's words that answer a participant's open question are that run's
+answer, even when they name nobody; a conductor turn whose awaited answer
+already reached the person ends silently; freework's talk is consultation,
+and the work is nodes of its own.** Episode:
+`devdocs/episodes/workflow_editor/fix4/`.
+
+- Why: discussion `20261023-230532-z4mv12`.
+  - #334 answered front run-010's q1 without `re`, so it went to the
+    conductor (routing rule 4). ponderer asked front again, and run-011
+    redid the delegation (#335). run-010 was left waiting.
+  - ponderer then restated #335 in #336.
+  - gimmickimg/freework/run-001…008 did all their work inside the one talk,
+    and three review pages stayed live.
+- ponderer `conduct.md` (pj-ponderer `565c497`): it passes such words on
+  with `wfe run answer <run> <q> --from <person> --source-message …`, and
+  silence after a resolved ask is correct (its request stays `unanswered`).
+  Routing is unchanged; the aghangout composer option was not taken.
+- Node catalog: `work` r1 (the requested work on its own nodes, not inside
+  the talk), `present` r2 (cleanup is its pair). freework's talk description
+  says the same in WFE's skeleton (agdevworld `36588fd`) and in the 12
+  existing projects. `converse` is unchanged. The wfrun guide (agautolab
+  `881ca9f`) cites run-005…008. agpc pins WFE `36588fd` and executor
+  `881ca9f`.
+- Verified:
+  - `fix4-route-check`: the answer was passed to front run-012, there was
+    one Front run, and ponderer stayed silent;
+  - gimmickimg freework/run-009 ran talk → sheet → present → confirm →
+    cleanup, and the page stopped itself.
+- Known limits:
+  - the routing fix is the conductor's reading (one trial);
+  - freework runs end "Done" with `_final-report` still pending (pre-existing).
+
 ## Character dialogue (`argue` p5, 2026-10-21)
 
 **A discussion reads as short character lines: each agent message as one
