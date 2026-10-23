@@ -1951,7 +1951,9 @@ none. Episode: `devdocs/episodes/challenge/p1/`. Contract: agdevworld
 `workflow_editor/docs/challenges.md` (`wfe challenge help`).
 
 - **Records**: one Gitea repository, `developer/pj-challenges` (a data
-  repository; no agent, workflow or service of its own).
+  repository; no agent, workflow or service of its own). The layout below
+  is the one before challenge p3; since then each challenge is a directory
+  with trials (*Challenges as directories with trials* below).
   - `challenges/<id>.md`: frontmatter `id` (`ch-0001`, allocated by WFE,
     immutable), `title`, `state` (`open` | `resolved` | `withdrawn`),
     `projects`; the Markdown body is free-form;
@@ -1999,10 +2001,8 @@ none. Episode: `devdocs/episodes/challenge/p1/`. Contract: agdevworld
   Developer's #310), with its evidence. gimmickimg's `improvement-feedback`
   context block now points to it.
 - **Known limits**:
-  - evidence upload over the agdev origin is capped by nginx's default body
-    size (use the CLI for larger files);
-  - `wfe challenge evidence --out` on an execution node writes on the
-    coordinator (read evidence over HTTP there);
+  - (resolved in challenge p3: nginx allows 100m on `/wfe/`, and `wfe
+    challenge` on an execution node reads and writes files on the node);
   - (resolved in challenge p2: direct conversations are archived, and chat
     and discussions are one conversation — next section).
 
@@ -2075,6 +2075,78 @@ agdevworld `workflow_editor/docs/conversations.md` (`wfe conversation help`;
   - a `?conv=` room without a partner briefly shows 宛先を選んでください
     until its first read returns;
   - turns still share one `conversation` slot.
+
+## Challenges as directories with trials (`challenge` p3, 2026-10-23)
+
+**A challenge keeps its statement, source material and the work done on it in
+one directory, `challenges/<id>/`. Anyone can add a trial (an idea, a failed
+experiment, a partial or better solution) without a schema.** The standard
+summary improves the UI; it is never required. This supersedes the layout in
+*Challenges* above. Episode: `devdocs/episodes/challenge/p3/`. Contract:
+agdevworld `workflow_editor/docs/challenges.md` (`wfe challenge help`).
+
+- **Layout**:
+  - `summary.md` (optional): frontmatter id/title/state/projects plus a
+    free body;
+  - any source files;
+  - `wedo/<trial>/…`, named and filled freely. A trial's `summary.md` is
+    optional and shown when present.
+  - A trial exists once it has a file. It has no run identity: commits name
+    their runs, with a `Challenge-Trial` trailer.
+- **States**:
+  - `open`, `resolved` and `withdrawn` are the standard vocabulary. Any
+    other value is kept and shown as written (custom); an absent state is
+    unspecified, never open.
+  - A new trial changes no state, and resolved or withdrawn challenges
+    take trials.
+  - An edit changes only the fields it names. Other frontmatter, comments
+    and the body stay byte for byte.
+- **Git is the truth for everything under the directory**, including
+  ordinary Git commits.
+  - A pinned read (`--at`) is that commit's tree. Commits from before p3
+    (`challenges/<id>.md`, `evidence/<id>/`) still read that way, and old
+    attachments verify with the same hash.
+  - The index (`records`, `trials`) is rebuilt from Git. The journal is
+    schema **v2** (`operations.paths`); a release before p3 refuses it.
+- **Writes**:
+  - `wfe challenge publish <id> --trial <name> <dir|file>…` (or POST
+    `api/challenges/<id> {trial, files, drop, base?}`) is one commit through
+    the journal.
+  - Conflicts are per path: independent trials never conflict, and the same
+    file keeps the draft.
+  - Limits: 32 MiB per file, 64 MiB and 500 files per write. The service
+    refuses more than ~86 MiB; nginx allows 100m on `/wfe/`.
+  - Files are served with `nosniff` and a `sandbox` CSP.
+  - On an execution node, `wfe challenge` talks to the coordinator's routes,
+    so files are read and `--out` is written on the node.
+- **Migration**: one commit, `3a8f4f9` (`scripts/challenges-p3-layout.ts`),
+  by "Omni Agent (challenge p3 migration)".
+  - ch-0001's run-006 evidence stays at challenge scope as
+    `evidence/<f>`: it is the work that exposed the problem, so no trial
+    was invented.
+  - Links were rewritten.
+  - The mirror and all 4 existing attachments were verified.
+- **aghangout** `a5088c5`:
+  - rendered summaries, with relative images, audio and downloads resolved
+    at the viewed revision;
+  - 資料 (source files) and 取り組み (trials), with a trial's own address
+    and history;
+  - honest custom and unspecified states, with filters;
+  - 「＋ 取り組みを記録」 on any challenge;
+  - pinned and latest revisions kept apart.
+- **Guides**: agautolab wfrun guide `1b65813` (*Challenges*), pj-front
+  `4784f9a`, gimmickimg context block `improvement-feedback` r3. The agpc
+  worker pins WFE `a252289` and executor `1b65813` (nctl).
+- **Verified** (report6): a deployed fixture `ch-0003`, with a failed trial
+  published from agpc, an idea-only trial and a files-only trial; a
+  page-recorded trial on resolved `ch-0002`. Checks: 25/25 on studio, 21/21
+  read-only from agpc. A fresh clone of the agpc mirror reindexes
+  identically to live.
+- **Known limits**:
+  - the page's recording form sends flat file names and forgets chosen
+    files on reload (use `publish` for trees);
+  - files are never searched;
+  - there is no general file editor.
 
 ## Waits and run status (`project_migration` p8 ex1, 2026-10-19)
 
