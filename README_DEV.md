@@ -1446,6 +1446,10 @@ Their history stays in the episodes.
 
 ## Conversations with project agents (`workflow_editor` p15, 2026-10-20)
 
+*Since challenge p2 a direct chat is a one-to-one room of the one
+conversation model. The destination is now the default addressee. See
+**One conversation (`challenge` p2)**.*
+
 **A person talks with a project's agent directly, in a conversation whose
 destination is that project's conversational workflow.** Episode:
 `devdocs/episodes/workflow_editor/p15/`. Contract: agdevworld
@@ -1507,6 +1511,10 @@ destination is that project's conversational workflow.** Episode:
     (the source message reference stays exact).
 
 ## Discussions (`workflow_editor` p16, 2026-10-20)
+
+*Since challenge p2 a discussion is a conversation that ponderer leads. The
+invitation is the common response request, and `api/discussions` is gone.
+See **One conversation (`challenge` p2)**.*
 
 **A discussion is a person, a facilitator and project agents with their own
 missions and contexts in one shared conversation.** Since argue p4 the
@@ -1993,11 +2001,82 @@ none. Episode: `devdocs/episodes/challenge/p1/`. Contract: agdevworld
 - **Known limits**:
   - evidence upload over the agdev origin is capped by nginx's default body
     size (use the CLI for larger files);
-  - direct conversations have no export yet (their attachments are in the
-    store and in each run's input);
   - `wfe challenge evidence --out` on an execution node writes on the
     coordinator (read evidence over HTTP there);
-  - the unification of chat and discussions is the next phase.
+  - (resolved in challenge p2: direct conversations are archived, and chat
+    and discussions are one conversation — next section).
+
+## One conversation (`challenge` p2, 2026-10-23)
+
+**A one-to-one chat and a facilitated discussion are one kind of conversation
+with one service, one delivery mechanism, one archive writer and one room.**
+Facilitation is optional and explicit. A room can gain members and a
+conductor without changing its id, history, work or pinned challenges. This
+supersedes the delivery parts of *Conversations with project agents* and
+*Discussions* above. Episode: `devdocs/episodes/challenge/p2/`. Contract:
+agdevworld `workflow_editor/docs/conversations.md` (`wfe conversation help`;
+`wfe discussion` is the same command).
+
+- **Store v12** (WFE `21a094e`). The fields are `default_to`, the
+  facilitation records, `role`/`receipt`/`held` per request, and
+  `archives.path`. The migration was pure SQL: direct rooms got members, a
+  default addressee and one `converse` request per message, with the legacy
+  receipt `conversation:<c>:<m>` kept. Discussions got an active
+  facilitation. Nothing was dispatched or replayed. An older release refuses
+  v12.
+- **Routing**, first match wins:
+  1. `to` (participants);
+  2. `runs` (an instruction to work under way; an ended run fails visibly);
+  3. `re` naming an open question (the answer goes to the asking run);
+  4. the active conductor;
+  5. the default addressee;
+  6. otherwise 409 `choose-recipient`, and nothing is recorded.
+- **Response requests.** The former invitation is the only thing that starts
+  or continues a run. Each request records the workflow selected for it:
+  `converse` for the only project when nobody leads, `discuss` otherwise,
+  plus `conduct`, `deliver` and `await`. The same token gives the same
+  message and requests, and the same receipt gives the same run. A failed
+  request is retried at the same recipient and never redirected. A question
+  is always `wfe run ask`, which WFE posts.
+- **Facilitation.**
+  - `start` takes a brief and records the horizon.
+  - `end` changes routing only; nothing stops.
+  - Joining a member starts nothing.
+  - A continuation that comes due while the room is closed or no longer
+    facilitated is held and shown. `resume` runs it once; reopening
+    replays nothing.
+- **Archives for every room** in pj-ponderer, written by one writer.
+  Rooms that began as discussions keep `discussions/<id>/`; every other room
+  is at `conversations/<id>/`. The path is recorded per room and never
+  moves. The manifest format is `ag.conversation.v1`. Export never starts a
+  run. At deployment all 62 existing rooms were current (42 direct rooms
+  backfilled). A fresh clone of pj-ponderer restores the records. Pinned
+  challenges need `pj-challenges` beside it. Restoring never replays
+  delivery.
+- **aghangout** `9604695`: one Room (`app/src/room.ts`) and one list. The
+  shape (one-to-one, several projects, led by ponderer) is presentation
+  only. The composer shows who will receive the words before sending. The
+  room offers ＋ 参加, 「Pondererに進行を頼む」, 進行を終える, 再試行 and
+  再開. `?conv=<id>` is the room and `?with=<project>` is a one-to-one room;
+  `?discussion=<id>` resolves to `?conv=`.
+- **Clients and guides**:
+  - Slack posts `with: front` and follows the room's routing;
+  - the agautolab wfrun guide (`ba9e2c1`) has one section, *A run that
+    speaks in a conversation*;
+  - Front, forge, archsage, aghangout and ponderer guides are updated;
+  - ponderer has a `converse` workflow for direct consultation without
+    leading.
+- **Verified** (report6): a deployed check room went one-to-one → member
+  joined → ponderer led → ended → closed → archived. ch-0001 was pinned in
+  both run inputs. A repeated token gave the same message and request. The
+  LAN check from agpc passed 7/7.
+- **Known limits**:
+  - the agpc worker still pins WFE `aadee43` and executor `227ef1c`. The
+    prepared nctl batch was not applied (report7). Conversation turns run
+    on studio's `conversation` lane;
+  - a `?conv=` room without a partner briefly shows 宛先を選んでください
+    until its first read returns;
+  - turns still share one `conversation` slot.
 
 ## Waits and run status (`project_migration` p8 ex1, 2026-10-19)
 
