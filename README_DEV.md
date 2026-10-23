@@ -2148,6 +2148,56 @@ agdevworld `workflow_editor/docs/challenges.md` (`wfe challenge help`).
   - files are never searched;
   - there is no general file editor.
 
+## Titles from the wish (`challenge` p4, 2026-10-23)
+
+**A person starts a conversation by writing what they want. Nobody is asked
+to name it.** The wish's first line is the title at once, and ponderer
+gives a room it leads a short Japanese display title in its first turn.
+Episode: `devdocs/episodes/challenge/p4/`. Contract: agdevworld
+`workflow_editor/docs/conversations.md`, *Naming a room nobody has titled*;
+usage in `wfe conversation help`.
+
+- **aghangout** `5e92078`:
+  - the new-room setup has no title field, and focus starts in the composer;
+  - the original title is the first nonempty line of the words, with
+    whitespace collapsed, at most 60 graphemes within WFE's 80 units, and
+    cut at a character boundary;
+  - the title is fixed in the outbox when Send is pressed, so a retry after
+    the room was created gives the same room, title, message and
+    attachments;
+  - 「この課題で議論を始める」 no longer pre-fills a title;
+  - one-to-one rooms are unchanged: WFE derives their title from the
+    opening message.
+- **WFE** `61e547a`:
+  - `meta|overview --title <t> --if-untitled` (API `ifUntitled`) writes the
+    display title only when the conversation has none and no display-title
+    record. A person's edit, or their reset to the original, wins;
+  - the check and the write are one `BEGIN IMMEDIATE` transaction;
+  - a skip is reported (`skipped`, and *Display title left as it is: …*)
+    and never blocks the overview;
+  - a duplicate or later overview renames nothing;
+  - explicit `--title` keeps replacing, as before;
+  - `firstLine` (original titles) is grapheme-safe;
+  - there is no store change.
+- **ponderer** (`agent/conduct.md`, `380442b`): the title is how people
+  recognize a room. Giving it is ponderer's, in its first turn in an
+  untitled room, with `--if-untitled`. There is no separate naming run,
+  service or model call.
+- **Verified** (report4):
+  - On the deployed LAN UI, the fallback title showed within about 3 s of
+    Send.
+  - In room A, ponderer's normal first turn (run-023, 46 s) gave 「家族で
+    遊ぶ30分の短いボードゲーム案」. The same title appeared in the room,
+    the aghangout list, WFE Home and the pj-ponderer archive manifest.
+  - In room B, the person titled the room before ponderer answered. run-024
+    used `--if-untitled`, was told who had titled it, and the person's
+    title stayed.
+  - agpc read the result 5/5.
+- **Known limits**:
+  - a room nobody leads keeps its first-line title until a person edits it;
+  - ponderer gives the title only when its first turn runs: a turn that
+    fails leaves the original title, which stays usable.
+
 ## Waits and run status (`project_migration` p8 ex1, 2026-10-19)
 
 **A wait is the run's record, never a process, and every view says in a
