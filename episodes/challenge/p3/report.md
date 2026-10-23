@@ -34,7 +34,7 @@ challenge publish <id> --trial <name> <dir>`.
 | --- | --- |
 | WFE | agdevworld `a252289` (code `73eb720`, migration script `d71e6f6`; challenge journal v2) |
 | Repository layout | pj-challenges `3a8f4f9` (one migration commit) |
-| aghangout | `a5088c5` |
+| aghangout | `a5088c5`, then `4175292` (folders keep their structure) |
 | nginx (`/wfe/` body 100m) | agdevworld `a252289` |
 | Guides | agautolab `1b65813`, pj-front `4784f9a`, gimmickimg context r3 |
 | agpc worker | WFE `a2522894`, executor `1b65813` (nctl) |
@@ -63,9 +63,9 @@ challenge publish <id> --trial <name> <dir>`.
 
 ## Known limits
 
-- The page's recording form sends flat file names and forgets chosen files
-  on reload; `wfe challenge publish` keeps directory trees. There is no
-  general file editor.
+- The page's recording form forgets chosen files on reload. Folders keep
+  their structure (follow-up `4175292`, report4); folder drag-and-drop has
+  no automated check. There is no general file editor.
 - Files are never searched or interpreted. Only summaries are.
 - Published journal rows from before p3 show their `paths` in the new
   layout. This is display only.

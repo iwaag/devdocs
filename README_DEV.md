@@ -2126,7 +2126,7 @@ agdevworld `workflow_editor/docs/challenges.md` (`wfe challenge help`).
     was invented.
   - Links were rewritten.
   - The mirror and all 4 existing attachments were verified.
-- **aghangout** `a5088c5`:
+- **aghangout** `a5088c5` (folders keep their structure since `4175292`):
   - rendered summaries, with relative images, audio and downloads resolved
     at the viewed revision;
   - 資料 (source files) and 取り組み (trials), with a trial's own address
@@ -2143,8 +2143,8 @@ agdevworld `workflow_editor/docs/challenges.md` (`wfe challenge help`).
   read-only from agpc. A fresh clone of the agpc mirror reindexes
   identically to live.
 - **Known limits**:
-  - the page's recording form sends flat file names and forgets chosen
-    files on reload (use `publish` for trees);
+  - the page's recording form forgets chosen files on reload. Folders
+    keep their structure (aghangout `4175292`);
   - files are never searched;
   - there is no general file editor.
 

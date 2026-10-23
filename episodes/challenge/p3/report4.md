@@ -106,9 +106,28 @@ The Markdown reader builds DOM nodes only and never assigns HTML:
 Screenshots (ignored): `pj-agdev/.local/agdev/pj-aghangout/.local/shots/`
 (`*-desktop-trial.png`, `*-narrow-trial.png`, …).
 
+## Folders keep their structure (follow-up, `4175292`)
+
+The first version sent flat file names. It lost where same-named files came
+from and silently dropped the later one. There was no reason for this: WFE
+accepts nested names, and browsers give relative paths.
+
+- Files can be picked, or a folder can be picked (`webkitdirectory`) or
+  dropped (its entries are walked). Each file keeps its path below the
+  folder, as `wfe challenge publish <dir>` does.
+- `.git` and system files (`.DS_Store`, …) are left out. Invalid paths are
+  listed with the reason.
+- A path chosen twice with other bytes asks which one to keep. Nothing is
+  dropped or renamed silently, and nothing is sent until the choice is made.
+- A trial still named by default takes the folder's name.
+
+Checks: 7 new browser checks, **Chromium 331/331 and WebKit 331/331**; unit
+tests 29/29. Folder picking was checked live (`step6/folder.log`, 4/4).
+Drag-and-drop of folders is not covered by an automated check, because
+Playwright cannot synthesize directory entries.
+
 ## Limits
 
-- Chosen files do not survive a reload. The page sends flat file names: only
-  `wfe challenge publish` keeps a directory tree's structure.
+- Chosen files do not survive a reload.
 - There is no general file editor. Arbitrary structures are written through
   the CLI or Git.
