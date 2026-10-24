@@ -1945,6 +1945,69 @@ already happened without its own node.** Episode:
   - work outside the run's copy is invisible;
   - untemplated nodes are never asked to be presented.
 
+## A delegated result assessed where it is received; same-child correction (`workflow_editor` fix6, 2026-10-24)
+
+**When a child's result comes back, WFE assesses it from the child's
+records beside its frozen catalog's expectations, where the parent receives
+and reports it. `wfe delegate revise` returns an incomplete result to the
+same child.** Episode: `devdocs/episodes/workflow_editor/fix6/`. Contract:
+agdevworld `workflow_editor/docs/delegation.md` *Assessing a result* and
+*Correction*; `docs/runs.md` *Corrections*.
+
+- Why: conversation `20261024-160217-forusr`. misc/freework/run-001…004
+  completed with no presentation; run-002 wrote its work nodes by hand, and
+  run-003/004 read only the tail of fix5's warning. ponderer judged each
+  result satisfied within seconds.
+- Checks (`shared/assessment.ts`), shown at take-up, in the brief and in
+  `wfe delegate show`:
+  - presentation missing;
+  - the person's review not traceable (only `accepts: person` with a
+    deliverable; reported as unknown);
+  - a page still serving.
+
+  The same checks are reminders (`delegated-*`, `--yes` per command) at
+  `dispose satisfied`, at `conversation reply --kind result|synthesis`, at
+  `announce`, and at the completion of the parent run.
+- The facts are frozen as of the result: the child's history is replayed to
+  the end of the completing attempt, bound to the event, manifest, seq,
+  revision and catalog. Current state and integrations are listed apart.
+- Correction:
+  - `delegation.revise` is delivered as a delegation post;
+  - the child records `correction.receive`, which reopens it; the
+    execution stays in progress until work is added or `wfe run correction
+    --no-change`;
+  - it is continued once and queued again by reconcile;
+  - an attempt that leaves it unaddressed is held `missed-correction`;
+  - the next completion is a new result.
+- Also:
+  - untemplated do/study nodes the run added with files beyond notes count
+    as work;
+  - files are read from every repository the run owns;
+  - refusals end with an `In short:` line; fix5's "records that need no
+    viewing" escape is gone;
+  - the dispatch shows the target catalog, `accepts` and the relay role;
+  - the child's brief names the person and the relay;
+  - `wfe present keep` records a page kept on request.
+- Releases: agdevworld `09596f6`, then `ab342dd` (announce); agautolab
+  `15258d7` (wfrun guide). agpc pins both. Before fix6 they were `506a116`
+  and `8f341ed`. A pre-fix6 release cannot replay the new operations; see
+  the ignored `pj-agdev/.local/fix6/notes.md`.
+- Trials (check actor `fix6-check`):
+  - fixture agops correction-check/run-001: the assessment and the refusal
+    named the omission, `revise` reopened misc/freework/run-006, which
+    presented, took the answer, stopped the page, and was judged satisfied
+    clean;
+  - real conversation `fix6-trial-a`: the child (run-007) presented
+    unprompted. But ponderer chose `accepts: parent`, answered the review
+    itself in 23 s, and the page was stopped before the person saw it.
+    Nothing warned (out of the review check's scope).
+- Known limits:
+  - one real trial; the hypothesis is not proven;
+  - a parent reviewing a page alone under `accepts: parent` is not
+    flagged;
+  - expectations stay prose;
+  - the child's files are read on the coordinator.
+
 ## Character dialogue (`argue` p5, 2026-10-21)
 
 **A discussion reads as short character lines: each agent message as one
