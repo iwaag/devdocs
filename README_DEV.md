@@ -2008,6 +2008,57 @@ agdevworld `workflow_editor/docs/delegation.md` *Assessing a result* and
   - expectations stay prose;
   - the child's files are read on the coordinator.
 
+## Human review: finished work handed to the person, reviewed later (`workflow_editor` p17, 2026-10-24)
+
+**A run's agent hands finished work to a person's review on a `review`
+node and its work is done: no process waits. The person starts it with one
+button, WFE serves the frozen presentations again (also of completed
+children), records approval or requested changes, and stops what it
+started. Requested changes continue the agent, which appends work (the same
+child again with `--follow-up`) and a new review.** Episode:
+`devdocs/episodes/workflow_editor/p17/`. Contract: agdevworld
+`workflow_editor/docs/reviews.md`; `docs/presentations.md` (served again for
+a review, usages), `docs/delegation.md` (*Follow-up*, the deferred check).
+
+- Why: fix6 trial A. ponderer/conduct/run-037 accepted
+  misc/freework/run-007 itself (`accepts: parent`) and had its page stopped
+  23 s after it was presented; the person never had a usable review.
+- Records kept apart: the agent's `dispose satisfied`; `review.prepare`
+  (summary, subjects frozen by presentation revision, result and trees);
+  the person's `review.start` (not a view, not approval); the host's
+  `review.serve`; `review.decide` (from an attempt only with the person's
+  words, `because`; synthetic actors flagged); `review.cleanup`.
+  Approval permits nothing (integration keeps its own rules).
+- Status "Work complete · Awaiting human review" (situation
+  `awaiting-review`): never the executor's move, never stalled, the slot
+  free. Requested changes keep the run `in-progress`/`due` until work is
+  appended (`missed-review` hold otherwise); continuation receipt
+  `review:<ws>/<wf>/<run>/<rv>`.
+- Compiler `ag.wfe-compile.v5`: review nodes get no report and do not hold
+  the final report. `present.sqlite` v2 (`usages`, `review_work`).
+- Entry points: WFE review page `#/ws/<ws>/review/<wf>/<run>/<rv>`, run
+  view focus card, aghangout room (レビューを開始), Zulip message with the
+  page, `wfe review help`, HTTP `…/reviews/<rv>/start|decide|cleanup`,
+  catalog `human-review`, `ponder --next review:<node>`.
+- Assessments: a pending round is `deferred`, not unknown; a page a round
+  serves is not a forgotten cleanup.
+- Releases: agdevworld `4fd38ce`, `7a0c181`, `36c6613` (pre-p17
+  `ab342dd`); agautolab `cb83634`; pj-ponderer `46643ec`, `4b0bdb9`;
+  aghangout `ad1713d`, `f092b8d`. agpc pins `36c6613` / `cb83634`. Recovery (a pre-p17 release
+  refuses present store v2 and cannot replay `review.*`): the ignored
+  `pj-agdev/.local/p17/notes.md`.
+- Trial A (check actor `p17-check`, conversation `p17-trial-a`): ponderer
+  conduct/run-038 → misc/freework/run-008. ponderer prepared rv1 itself,
+  its attempt ended normally; the room button started it; changes
+  requested; ponderer reopened the same child with `--follow-up`, prepared
+  rv2 of the corrected page; approved; both instances stopped. All
+  autonomous between the actor's clicks. Trial B (`p17-example`) left the
+  Developer's example awaiting review; ponderer first relayed the child's
+  confirmation live (guide fixed, run redirected by its requester).
+- Known limits: one trial; aghangout shows the review as status lines and
+  hands the decision to WFE's page; a reused instance keeps the answer line
+  it was started with.
+
 ## Character dialogue (`argue` p5, 2026-10-21)
 
 **A discussion reads as short character lines: each agent message as one
