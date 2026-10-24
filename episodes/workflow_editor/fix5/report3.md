@@ -7,7 +7,7 @@ agdevworld `d06e3ac`.
 ```
 wfe run record-done <run> (--template <t> | --type do|study|talk --name <text> --id <node>)
     [--id <node>] [--after <node>]... [--before <node>]...
-    --outcome <text> --reason <text> [--artifact <path>]... [--commit <sha>[@<repository>]]...
+    --outcome <text> --reason <text> [--artifact <path>]... [--commit-id <sha>[@<repository>]]...
     [--entry <seq>]... [--question <q>]... [--output <o>]... [--presentation <p>]
     [--started-at <time>] [--ended-at <time>] [--expect-revision r<n>]
 ```
@@ -35,7 +35,9 @@ node's outcome. The reducer then applies, in one step:
 - the revision rules shared with `run.adjust`: parent, revision id and
   file, graph validity, attempt fencing (another attempt's run is refused);
 - only the one node and its generated steps are new. Nothing is removed or
-  changed, and the node may follow completed nodes only;
+  changed, and the node may follow completed nodes only. During deployment
+  this became: it may follow nodes that are completed or still under way,
+  and edges of generated steps may move (see [report6.md](report6.md));
 - the node goes straight to `completed`. Its `retrospective` records
   `{seq, at, by, reason, reported: {started, ended}, evidence}`, and
   `started` and `ended` stay `null`. The entry's change is

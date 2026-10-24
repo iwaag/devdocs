@@ -1881,6 +1881,70 @@ and the work is nodes of its own.** Episode:
   - the routing fix is the conductor's reading (one trial);
   - freework runs end "Done" with `_final-report` still pending (pre-existing).
 
+## Reminders at operation boundaries; work recorded afterwards (`workflow_editor` fix5, 2026-10-24)
+
+**Before an agent's operation is recorded, WFE checks the records for
+omissions that are easy to miss. If one applies, WFE answers with a
+reminder and records nothing. `wfe run record-done` records work that
+already happened without its own node.** Episode:
+`devdocs/episodes/workflow_editor/fix5/`. Contract: agdevworld
+`workflow_editor/docs/runs.md` *Reminders at operation boundaries* and
+`docs/adjustments.md` *Recording work already done*.
+
+- Why:
+  - gimmickimg/freework/run-010 recorded its experiment as nodes and
+    completed with no presentation;
+  - run-011 presented it only because a separate request asked;
+  - run-001…008 did their work inside the talk (fix4).
+- Boundaries: completion, including `adjust --completing`, the transition
+  that completes the run and completing the last work node; `wfe run ask`;
+  `wfe present register`; `wfe conversation reply --kind result|synthesis`
+  and `reply --completing`. One evaluator (`shared/reminders.ts`) runs
+  inside the operation under the run lock, so a refused operation records,
+  posts and queues nothing.
+- Codes:
+  - `presentation-missing`;
+  - `presentation-serving` (a different thing from p11's retired
+    `presentation-open` gate);
+  - `presentation-inside-work`;
+  - `cleanup-unplanned`;
+  - `unrecorded-activity`: a self-check. Its signals are files in the
+    run's copy written while no node of its own was running, artifacts and
+    outputs, and long talks;
+  - fix3's `discussion-activity` and `discussion-open`.
+- Roles come from template provenance (`present`, `cleanup`, `work`), icons
+  and presentation records, never from names.
+- An answer about a presentation comes with a reminder in the brief and at
+  take-up. Nothing stops a page by itself, and a person's answer is never
+  refused.
+- `--yes` (HTTP `yes`) passes the reminders for that one command only.
+  Correctness errors stay errors. The run view asks the person explicitly.
+- `record-done`:
+  - one history entry: a revision that adds the node, completed;
+  - `retrospective` holds who, when, why, the work's times as reported,
+    and evidence checked to exist (files by hash, `--commit-id`, entries,
+    questions, outputs, presentations);
+  - it creates no start or end and runs nothing, and on a completed run
+    it does not repeat the completion;
+  - `--presentation` links an existing page to the node;
+  - the views show "recorded afterwards" (dashed card);
+  - a missing presentation is not repaired by declaring it done.
+- Releases: agdevworld `506a116` (WFE, worker pin) and agautolab `8f341ed`
+  (wfrun guide; worker pin). Before fix5 they were `36588fd8` and `881ca9f`.
+  A release before fix5 cannot replay `run.record-done`. The recovery
+  steps are in `pj-agdev/.local/fix5/notes.md`.
+- Trial (check actor `fix5-check`): gimmickimg freework/run-012 put its work
+  on a `work` node. It got `presentation-missing` when it completed, and
+  answered with `--yes` at once, then passed `--yes` pre-emptively to the
+  completions after it. This is the limitation the plan accepted; nothing
+  hides or enforces the flag. The retrospective fixture behaved as
+  designed.
+- Known limits:
+  - signals are heuristics (mtimes; a remote worker's work reaches the
+    coordinator only at publication);
+  - work outside the run's copy is invisible;
+  - untemplated nodes are never asked to be presented.
+
 ## Character dialogue (`argue` p5, 2026-10-21)
 
 **A discussion reads as short character lines: each agent message as one
