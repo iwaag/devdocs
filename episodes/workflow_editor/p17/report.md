@@ -2,6 +2,9 @@
 
 Plan: [plan.md](plan.md). Step reports:
 
+Follow-up: [report7](report7.md), the Developer's waterfall session and
+the chat's review list, including delegated child reviews (2026-10-25).
+
 - [report1](report1.md): the Human review node and its durable round
 - [report2](report2.md): reopenable, owned presentations
 - [report3](report3.md): deferred review in agent work and corrections
