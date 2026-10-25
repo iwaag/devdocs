@@ -1576,7 +1576,8 @@ agdevworld `workflow_editor/docs/discussions.md` (`wfe discussion help`).
   answered by that run's next `result`/`synthesis`, or settled when it
   ends. What a facilitator run awaited after it *completed* goes to one
   new facilitator turn (receipt-bound), so a finished turn no longer drops
-  results. Contract: `docs/discussions.md` *Awaiting a result*. Episode:
+  results. (Superseded by workflow_editor p18: they continue the room's one
+  standing conductor.) Contract: `docs/discussions.md` *Awaiting a result*. Episode:
   `devdocs/episodes/argue/p3/`. The trial itself (one RTS × Jev match,
   reviewed in the same discussion, 11 min 36 s) needed no await: the
   participants executed inside their turns, against their guides.
@@ -1668,7 +1669,9 @@ agdevworld `workflow_editor/docs/discussions.md` (*Conductor*, *Activities*,
   (the answer to its question, else an instruction); only without one is a
   new conductor run started. Late outcomes after a conductor completed
   start a new conductor run. `wfe discussion post` refuses an executing
-  attempt.
+  attempt. (Superseded by workflow_editor p18: one standing conductor run
+  per room, woken by its next words; see *One conductor run per
+  conversation*.)
 - **Records.** Store v7: `activities` + `activity_events`, `annotations`
   (interventions, recoveries, evaluations, corrections — never speech),
   `conductor`, `requester`, `messages.node`. Archive transcript records
@@ -2085,6 +2088,74 @@ a review, usages), `docs/delegation.md` (*Follow-up*, the deferred check).
       attempt;
     - none used `run.recover`. Waiting example: agops
       release-check/run-006 rv1.
+
+## One conductor run per conversation (`workflow_editor` p18, 2026-10-25)
+
+Episode `devdocs/episodes/workflow_editor/p18/`. Contracts:
+`workflow_editor/docs/runs.md` *Standing runs*, `docs/conversations.md`
+*Progression* and *Transition*, `docs/delegation.md` *Correction*.
+
+- **Why.** Before p18, the conduct graph completed at the end of each
+  response, and the next message started a new conductor run. Conversation
+  `20261024-160217-forusr` used six runs (`run-031`…`run-036`), one per
+  message, which made the room's history hard to follow.
+- **Standing conductor.** A conductor run carries `standing` (`open`,
+  `suspended` or `closed`, with wakes, held events and `replaces`).
+  - When its nodes are done it **rests**: execution `idle`, status
+    "Idle · Ready for the conversation's next message", with no job, slot
+    or polling turn.
+  - The room's next words are delivered to the same run and wake it with
+    one `ponder-w<n>` node, appended under the run's lock with receipt
+    `wake:<ws>/<run>/w<n>`.
+  - Facilitation end/start and room close/reopen are standing operations
+    on the same run. While closed it is finalized ("Closed"); reopening
+    continues it.
+  - A cancelled conductor is never replaced silently. Replacement is
+    `wfe conversation conductor <id> --replace --reason …` and records
+    `replaces`.
+  - Integration is queued at each rest. Guides are read from the
+    project's committed main. Briefs list open work and fold older
+    stretches (`state --all`).
+- **Recipient runs keep their boundaries.**
+  - Commissions are separate runs, and clarifications go to them.
+  - Changes go back to the same child (`delegate revise`). A result the
+    conductor already judged satisfied is reopened by the person's words
+    (`--because`) or by a review's `--follow-up`, and the acceptance is
+    kept in `reopened`.
+  - A child completes on its own. Rest or closing infers nothing about it.
+- **Readers.**
+  - The view has a `progression` field: conductor, stretches with topics
+    (`ponder --topic`), nodes with their messages, recipients as links,
+    and earlier runs.
+  - aghangout shows 「進行のグラフ」 (current and open stretches unfolded;
+    message ↔ step links; commissions open their own runs) and a 待機中
+    line.
+  - The WFE run view shows the idle focus card and activity line, and the
+    "Idle" badge.
+  - agobserver classifies a resting conductor as `idle-input`.
+  - A conductor waiting only on its delegations is not counted as work of
+    its own.
+- **Transition.** `wfe conversation transition [--apply --author …]` made
+  one recorded decision per room that was ever led (29 rooms: 24 establish,
+  5 unreadable retired-argue rooms). It was rehearsed on a copy of the live
+  data and applied right after deployment. It executed, replayed and sent
+  nothing.
+- **Releases.**
+  - agdevworld `4e47ee4` → `c20fdaa` → `05d2d47` → `6c71936` →
+    `9fd7a3f` (pre-p18 `ae7d050`). Store **v13**. Pre-p18 releases cannot
+    replay `standing.*`.
+  - agautolab `eeddf95`, pj-ponderer `5c6a7ca`, aghangout `6af3a45` →
+    `f7b56c9`, pj-agdev `9e9e767` (agobserver). agpc pins `9fd7a3f` /
+    `eeddf95`.
+  - Recovery (code and data) is in the ignored
+    `pj-agdev/.local/p18/notes.md`.
+- **Trial** (check actor `p18-check`, conversation `p18-trial`): ponderer
+  conduct/run-045 → misc/freework/run-010. Five person messages, one run
+  (`ponder-w1`…`w3`), a commission and its correction to the same child
+  after acceptance, idle intervals, and close/reopen. See `p18/report.md`.
+- Known limits: a long-lived run's `run.json` grows with each revision
+  (measured 2.6 MB at 120 turns); topics are the agent's choice and may be
+  absent; the 5 retired-argue rooms start a new standing run if spoken to.
 
 ## Character dialogue (`argue` p5, 2026-10-21)
 
