@@ -2058,6 +2058,33 @@ a review, usages), `docs/delegation.md` (*Follow-up*, the deferred check).
 - Known limits: one trial; aghangout shows the review as status lines and
   hands the decision to WFE's page; a reused instance keeps the answer line
   it was started with.
+- **p17 ex1 (2026-10-25): approval finishes cleanup and continues the work
+  after the review.** Episode `devdocs/episodes/workflow_editor/p17/ex1/`;
+  contract `docs/reviews.md` *After approval*.
+  - Why: conversation `20261025-013759-jz8ebz`. gimmickimg/freework/run-013
+    reused its own serving page for rv1. Approval recorded cleanup `left`
+    (to "that run", i.e. itself), the page kept serving, and the ready
+    `cleanup` node got no job. Recovery-agent resumed it 4.5 min later.
+  - Cleanup now decides by ownership: the review's own run's page is
+    stopped, started or reused. `left` (owner named) applies only to a
+    different unfinished run; kept/left never reads as stopped.
+  - `review.cleanup` (`release: true`) records `release {unlocked, during,
+    continued}`. The first `attempt.begin` consumes it. An attempt open at
+    the approval is not `left-ready` for that work.
+  - `afterRelease` is one rule for the cleanup callback, the attempt end
+    and reconcile (run re-read after review host work). Receipt
+    `review-approved:<ws>/<round uid>@<seq>`; the assigned node's queue.
+  - Release agdevworld `ae7d050` (pre `3c8b438`, which cannot read
+    `release` records); agpc pins `ae7d050` / `cb83634`. Recovery: the
+    ignored `pj-agdev/.local/p17-ex1/notes.md`.
+  - Deployed checks (agops `release-check`, check actor `p17ex1-check`):
+    - normal path through the real review page: cleanup continued 5 s
+      after approval;
+    - lost callback + executor restart: repaired by reconcile;
+    - approval inside a paused open attempt: a normal end, then one
+      attempt;
+    - none used `run.recover`. Waiting example: agops
+      release-check/run-006 rv1.
 
 ## Character dialogue (`argue` p5, 2026-10-21)
 

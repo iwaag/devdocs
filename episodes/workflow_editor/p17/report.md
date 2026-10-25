@@ -4,6 +4,9 @@ Plan: [plan.md](plan.md). Step reports:
 
 Follow-up: [report7](report7.md), the Developer's waterfall session and
 the chat's review list, including delegated child reviews (2026-10-25).
+Extension: [ex1](ex1/report.md), approval finishes review cleanup through
+the page's owner and continues the work after the review without recovery
+(2026-10-25).
 
 - [report1](report1.md): the Human review node and its durable round
 - [report2](report2.md): reopenable, owned presentations

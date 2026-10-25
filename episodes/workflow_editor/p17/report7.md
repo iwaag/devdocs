@@ -21,8 +21,9 @@ gimmickimg/freework/run-013.
   That ready node did not receive an ordinary continuation. Recovery-agent
   resumed the child at 10:44:21, and the page was verified stopped at
   10:44:42. Thus final cleanup succeeded, but automatic completion depended
-  on recovery. This continuation/lifecycle gap remains to be addressed;
-  the review-list change does not fix it.
+  on recovery. This continuation/lifecycle gap was addressed afterwards in
+  [ex1](ex1/report.md): cleanup by actual ownership and an executor-owned
+  continuation of the work an approval makes ready.
 - The child completed and integrated; the parent received its result,
   disposed it as satisfied and posted its summary at 10:45:47. Both runs
   are completed, with no current held or failed work in the room status.
