@@ -2735,6 +2735,42 @@ the standard is in `devpolicy/styles.md` *Project cooperation*.
   were generic (refresh context/run-009 requested); producers' children did not present for
   human review.
 
+## Tidying a project (`tidy` p1, 2026-10-27)
+
+**Tidying is a catalog activity performed by the owning project's run; ponderer commissions and
+assesses it.** Episode: `devdocs/episodes/tidy/p1/`.
+
+- **Standard:** devpolicy `styles.md` *Keeping a project tidy*: one current README entry; records in
+  their run or episode folder; capability, installed bytes and verification kept apart; generated caches
+  ignored; machine facts out of portable text; domain folders legitimate; no history rewrite. In-system
+  runs read it with `wfe projects read repo:developer/devpolicy styles.md`. Gitea `developer/devpolicy`
+  is a pull mirror of the GitHub repository (10 min), registered as a shared repository. Edit
+  devpolicy where it always was.
+- **Catalog template `tidy`** r1 (`do`): declare target, revision and scope; compare the entry with the
+  implementation, deliveries and evidence; correct within the run's bindings while preserving history;
+  return other projects' defects to their owner; verify and record in the run folder. Its expectation is
+  a tidy node after meaningful work, before handover, or when asked. There is no gate and no automatic
+  insertion. No dedicated workflow yet: `freework` runs add the node themselves.
+- **WFE changes** (agdevworld `a6564d3`, `46fe968`, `964e80b`, `2cc9cd9`; agpc pins `2cc9cd9`):
+  - the brief names the run folder and every documentation step's document as paths (root
+    `report.md`/`answer.md` came from "this run's folder" read against the copy root: agops recover 11
+    of 21, protoprey freework/run-003);
+  - `wfe help projects` says it reads tracked content only, so finding nothing is no evidence of absence
+    (ponderer's wrong "no wolf scene" answer);
+  - reminder `document-missing`, and the delegated-result assessment check of the same name;
+  - reminder `conversation-unanswered` when a standing conductor would rest with the person's latest
+    words unanswered.
+- **Trial:** room `tidy-p1-trial`, ponderer conduct/run-048 → protoprey freework/run-006, gimmickimg
+  freework/run-016, lowerpoly freework/run-004. Results: protoprey's current entry, gimmickimg's 148
+  caches, lowerpoly's README. Two Omni interventions were needed: a missing summary, and a missing
+  report plus host facts that ponderer had accepted in 2–23 s. A fresh reader (`tidy-p1-reader`)
+  answered the original question correctly.
+- **Known limits:**
+  - ponderer accepts results from their outcome line;
+  - a run can still end with `_final-report` unrecorded;
+  - agops' and cagent's existing root files and protoprey's host-bound agsfx adoption are open
+    (`problem.md` *Disposition*).
+
 ## archsage (workflow-editor project `archsage`, since `project_migration` p4, 2026-10-16)
 
 **archsage is a managed project, not an agag agent.** `developer/pj-archsage`,

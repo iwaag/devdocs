@@ -1,6 +1,6 @@
 # Project structure and current-state documentation
 
-Recorded: 2026-10-27 (Asia/Tokyo). Status: problems recorded; cleanup has not been performed.
+Recorded: 2026-10-27 (Asia/Tokyo). Status: worked in tidy p1; dispositions at the end (*Disposition after tidy p1*).
 
 ## Why this episode exists
 
@@ -102,3 +102,24 @@ lowerpoly is a concrete cooperation case: `agent/guide.md` has useful pipeline, 
 Do not classify legitimate domain folders such as `knowledge/`, `lab/`, ponderer's conversation archives, or named deliverables as violations merely because the style's example does not list them. A lagging local workspace is not itself structural corruption; use published revisions for conclusions and make source freshness visible.
 
 The follow-up should demonstrate that a reader can learn current capabilities, limitations and setup from the project entry without reverse-engineering source or mistaking one run's report for the whole project. For the original incident, it should also verify that the agent distinguishes adopted capability, installed bytes and runtime verification. Source-search absence alone cannot establish feature absence.
+
+## Disposition after tidy p1
+
+Published revisions after the episode: protoprey `2ee7d8f28d`, gimmickimg `84af344030`, lowerpoly `8d1bf5278d`.
+Evidence: `report1.md`–`report4.md`, `report.md`.
+
+| Finding | Disposition |
+| --- | --- |
+| P1 protoprey root report | **Corrected.** freework/run-006 moved it with `git mv` to `devdocs/runs/freework/run-003/report.md`; the Task 4 report is restored to `devdocs/reports/task-4-report.md`; the guide points at README and `devdocs/runs/`. **Cause addressed at WFE** (agdevworld `a6564d3`): the brief names the run folder and every documentation step's document as paths. The same cause produced agops' and cagent's root files (below). Follow-on runs 007 and 008 wrote their reports in their folders |
+| P2 protoprey README | **Corrected** (run-006): current-state table (built / adopted / installed / verified), verification scoped to macOS as VERIFY records it, Esc in the mouth scene, dangling `direction/REFERENCES.md` removed in README, GOAL, VERIFY. A fresh reader answered the original question correctly (report4) |
+| P2 (found in tidy p1) protoprey's agsfx adoption | **Open.** `location_sfx` r3 is adopted from an absolute path in agsfx's run copy on one host (not a share reference) and is not installed in the workspace; a fresh copy cannot obtain it. `deliveries.py status` now warns (run-007/008). The repair is agsfx publishing the pack (`wfe run publish`) and protoprey re-adopting it; the README's "Installed" row is not accurate for this delivery until then |
+| P3 agops root `report.md`, `review.md`, `page/`, `presentation/`, `presentation_src/` | **Cause addressed, files still open.** 11 recover runs wrote root `report.md` although the workflow said "in this run's folder"; the brief fix covers new runs. The existing root files were not moved in p1 (agops was outside the trial) |
+| P3 cagent root `answer.md` | **Cause addressed, file still open** (consult/run-006, run-007; consult/run-001…005 wrote in-folder). Moving it is cagent's run, keeping its observation dates |
+| P3 gimmickimg `sheet-review.md` | **Corrected** (run-016): moved to `devdocs/runs/freework/run-009/review-summary.md`; root `sheet/` removed as a byte-identical copy of run-009's frozen presentation (kept in history) |
+| P4 lowerpoly entry | **Corrected** (run-004 and its correction c1): root README with the offer, input/output, how to ask, evidence, limits; host facts removed from it. Remaining: the README no longer says its runs need the toolchain host, and run-004's report describes the first README version |
+| P4 agsfx entry | **Open, reassessed.** agsfx does deliver (`agsfx_delivery` v1 in create/run-005); its README does not say so or link a contract |
+| P4 rts-vs-bot, ppt, jevlab, agops, front, misc | **Open**, not assessed beyond the root inventory; not declared tidy |
+| P5 gimmickimg caches | **Corrected** (run-016): 148 `.godot/` files of three projects untracked (not 30 of one, as first recorded); `.gitignore` covers `.godot/`; a fresh clone re-imports the same files and runs with no errors (report4). History not rewritten |
+| P6 lowerpoly guide host facts | **Retained with reason** (run-004): `agent/guide.md` and `wedo/` keep host paths and LAN URLs as working notes and dated evidence; the README no longer repeats them. Whether the guide's original-host instruction should move to local context stays open |
+| P6 cagent `answer.md`, agops `report.md` local endpoints | **Open** (with the files above) |
+| The original reasoning error | **Addressed at the tool**, separately from the cleanup: `wfe help projects` (agdevworld `46fe968`) says it reads tracked content and that finding nothing is no evidence of absence. The fresh reader cited it. One reader is not proof the error cannot recur |
