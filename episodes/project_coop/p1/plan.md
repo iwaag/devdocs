@@ -1,6 +1,6 @@
 # Project cooperation p1
 
-Status: in execution. This document plans the implementation and trials; step reports (`reportN.md`) record what happened.
+Status: executed 2026-10-26. Step reports `report1.md`–`report6.md` and the final `report.md` record what happened.
 
 Step 1 findings (report1.md): the selected case is protoprey's forest. gimmickimg's waterfall-loop animates the Mushroom Waterfall location (its source image is byte-identical to protoprey's location view), and playprey's `wolf` profile becomes the `mouth` step of the wolf predation event. Gaps G1–G10 are listed there.
 
