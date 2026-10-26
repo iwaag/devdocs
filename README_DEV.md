@@ -2700,6 +2700,41 @@ agdevworld `workflow_editor/docs/shares.md`.
   project. Rejected, superseded or unaccepted outputs also stay until the
   person decides; no run or cleanup deletes them incidentally.
 
+## Project cooperation (`project_coop` p1, 2026-10-26)
+
+**A project uses another project's work as a published delivery it adopted, never through the
+producer's checkout, services or later changes.** Episode: `devdocs/episodes/project_coop/p1/`;
+the standard is in `devpolicy/styles.md` *Project cooperation*.
+
+- **Producers.** playprey (`README.md` "For other projects", `knowledge/delivery.md`,
+  `delivery.py build|verify|embed|unembed`, format `playprey_delivery` v2) and gimmickimg (same
+  README section, `docs/delivery.md`, `tools/delivery.py build|verify`, format
+  `gimmickimg_delivery` v1, relocatable player `player/gimmick/`). Deliveries are WFE run outputs on
+  `agshare`.
+- **Consumer.** protoprey: `docs/cooperation.md`, adoption record `data/deliveries.json`,
+  `tools/deliveries.py adopt|install|status|pack|remove` (bytes from `wfe share resolve`,
+  `PROTOPREY_SHARE_ROOTS=agshare=<path>` or `--from <package>`; every hash checked; installed under
+  ignored `external/`). Wiring is data: a location's `gimmick`, a predation step's `interactive`.
+  The game renders with Forward Plus since p1 (playprey's runtime loses its fog shaders under
+  gl_compatibility).
+- **Embedding a playprey runtime** rewrites its `res://` paths under one folder and merges its
+  autoload, global shader parameters and Jolt settings into the host's `project.godot`;
+  `embed.json` keeps previous values so a replacement restores them. The embedded scene ends with
+  `finished(reason)`.
+- **Trial.** protoprey freework/run-001 found both producers from the published entries,
+  delegated (gimmickimg freework/run-014, playprey freework/run-004), adopted and wired them in
+  12 minutes with no intervention; run-002 replaced the waterfall with revision 2
+  (gimmickimg run-015) keeping revision 1 in the record. Fresh clone, Linux relocation from an
+  explicit package and from a remapped share root were checked.
+- **Defects found by cooperating:** playprey deliveries lacked the generated tissue GLB (wolf,
+  cheetah, horse could not start from a delivery); the playprey Harness watchdog would have quit a
+  host game after 600 s; gimmickimg's player drew a video at its native size and doubled the
+  texture in its alpha shader.
+- **Known limits:** nobody has judged the look of either moment in a window; the agpc render of
+  the mouth is much blurrier than on macOS (uninvestigated); cagent's project resource blocks
+  were generic (refresh context/run-009 requested); producers' children did not present for
+  human review.
+
 ## archsage (workflow-editor project `archsage`, since `project_migration` p4, 2026-10-16)
 
 **archsage is a managed project, not an agag agent.** `developer/pj-archsage`,
