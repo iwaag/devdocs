@@ -2771,6 +2771,56 @@ assesses it.** Episode: `devdocs/episodes/tidy/p1/`.
   - agops' and cagent's existing root files and protoprey's host-bound agsfx adoption are open
     (`problem.md` *Disposition*).
 
+## Reporting and assessing results (`tidy` p2, 2026-10-27)
+
+**Where a result is reported and where it is received, WFE puts the claim beside the evidence and says what
+it cannot judge. These are questions, not gates.** Episode: `devdocs/episodes/tidy/p2/`. The principle is in
+devpolicy `styles.md` *Reporting and accepting results*. Contracts: agdevworld `workflow_editor/docs/delegation.md`
+*Assessing a result* (*The claim beside the evidence*), `docs/runs.md` *Reporting a result* and *Reminders*
+(`results-unreported`), `docs/conversations.md` *Contributions and replies*.
+
+- **Receiver** (brief, `wfe delegate take-up|show`, HTTP `…/delegations`): the assessment shows
+  - first, `FINDINGS (n)` with the checks that are not ok, or `findings: none in what WFE checks … the
+    content is not checked`;
+  - the correction a result answers ("an earlier judgement does not cover it");
+  - `claim —` (outcome, report path, hash and commit) and `records —` (files changed and removed,
+    outputs, report paths not in the child's copy);
+  - the checks;
+  - `to judge:` questions chosen from the child's work: documentation, delivery, removals and moves,
+    tests.
+
+  A path or a `tidy` node chooses a question, never a finding.
+- **Producer:** advice printed with `wfe run start <final-report step>`, or with the completion after
+  which only reporting is left. It asks: what changed at which commit, which checks ran with what
+  results, and what is left; whether the entry, guide and setup still match (a tidy run is asked for
+  evidence instead). The questions that fit the changes follow. A delegated child's brief says how it is
+  assessed.
+- **Conductor:**
+  - `conversation reply` lists the commissioned results with news since the run's previous post;
+  - reminder `results-unreported` at a standing conductor's rest. It catches what
+    `conversation-unanswered` misses once an earlier reply exists.
+
+  The rest checks now apply to HTTP `…/ops` too.
+- Catalog `tidy` r2: step 3 adds the acquisition check of adopted deliveries.
+- **Releases:** agdevworld `828fd47` → `538e96d` → `115872b` → `17c52b3` (pre-p2 `2cc9cd9`); agpc pins
+  `17c52b3` (executor `eeddf95`). No store change. Rollback and logs: the ignored
+  `pj-agdev/.local/tidy-p2/notes.md`.
+- **Trials (ponderer):**
+  - real case `tidy-p2-trial` (conduct/run-049): agsfx published `protoprey_locations` r3 and described the
+    offer; protoprey re-adopted it by share reference and verified a fresh clone (p1's open finding
+    resolved). No intervention.
+  - Fixtures `tidy-p2-fixture`, `tidy-p2-fixture2` (category check; agops workflow `evidence-fixture`,
+    profile `hand` offered by no host, so Omni operates its runs as `fixture-agent`): planted host paths, a
+    test that never runs and false claims were found unprompted by running the tests. After one go-ahead,
+    ponderer sent a correction. A partial correction was first judged satisfied from the report, then
+    reopened by ponderer itself and returned to the same child; the final correction was verified.
+- **Known limits:**
+  - one real trial and two fixture trials;
+  - ponderer asked before sending corrections;
+  - `wfe request` + `ask` (copied from a previous run as precedent) bypasses the assessment;
+  - the sharpened tests question (`17c52b3`) has not been re-tried;
+  - reopening a judged result cites the person's words even for the agent's own finding.
+
 ## archsage (workflow-editor project `archsage`, since `project_migration` p4, 2026-10-16)
 
 **archsage is a managed project, not an agag agent.** `developer/pj-archsage`,
