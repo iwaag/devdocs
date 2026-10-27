@@ -2821,6 +2821,41 @@ devpolicy `styles.md` *Reporting and accepting results*. Contracts: agdevworld `
   - the sharpened tests question (`17c52b3`) has not been re-tried;
   - reopening a judged result cites the person's words even for the agent's own finding.
 
+  *(tidy p3 dispositions: see **Correction provenance and requested results**.)*
+
+## Correction provenance and requested results (`tidy` p3, 2026-10-27)
+
+**A correction says whose finding it is; an agent reopens its own acceptance with its own evidence; a run requested
+with `wfe request` gets the same evidence as a delegated child, and only its recorded requester returns it.**
+Episode: `devdocs/episodes/tidy/p3/`. Contracts: agdevworld `workflow_editor/docs/delegation.md` *Correction* (*The
+agent's own finding*), `docs/runs.md` *Corrections* (*From the requesting run*), `docs/conversations.md` (`ask`).
+Principle: devpolicy `styles.md` *Reporting and accepting results* (finding, request and review are separate facts).
+
+- **Origin.** `wfe delegate revise` without `--because`/`--follow-up` is the agent's own finding (`--evidence`: what
+  it read or ran). `--reopen --evidence` reopens its own satisfied judgement of the latest result (p2's run-051 d1 had
+  to cite an Omni go-ahead). `wfe delegate attribute` appends a later attribution; the original stays. Applied to
+  run-051 d1 correction 1.
+- **Review.** `review-unrecorded` no longer counts corrections, go-aheads or words relayed to a question not about the
+  result; run-051 d1 now reads UNKNOWN.
+- **Requested runs.** `wfe run result <ws>/<wf>/<run> [--requester …] [--file …]` and `wfe run return … --requester
+  …` (HTTP `GET …/result`, `POST …/return`); the authority is `input.entrustedBy`. An awaited result
+  (`conversation ask --run`) is told with this evidence and route.
+- **Account.** Reply news and `results-unreported` include awaited runs and the number of corrections; the brief's
+  delegation lines carry each correction (trial 6's summary omitted one).
+- **Releases:** agdevworld `16cb127` (replay regression: pre-p3 records read inconsistent; rolled back within minutes)
+  → `b7d554a` → `7cbe8e2`; agpc pins `7cbe8e2` (executor `eeddf95`). pj-ponderer `395f3c4`, agops `2a1638d`
+  (fixture: one completion per result), devpolicy `9287da4`. A pre-p3 release cannot replay p3 records. Before
+  activating a release that touches the reducer, run `wfe run check` with it over every workspace. Rollback and
+  logs: the ignored `pj-agdev/.local/tidy-p3/notes.md`.
+- **Trials (ponderer, fixtures, no intervention):** baseline `tidy-p3-base` and `tidy-p3-t1`…`t7`. Every defective
+  result was returned before acceptance, without a go-ahead, with the agent's own evidence, and the corrections were
+  verified. T1 used the request + await route end to end.
+- **Known limits:**
+  - an agent reopening its own mistaken acceptance was never observed: no mistaken acceptance occurred;
+  - the account fix (`7cbe8e2`) was tried once;
+  - a requested result's manifest is hashed when read, not frozen at completion;
+  - the HTTP routes have no test of their own.
+
 ## archsage (workflow-editor project `archsage`, since `project_migration` p4, 2026-10-16)
 
 **archsage is a managed project, not an agag agent.** `developer/pj-archsage`,

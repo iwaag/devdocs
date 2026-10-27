@@ -133,3 +133,18 @@ No store or schema change. `wfe-release.sh activate .local/agdev 2cc9cd9…`; ag
   ```
 - protoprey with the portable effects: main `c4db96f`. `PROTOPREY_SHARE_ROOTS=agshare=<share>` then
   `tools/deliveries.py install`.
+
+## Dispositions of the remaining limits (added by tidy p3, 2026-10-27)
+
+The limits above are kept as they were written. What became of each, with the evidence:
+
+1. Asking before returning: **not seen again.** In seven tidy p3 trials with p2's implicit wording, ponderer returned
+   every deficient result without asking (`../p3/report5.md`).
+2. The sharpened tests question: **re-tried in a fresh context** (`../p3/report1.md`); no premature acceptance there
+   or in the trials. Not proof of reliability.
+3. `wfe request` + `ask`: **resolved in code and tried once** (`../p3/report3.md`, trial T1 in `../p3/report5.md`).
+4. Reopening needs the person's words: **resolved in code** (`--reopen --evidence`, `../p3/report2.md`); correction 1
+   of run-051 d1 is attributed to ponderer-agent and its review status reads UNKNOWN. An agent reopening its own
+   mistaken acceptance was **not observed** behaviourally.
+5. Two result events from a hand-operated run: **fixture changed** (agops `2a1638d`).
+6. Open p1 items: unchanged (out of scope).
