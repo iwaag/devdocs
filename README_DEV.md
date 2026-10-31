@@ -3682,3 +3682,16 @@ Run from `pj-clusterintent/ansible_agdev`:
   uv run --project ../nctl nctl render production --out inventories/generated
   ansible-playbook -i inventories/generated/production.yml playbooks/agent/setup_autolab_node.yml --limit agautolab1
   ```
+
+
+## Built-in workflow consultation (workflow_improve p1, 2026-11-01)
+
+`workflow__talk` is a standard agdev node type, specializing consultation to
+building and presenting the actual run graph for the Developer's or requesting
+agent's agreement. Freework starts `talk → workflow__talk`; substantive work is
+added as its own nodes before execution. Agreement records direction rather than
+creating an execution permission gate. The built-in instructions reach initial
+and continuation briefs without an optional reference read. Existing runs keep
+their frozen definitions. Implemented in agdevworld `799c039`; all 20 managed
+projects' freework definitions are updated. Evidence and limits:
+`episodes/workflow_improve/p1/report.md`.
