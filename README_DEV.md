@@ -244,6 +244,18 @@ Development work for a project is a WFE workflow request. Old `pj-<slug>`,
 `work-m<id>` and `workplan-…` conversations remain as history. Nothing serves
 them, and the mission branches they name are all integrated.
 
+### Execution guide (`unslop_guides` p1, 2026-10-31)
+
+The executor supplies the original request and its delivery route first, then a short
+`agautolab/agent/guides/wfrun/guide.md`, existing scoped context and the WFE brief.
+Operational details are read on demand from the guide's `reference/` directory;
+the prompt supplies its absolute path on the execution host. Reference hashes
+participate in the session contract, so a changed note invalidates old session reuse.
+Browser requests answer through run outcomes and artifacts, conversation requests
+through replies to their source message, and delegated requests through their requester.
+Current context and compact continuation behavior are retained. Coverage, previous
+text and verification: `devdocs/episodes/unslop_guides/p1/`.
+
 ## Execution nodes (`project_migration` p7, 2026-10-19)
 
 WFE runs are performed by **execution nodes** (workers) of one coordinator
