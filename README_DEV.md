@@ -2169,6 +2169,58 @@ Episode `devdocs/episodes/workflow_editor/p18/`. Contracts:
   (measured 2.6 MB at 120 turns); topics are the agent's choice and may be
   absent; the 5 retired-argue rooms start a new standing run if spoken to.
 
+## Files on a person's message (`workflow_editor` p19, 2026-11-01)
+
+**A person's message can carry ordinary files — a pasted screenshot, a photo,
+a document — each an occurrence tied to exactly that message, readable by
+every participating project and by agents on other hosts, checked against
+the hash recorded when the message was accepted.** Episode
+`devdocs/episodes/workflow_editor/p19/`. Contract: agdevworld
+`workflow_editor/docs/message-files.md` (fixture
+`docs/fixtures/message-files.json`); `wfe conversation help` (*Files*).
+
+- **Where the bytes are.** One bundle per message on a share named in the
+  ignored `<area>/attachments.json` (`agshare`, prefix `conversations`):
+  `shared://agshare/conversations/<c>/attachments/<b-…>/{manifest.json,<f-…>}`.
+  WFE allocates the ids; names are metadata. Staged, re-hashed, renamed into
+  place; never overwritten or deleted (closing, archiving or retiring deletes
+  nothing).
+- **The submit token is an upload operation** (store **v14** `uploads`,
+  `message_files`, `file_backups`). Same token + same payload → the same
+  accepted message and requests; changed content or author → 409
+  `token-conflict`. The bundle is published first, then the message, its file
+  rows, requests and the operation's acceptance are one transaction after
+  routing again. A failed upload never becomes a text-only message.
+- **Limits** 20 files, 32 MiB each, 64 MiB per message; clients read
+  `attachmentFiles` (limits and availability) from the list and room view.
+  Empty text is allowed with files; an untitled new room takes the first
+  file's name. Measured at the limit: nginx passes the 90.5 MB body; the
+  service's peak grew 540 MiB for one 64 MiB message.
+- **Reading and runs.** Messages' `attachments` list challenges and files
+  (`preview` decided by WFE from the bytes; active types download).
+  `GET|HEAD …/messages/<n>/attachments/<id>` checks the whole identity and the
+  hash. New runs, answers, instructions, a standing conductor's wake and later
+  requests citing the message get the occurrences with their source; briefs
+  name `wfe conversation fetch`, which works on execution nodes (share where
+  mounted, else the coordinator) and checks the hash. Reading starts nothing.
+- **Archive and recovery.** The archive keeps associations and each bundle's
+  manifest (bytes stay on the share); `wfe conversation export|restore` makes
+  and verifies a self-contained package; `wfe conversation backup` (also every
+  reconcile) copies bundles to agpc's disk and reads hashes back; `backup
+  --restore` brings one back verified. ponderer's `tools/discussions` shows
+  files and validates bundles (pj-ponderer `89fb781`, by its own agent).
+- **aghangout** (by its in-system agent, freework/run-002 → `90c6d05`):
+  clipboard image paste, file dialog, drag and drop, pending previews and
+  removal, file-only sending, retry with the same token and payload, pending
+  files kept across reloads, inline images and original downloads; no file
+  controls when WFE offers none.
+- **Verified live** (check rooms `p19-check`, `p19-check-led`): an image with
+  randomly chosen features pasted in the served aghangout was described
+  correctly by front, forge, ponderer's conductor and a forge run on agpc;
+  agpc fetched hash-identical bytes with and without the share mount.
+- Releases and recovery: see `p19/report.md`; local evidence and the
+  recovery procedure in the ignored `pj-agdev/.local/p19/notes.md`.
+
 ## Character dialogue (`argue` p5, 2026-10-21)
 
 **A discussion reads as short character lines: each agent message as one
