@@ -2723,6 +2723,33 @@ Two additions came with it:
   `target-changed` when the target changed under the binding since the run
   built on it; reassessment is a successor run.
 
+## Published workflows (`improve_wfrun` p1, 2026-11-02)
+
+**What a project offers, and what an ordinary run follows, is its committed default branch on
+Gitea, not a workspace on this host.** Episode: `devdocs/episodes/improve_wfrun/p1/`; contracts
+in agdevworld `workflow_editor/docs/access.md` (*Published workflows*), `runs.md` (*Definition
+snapshot*), `storage.md` (*The workspace and the published source*), `delegation.md`, `intake.md`.
+
+- A run (person/conversation request, Zulip post, delegation child) resolves the project's
+  default branch once, fetched now, and takes both its definition and its copy from that root
+  commit (every pinned submodule, default-branch integration targets). `run.json`
+  `definition.source` names it (`published`, `trial`, `workspace`; absent = before p1).
+- The editor, intake routes, notifier channels, delegate targets, validation peers and
+  conversation targets read the same published source. An integration marks the project's access
+  caches due, so a workflow a run adds is routable and gets its channel without a restart.
+- Delegation records the target revision (`target.source`); the child is created from it even when
+  the post arrives later. `wfe delegate targets [<project>[/<workflow>]]` shows what is ready;
+  the result assessment's `ran —` line says which workflow and revision the child ran.
+- The workspace is the editing area: the editor shows Published and Workspace (editing), a trial
+  runs the workspace file's exact bytes on the published code (`wfe request --editing`), and
+  `wfe workspace status|sync` (or Update workspace) relates it to the published revision and
+  fast-forwards it when safe. Nothing pulls workspaces automatically.
+- Trial: test project `wfrun-trial` — freework/run-001 created `stamp`; ponderer conduct/run-069
+  delegated "heron" to it (child stamp/run-001 at the dispatched commit) while the workspace stayed
+  at its first commit; stamp/run-002 ran on gpupc.
+- Known: gimmickimg's published `partial-animation` fails validation (`confirms-type`), so it is
+  discoverable but not runnable until gimmickimg fixes it. Copy retirement (problem 5) is later work.
+
 ## Shared areas (`shared://`, since `project_migration` p6, 2026-10-17)
 
 **Large inputs and outputs travel on a shared area, by reference and
