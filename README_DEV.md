@@ -461,9 +461,10 @@ it relies on is WFE's `docs/observation.md`. Episode record:
   `uncertain`: judged by the local model (`wftriage`), never given a second
   writer, told to the owners at its bound.
 - **Recovery is a workflow.** A recoverable incident becomes a
-  `request-<incident>` post in `#wf-agops.recover`; WFE's intake accepts it
-  from Observer (`zulip.json` `intake.agents`) and the post becomes an
-  `agops/recover` run. The recovery agent investigates and decides; to
+  `request-<incident>` post in `#wf-warden.recover`; WFE's intake accepts it
+  from Observer (`zulip.json` `intake.agents`) and the post becomes a
+  `warden/recover` run (the project `warden`, named `agops` until `rename/warden`, 2026-11-02;
+  older runs keep that name in their uid and branch). The recovery agent investigates and decides; to
   continue it records `wfe run recover` (interrupted/unknown holds or an
   unowned continuation; never a person's stop; no budget since p11). Observer records `restored` only when the run's agent reports
   work afterwards. A recovery run is never itself recovered; the executor's
@@ -2783,6 +2784,15 @@ snapshot*), `storage.md` (*The workspace and the published source*), `delegation
 - Branch absence is not run absence: reads, receipts and numbers do not change, and a correction of a restored run publishes its branch again.
 - Bytes are a separate question: deleting refs freed almost nothing measurable in the batch. Measure per location, and do not extrapolate.
 - Worker-only commits return as bundle files, not refs. Untracked files that come back to a tree are committed by the next checkpoint, as any untracked file in a copy is.
+
+## Renaming a managed project (`rename/warden`, 2026-11-02)
+
+**A run keeps the identity it was created with; its current project follows the rename.** Episode:
+`devdocs/episodes/rename/warden/`; contract in agdevworld `workflow_editor/docs/storage.md` (*Renaming a project*).
+
+- `wfe rename-project <from> <to> --repository <name> [--preview] --by <name>`, after renaming the Gitea repository and Zulip names by id and stopping the writers. Restartable from its journal.
+- Existing runs: uid and branch keep the old name (`agops/recover/run-001#…`, `wfe/agops/…`); `project` is the new one, through `run.rename-project`. A grep for the old name finds history as well as mistakes: judge a match by what it is for.
+- The registry's `formerly` resolves stored values in existing records. It offers no entrance: routes, publication and new requests use the current name only.
 
 ## Shared areas (`shared://`, since `project_migration` p6, 2026-10-17)
 
