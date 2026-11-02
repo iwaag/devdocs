@@ -1485,7 +1485,8 @@ destination is that project's conversational workflow.** Episode:
   - It is a visual novel: a lobby of the partners, then each partner's room,
     portrait and dialogue, with History, Work and Talks panels.
   - It owns characters, rooms, playback, navigation, input, drafts and
-    outbox. WFE owns everything else.
+    outbox. WFE owns everything else. Closing a room is in its header and
+    its list since fix p2 (*Explicit conversation closing*, below).
   - Its own `scripts/deploy.sh` installs releases into
     `<area>/hangout/releases/<commit>` and switches `current`. The agdev
     origin serves `current` read-only, so a redeploy needs nothing from
@@ -2761,6 +2762,15 @@ snapshot*), `storage.md` (*The workspace and the published source*), `delegation
 - Checkouts stay for whoever chooses one: Developer details, `wfe workspace`, `wfe workflow`, `wfe request --editing`. A run's copy is still made beside its workspace, and the project page's metadata and `project.yaml` still read and write the checkout.
 - Edits only in a checkout: `wfe draft edits|import`, offered on the project page. At p20 none existed in the 21 projects.
 - Drafts are in no backup, and the name on them is what the person typed: no login exists.
+
+## Explicit conversation closing and truthful status (`fix` p2, 2026-11-02)
+
+**A conversation is closed by an explicit act, by anyone who names its id, and "open" means nobody closed it.** Episode: `devdocs/episodes/fix/p2/` (problem: rooms whose person had said 「完了」 stayed open, and aghangout called every open room 進行中). Contract: agdevworld `workflow_editor/docs/conversations.md` *Closing and reopening*.
+
+- **WFE** (agdevworld `8e35240`). `wfe conversation close <id> [--reason …]` works from any project's run, from a remote worker (forwarded to the coordinator) and from outside a run (`--author`). The `room` event keeps `{by, run, attempt, reason}` — an attempt's agent closes as itself, never as the person — and the archive carries it. A repeated close records nothing again. The answer carries the room's state, withdrawn requests and `status`; `state <id>` shows what is still open. Closing withdraws requests not started, lets started work finish and be recorded, holds continuations, completes and approves nothing; a person's post reopens.
+- **aghangout** (`ff70efa`). 会話を終了 / 会話を再開 sit in the room header (with 「作業は止まりません」), success is said from WFE's answer, a refused close keeps 再試行. The list has 選んで終了: each chosen id is closed with its own call and accounted for; failed ids stay selected. Filters read すべて / 未終了 / 終了; an open room with no work, awaited answer, failure, stopped run or held continuation reads 待機中; a closed room with work still shows 未完了の作業.
+- **Guidance**: one shared bullet in agautolab `wfrun/reference/conversation.md` (`5b62114`); ponderer's `conduct.md` (`47a3843`) describes closing consistently. No keyword or inactivity closing, no new state machine, no warden-only mechanism.
+- **Repair**: the seven rooms of `problems.md` were re-read and closed with reasons naming the instruction (dispositions in `report4.md`).
 
 ## Run records and working copies (`improve_wfrun` p2, 2026-11-02)
 
