@@ -20,8 +20,8 @@ Date: 2026-11-02. Plan: [plan.md](plan.md). Machine addresses, the raw inventory
 | Managed copies on the coordinator | 497: 488 `ready`, 9 `retired` |
 | Run status | 454 completed, 8 cancelled, 33 idle standing, 2 in progress |
 | Copies with more than one repository holding a run branch | 159 |
-| Repositories named by those copies | 35 URLs (29 returned branches) |
-| Branches on those repositories on Gitea | 764, of which **729 `wfe/…`** |
+| Repositories named by those copies | 35: 29 on Gitea, 6 on GitHub |
+| Branches on the Gitea repositories | 764, of which **729 `wfe/…`** |
 | Most run branches | pj-agops 82, study-argue 77, pj-ponderer 73, pj-front 72, wedo-argue 67 |
 
 A shared or nested repository carries a run branch for each run: study-argue and wedo-argue together hold 144. Counting only project roots would miss about a third of the branches.
@@ -79,4 +79,4 @@ Today's check of the nine retired runs: `wfe run restore --dry-run` reports arch
 
 **Outputs that fail to verify** leave that run `covered: false` with the reason. Branch cleanup requires `covered: true`.
 
-**Not inspected:** the content of the 488 non-retired copies; Gitea's internal state beyond repository sizes and branch lists; whether six of the 35 URLs that returned no branches are stale or empty (they are named in the local inventory). Adoption references by consuming projects were not followed: they point at shared output paths, which the backup includes for retired runs only.
+**Not inspected:** the content of the 488 non-retired copies; Gitea's internal state beyond repository sizes and branch lists; six of the 35 URLs are GitHub repositories of pj-clusterintent, not on Gitea, so their branches are not counted above and they stay outside cleanup. Adoption references by consuming projects were not followed: they point at shared output paths, which the backup includes for retired runs only.
