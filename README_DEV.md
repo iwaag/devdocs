@@ -2748,7 +2748,25 @@ snapshot*), `storage.md` (*The workspace and the published source*), `delegation
   delegated "heron" to it (child stamp/run-001 at the dispatched commit) while the workspace stayed
   at its first commit; stamp/run-002 ran on gpupc.
 - Known: gimmickimg's published `partial-animation` fails validation (`confirms-type`), so it is
-  discoverable but not runnable until gimmickimg fixes it. Copy retirement (problem 5) is later work.
+  discoverable but not runnable until gimmickimg fixes it (fixed in improve_wfrun p2). Copy retirement: next section.
+
+## Run records and working copies (`improve_wfrun` p2, 2026-11-02)
+
+**A run's record outlives its working copy.** Episode: `devdocs/episodes/improve_wfrun/p2/`; contract in agdevworld
+`workflow_editor/docs/storage.md` (*Where a run lives*, *Retirement*, *Relocation*), also `workers.md`, `integration.md`.
+
+- The run folder is `<copy>/record/devdocs/runs/<wf>/<run>/`; the tree's documented path is a relative link to it. Agents
+  save there and leave it out of their own Git commands (git refuses); a publication stages it as a snapshot. A worker's copy
+  keeps a real folder.
+- `runSpace` reads and writes without a checkout; `treeSpace` is what needs code, and refuses without a tree.
+- `wfe runs storage`, `wfe run storage|retire|restore <run>`, `wfe runs retire --selection <file>`, and the run view. Explicit
+  only: no scheduler. Run branches are kept.
+- Retiring keeps commits in the project's retention repository (`<workspace>/.local/wfe/retention/`) and non-committed bytes in the run's
+  archive, verified before the tree goes; unclassifiable data keeps the copy; `--discard <path>=<reason>` is the agent's call. A worker
+  that holds a copy reports first; lost contact holds the run at `retiring`.
+- Measure with aggregate allocation, not per-copy `du`: local clones hard-link objects, and archives stay on the same disk.
+- An integration records whether the workflows it added or changed validate (`definitions`); `wfe validate` inside a copy reads the copy.
+- A pre-p2 release cannot read relocated records. Not a code-only rollback.
 
 ## Shared areas (`shared://`, since `project_migration` p6, 2026-10-17)
 
