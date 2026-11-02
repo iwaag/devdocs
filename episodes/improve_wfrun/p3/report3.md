@@ -47,6 +47,8 @@ Delayed messages stay in `test/workers.test.ts`: a stale upload and a report of 
 
 The agent did the work and recorded its nodes in both attempts. No unexplained exit without node records occurred in this trial.
 
-## Defects
+## Findings
 
-None found on this path. So worker-backed runs may enter branch cleanup, subject to its own check that their remote tip is retained: this path only proves their local data.
+**Worker-only untracked files were published by the correction.** Coming back into the new tree as untracked files, `worker-only.dat` and `worker-only.bin` were committed by the checkpoint after the attempt (`853a2f2`) and reached the trial project's main with the integration. They should not have surprised me: any untracked file in a copy is treated that way at a checkpoint, retired or not, and I had written these by hand after the last one. So retirement does not change the outcome, and I did not change the code. It is written into `docs/storage.md` *Retirement*. Consequence here: 200 KB of trial bytes on `wfrun-trial` main, left there. I noticed this only in step 5, when a later run's tree contained them; the check above of "hashes the same" did not reveal it.
+
+**No defect on the retirement, archive, removal, restore or dispatch path.** Worker-backed runs may enter branch cleanup, subject to its own check that their remote tip is retained: this path proves their local data only.

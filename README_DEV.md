@@ -2760,13 +2760,29 @@ snapshot*), `storage.md` (*The workspace and the published source*), `delegation
   keeps a real folder.
 - `runSpace` reads and writes without a checkout; `treeSpace` is what needs code, and refuses without a tree.
 - `wfe runs storage`, `wfe run storage|retire|restore <run>`, `wfe runs retire --selection <file>`, and the run view. Explicit
-  only: no scheduler. Run branches are kept.
+  only: no scheduler. Run branches are kept until an explicit cleanup (next section).
 - Retiring keeps commits in the project's retention repository (`<workspace>/.local/wfe/retention/`) and non-committed bytes in the run's
   archive, verified before the tree goes; unclassifiable data keeps the copy; `--discard <path>=<reason>` is the agent's call. A worker
   that holds a copy reports first; lost contact holds the run at `retiring`.
 - Measure with aggregate allocation, not per-copy `du`: local clones hard-link objects, and archives stay on the same disk.
 - An integration records whether the workflows it added or changed validate (`definitions`); `wfe validate` inside a copy reads the copy.
 - A pre-p2 release cannot read relocated records. Not a code-only rollback.
+
+## Recovery of retired runs and run branch cleanup (`improve_wfrun` p3, 2026-11-02)
+
+**A retired run's saved work is backed up on another machine, and its run branches can then go, explicitly.** Episode:
+`devdocs/episodes/improve_wfrun/p3/`; contract in agdevworld `workflow_editor/docs/storage.md` (*Backup and recovery*, *Run branch cleanup*).
+
+- `wfe backup create|status|list|verify|restore|rehearse|reinstate`; destination `<area>/run-backup.json`; a daily launchd job. A generation is
+  published only after every file and retained ref verified at the destination. **It is not disaster recovery for the service**: Gitea, workspaces,
+  credentials and the trees of runs not retired are outside, and the manifest names those runs.
+- Recovery is rehearsed on the backup host, where the original paths do not exist: `wfe backup restore --from <path> --into <empty>`, then `wfe backup rehearse`.
+  An isolated area carries no Gitea, Zulip, Slack, worker or presentation settings and refuses `wfe exec|notify|intake|request`.
+- `wfe branches inventory|preview|delete|recreate`. A branch goes only by explicit selection, when its run is retired and settled and its exact tip is in
+  retention and in a verified backup at the run's generation. Age, name and reachability from main decide nothing. `branch-cleanup.json` keeps the mapping.
+- Branch absence is not run absence: reads, receipts and numbers do not change, and a correction of a restored run publishes its branch again.
+- Bytes are a separate question: deleting refs freed almost nothing measurable in the batch. Measure per location, and do not extrapolate.
+- Worker-only commits return as bundle files, not refs. Untracked files that come back to a tree are committed by the next checkpoint, as any untracked file in a copy is.
 
 ## Shared areas (`shared://`, since `project_migration` p6, 2026-10-17)
 

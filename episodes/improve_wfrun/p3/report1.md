@@ -34,8 +34,7 @@ Allocated bytes by `du`, each location once.
 | --- | --- | --- |
 | Coordinator, all copies including retention and archives | 53.3 GiB | coordinator disk |
 | Retention repositories | 1.41 GiB, 6 repositories | coordinator disk |
-| Archives of retired runs | 4.51 GiB | coordinator disk |
-| Worker archive received (playprey freework/run-001) | 0.28 GiB | coordinator disk |
+| Archives of retired runs, including 0.28 GiB received from a worker (p2's figure) | 4.51 GiB | coordinator disk |
 | Coordinator access caches / gitea cache / control backups | 2.0 GiB / 0.17 GiB / 0.72 GiB | coordinator disk |
 | Gitea repositories (container volume) | 3.56 GiB | **coordinator host** |
 | Shared area | 8.9 GiB | **coordinator disk** (served from it, not a separate machine) |
