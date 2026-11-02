@@ -2751,6 +2751,17 @@ snapshot*), `storage.md` (*The workspace and the published source*), `delegation
 - Known: gimmickimg's published `partial-animation` fails validation (`confirms-type`), so it is
   discoverable but not runnable until gimmickimg fixes it (fixed in improve_wfrun p2). Copy retirement: next section.
 
+## Workflows without workspace management (`workflow_editor` p20, 2026-11-02)
+
+**The graph a person sees is what the next ordinary run uses, and changing it is done in the GUI.** Episode: `devdocs/episodes/workflow_editor/p20/`; contract in agdevworld `workflow_editor/docs/drafts.md`. This changes the editing half of *Published workflows* above: the workspace is no longer the editing area of the GUI.
+
+- `#/ws/<ws>/wf/<file>` is the published graph, refreshed within 10 s while open. Edit opens a draft (`.../draft/<id>`). `#/ws/<ws>/run/<wf>/<run>/definition[/<rev>]` is what a run started with, from its record. One renderer, with the source stated.
+- A draft lives in `<area>/.local/wfe-drafts/`, with revision-checked saves. Saving changes nothing a run reads. Try draft runs an exact saved revision on the published code (`definition.source.draft`). `wfe draft …` is the same code.
+- Apply: no working tree; merged by text lines with upstream changes, validated, pushed without force on the head it was built on, in submodule mode followed by the pin, then read back through the resolver requests use. Conflicts are resolved in the GUI. Validation errors block it; warnings and approvals do not. The journal makes retrying safe.
+- Checkouts stay for whoever chooses one: Developer details, `wfe workspace`, `wfe workflow`, `wfe request --editing`. A run's copy is still made beside its workspace, and the project page's metadata and `project.yaml` still read and write the checkout.
+- Edits only in a checkout: `wfe draft edits|import`, offered on the project page. At p20 none existed in the 21 projects.
+- Drafts are in no backup, and the name on them is what the person typed: no login exists.
+
 ## Run records and working copies (`improve_wfrun` p2, 2026-11-02)
 
 **A run's record outlives its working copy.** Episode: `devdocs/episodes/improve_wfrun/p2/`; contract in agdevworld
