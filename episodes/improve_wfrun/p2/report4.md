@@ -20,8 +20,8 @@ Date: 2026-11-02. Separate from the storage work: WFE code in its own commit, ag
 `wfe delegate targets gimmickimg` now says `partial-animation ready, valid: yes, requests: yes, channel: provisioned`.
 
 **The repair run was not clean.** The first two attempts made and committed the edit, then exited without recording a node, so the
-run was held as interrupted. `agops` recovery resumed it three times, and the third attempt recorded the nodes afterwards
-(`run.record-done fix-definition`). Its `talk`, `present` and `review` nodes say nothing was needed. Two causes I can name:
+run was held as interrupted. `agops` recovery resumed it twice, and the third attempt recorded the nodes afterwards
+(`run.record-done fix-definition`). Its `talk`, `present` and `review` nodes say nothing was needed. What I can say about the cause:
 
 - **A WFE defect, fixed here**: `wfe validate` inside a run's copy read the registered workspace, so both agents could not validate the very fix they
   were asked to validate, and they spent their attempts on that. `wfe validate` now reads the copy (test in `runrecord.test.ts`).
