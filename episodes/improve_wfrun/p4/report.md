@@ -46,7 +46,6 @@ Per-case results and limits are in [report5.md](report5.md).
 
 - **The first job of each run now waits for a turn**, about 20 s plus a model call. Conversations feel this on their first message only.
 - **Every turn is a Sonnet call and a run copy** of warden: about US$0.13 and 16 MB. Trials made 28 in about 90 minutes.
-- **The 21 stale `evidence-fixture` jobs now cost a turn** each time their deferral comes due, next at 2026-11-04 05:44 UTC.
 
 ## Revisions
 
@@ -91,7 +90,7 @@ Per-case results and limits are in [report5.md](report5.md).
 
 ## For you to decide
 
-- **Drop the 21 `evidence-fixture` jobs?** Their runs are completed, and p3 left them as not mine to drop. Dropping them ends the recurring turn.
+- The 21 `evidence-fixture` jobs were dropped afterwards at the Developer's instruction (rows set to `dropped` with a note; run records untouched), which ends their recurring turn.
 - **Is the first-message delay and the per-turn cost acceptable?** If not, the evidence-based option is letting conversation runs start
   with a standing decision. I did not add that, because it would be a category rule the plan asked to avoid.
 - **A real trial** with heavy GPU or display work is the next useful evidence, and it needs work you actually want done.
