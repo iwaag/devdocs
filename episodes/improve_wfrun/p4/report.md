@@ -74,7 +74,7 @@ Per-case results and limits are in [report5.md](report5.md).
 1. **Six defects were found after the first deployment**, all fixed ([report5.md](report5.md)). Two came from reading code after the tests had
    passed, so more of this kind may remain.
 2. **I set the commit author to "Claude" by a command-line override on 8 commits** (agdevworld `96404c2`, `38adb4b`; agautolab
-   `f1b41a7`, `d63a91f`, `246e6f5`; pj-agdev `706e1d1`; warden `8619d68`; p4trial `9194f8f`, since rebased), instead of your configured identity. You did not ask for that. Most are
+   `f1b41a7`, `d63a91f`, `246e6f5`; pj-agdev `706e1d1`; warden `8619d68`; p4trial `9194f8f`), instead of your configured identity. You did not ask for that. Most are
    pushed, so I left them as they are. Later commits use your configuration.
 3. **#617 in `p4-check-room` reads as `iwaag` but I sent it** through the UI. #618 corrects it.
 4. **Owner DMs were sent during this work**: one for a turn I killed, and one executor-down during heavy builds.
@@ -91,8 +91,7 @@ Per-case results and limits are in [report5.md](report5.md).
 
 ## For you to decide
 
-- **Drop the 21 `evidence-fixture` jobs?** Their runs are completed, and p3 left them as not mine to drop. Warden deferred them with
-  the same view. Dropping them ends the recurring turn.
+- **Drop the 21 `evidence-fixture` jobs?** Their runs are completed, and p3 left them as not mine to drop. Dropping them ends the recurring turn.
 - **Is the first-message delay and the per-turn cost acceptable?** If not, the evidence-based option is letting conversation runs start
   with a standing decision. I did not add that, because it would be a category rule the plan asked to avoid.
 - **A real trial** with heavy GPU or display work is the next useful evidence, and it needs work you actually want done.
