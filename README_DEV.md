@@ -266,7 +266,7 @@ WFE runs are performed by **execution nodes** (workers) of one coordinator
 - **Nodes now**: `studio` (local, the coordinator's host, default) and
   `gpupc` (agpc: Ubuntu, NVIDIA GPU, desktop `:0`, Godot 4.7.2, Claude Code,
   `agshare` at `/mnt/agshare`). Listed in `<area>/workers.json`; each has
-  one slot, so two runs execute at once.
+  one slot, so two runs execute at once. (Since `improve_wfrun` p4 a node holds what warden admitted; see that section.)
 - **Choosing**: `wfe request … --node <id>` (or the browser route's
   `node`), else the workflow's `execution.node`, else the project's, else
   the default. Recorded in `run.create`; every attempt runs there;
@@ -293,7 +293,7 @@ WFE runs are performed by **execution nodes** (workers) of one coordinator
 - **Lanes** (p8): a worker may declare extra slots per named lane
   (`workers.json` `lanes`); a workflow names its lane (`execution.lane`).
   Studio has `conversation: 1` for Front; remote workers refuse extra lanes
-  for now.
+  for now. (Since `improve_wfrun` p4 lanes have no capacity, and studio also has the coordination lane.)
 - **Limits**: a worker offers every profile of `agents.toml` (only `sonnet`
   works on the PC); an external wait (`wfe run wait`) is woken only by a
   resume.
@@ -2805,6 +2805,33 @@ snapshot*), `storage.md` (*The workspace and the published source*), `delegation
 - Branch absence is not run absence: reads, receipts and numbers do not change, and a correction of a restored run publishes its branch again.
 - Bytes are a separate question: deleting refs freed almost nothing measurable in the batch. Measure per location, and do not extrapolate.
 - Worker-only commits return as bundle files, not refs. Untracked files that come back to a tree are committed by the next checkpoint, as any untracked file in a copy is.
+
+## Agent-directed execution coordination by warden (`improve_wfrun` p4, 2026-11-03)
+
+**Queued work starts when warden decided it does, where it decided, and a node executes as many attempts at once as
+were admitted.** Episode: `devdocs/episodes/improve_wfrun/p4/`; contract in agdevworld `workflow_editor/docs/coordination.md`
+(also `workers.md`, `runs.md`, `observation.md`); the agent's side in the warden project (`README.md`, `agent/warden.md`,
+`agent/recover.md`, `agent/coordinate.md`, `devdocs/workflows/coordinate.yaml`). Release: WFE agdevworld `1053a73`, executor agautolab `96b5a32`; figures, limits and what only fixtures have shown are in the report.
+
+- The one slot per worker lane is gone. A job carries its admission (`awaiting` warden's decision, `deferred`, `admitted`);
+  a `start`/`defer` of scope run stands for the run's later continuations on that node; the status reads
+  `Queued · Awaiting warden's decision` / `Deferred · By warden …` / `Queued · Starts when its execution node next claims`.
+  No resource lock, compatibility matrix or load threshold in code: load, GPU, host facts and requests are evidence in
+  `wfe coordinate view`. An area without `coordination` in `workers.json` keeps one attempt per lane.
+- WFE opens a `warden/coordinate` run (a turn) when something awaits a decision, from durable coalesced events
+  (`queued`, `attempt-ended`, `worker-available|unavailable`, `reconsider`, `wake`); the coordination lane on studio claims
+  it without a decision, one at a time; turns ending without a decision pause automatic turns visibly after three
+  (`wfe coordinate wake` overrides); the workflow is exempt from recovery. Recovery runs are ordinary work.
+- `wfe coordinate view|events|start|defer|assign|note|notes|decisions|reconsider|wake|apply`. Decisions are rows with
+  reason, observations, assumptions, reconsideration, basis (stale → nothing applied, changed facts answered) and the
+  attempt they admitted. `executor.placed` and `run.assign` provenance: a node the request named or a person assigned is a
+  constraint warden does not move; workflow/project/default choices are preferences.
+- autolab's executor holds several attempts (per-attempt stops, ends, logs, adoption), a keeper thread reports the
+  heartbeat with the measured load and reconciles; a remote worker's `state.json` is locked. Working agents read who
+  shares their node and warden's notes in their brief and ask `wfe coordinate reconsider` on interference.
+- Observer: a job awaiting or deferred is a legitimate wait; an overdue deferral and a stalled coordination path go to
+  the owners (family `coordination`); the executor-outage incident names every open attempt.
+- Evidence of real-agent decisions and their limits: `episodes/improve_wfrun/p4/report.md`.
 
 ## Renaming a managed project (`rename/warden`, 2026-11-02)
 
