@@ -2833,6 +2833,17 @@ were admitted.** Episode: `devdocs/episodes/improve_wfrun/p4/`; contract in agde
   the owners (family `coordination`); the executor-outage incident names every open attempt.
 - Evidence of real-agent decisions and their limits: `episodes/improve_wfrun/p4/report.md`.
 
+## Node expectations, examples and list groups (`improve_wfnode` p1, 2026-11-03)
+
+**A definition can say what a node's result should satisfy, that a node is a model rather than work, and that nodes form a variable list.** Episode: `devdocs/episodes/improve_wfnode/p1/`; contract in agdevworld `workflow_editor/docs/contract.md` (*Groups*, *Examples*, *Expectations*), `runs.md` (*Examples*, *Expectation assessments*), `adjustments.md` (*Specializing examples*), `catalog.md`. Release: WFE agdevworld `7fe52df`, executor agautolab `f067be0`.
+
+- `groups.<id>.members` is the sole authority for membership: flat, non-overlapping, ordered, no implicit edges. The editor draws a named boundary, `List · Variable`.
+- `example: true`: refused if started or cancelled, outside counts and `ready`, listed in `execution.examples`; a run with one cannot read as completed, and an attempt leaving only examples is held (`left-examples`). Resolved through an ordinary `wfe run adjust` (`wfe run help specialize`): `specializes: {examples, revision}` on replacements, `examples: [{example, group, replacedBy}]` on the revision, `example-boundary` refuses a lost dependency.
+- `expectations: [{key, strength, note}]`: strength `preferred` or `required`, gating nothing. `wfe run expectation <run> <node> <key> met|unmet|unverified` states what holds with checked evidence; a statement never made reads Unverified; preferred and unmet reads Alternative; required and unmet stays on the finished run's status. The reminder `expectation-unstated` asks at completion.
+- Compiler v6 freezes groups and each key's words with the run. Catalog templates carry expectations and example status; a template owns no group.
+- Keys state intent. `native`, `nfs` and `s3` provision nothing. The catalog's singular `expectation` is a different thing: how an activity should appear to a workflow's designer.
+- Trial: `wfrun-trial/scene-world` runs 001, 002, 004, 005. What they found and the limits: `episodes/improve_wfnode/p1/report5.md`, `report.md`.
+
 ## Renaming a managed project (`rename/warden`, 2026-11-02)
 
 **A run keeps the identity it was created with; its current project follows the rename.** Episode:
